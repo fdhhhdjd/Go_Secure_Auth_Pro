@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # TODO: 1. POSTGRESQL
+  postgresql:
+    container_name: postgresql
+    # Image version PG
+    image: postgres:latest
+    # Not restart when db crashes
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}" # Database name from environment variable
+      POSTGRES_USER: "${POSTGRES_USER}" # Username from environment variable
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}" # Password from environment variable
+      PGDATA: "/data/postgres" # Location of the PostgreSQL data files
+    volumes:
+      - db_data/:/var/lib/postgresql/data/postgres:ro # Mount a volume for database data in read-only mode
+      - ./migrations:/docker-entrypoint-initdb.d # Initial SQL script for database setup
+    env_file:
+      - .env # Load environment variables from .env file
+    ports:
+      - "${POSTGRES_PORT_MAPPING}:${POSTGRES_PORT}" # Map the container port to the host port
+    networks:
+      - service_banking-network # Connect to the custom network
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'", # Check if PostgreSQL is ready
+        ]
+      interval: 10s # Interval between health checks
+      timeout: 3s # Health check timeout
+      retries: 3 # Number of retries before marking the service as unhealthy
+
+# Use local driver for the volume
+volumes:
+  db_data:
+    driver: local
+
+# Use bridge network driver
+networks:
+  service_banking-network:
+    driver: bridge

@@ -1,0 +1,11 @@
+CREATE TABLE verification (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    verified_token VARCHAR(150) NOT NULL UNIQUE,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
+    verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
