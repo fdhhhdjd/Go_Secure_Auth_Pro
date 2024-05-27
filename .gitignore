@@ -24,3 +24,6 @@ go.sum
 
 # ENV
 *.env
+
+configs/yaml/config.dev.yaml
+configs/yaml/config.prod.yaml

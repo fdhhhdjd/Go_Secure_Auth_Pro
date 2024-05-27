@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	Cache    CacheConfig
 }
 
 type ServerConfig struct {
@@ -25,6 +26,13 @@ type DatabaseConfig struct {
 	Port     string
 }
 
+type CacheConfig struct {
+	Username string
+	Password string
+	Host     string
+	Port     string
+}
+
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
 	env := os.Getenv("ENV")
@@ -33,6 +41,7 @@ func LoadConfig(path string) (config Config, err error) {
 	} else {
 		viper.SetConfigName("config.prod")
 	}
+	viper.SetConfigType("yaml")
 
 	viper.AutomaticEnv()
 
