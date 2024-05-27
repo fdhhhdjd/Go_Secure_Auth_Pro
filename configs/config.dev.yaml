@@ -1,0 +1,10 @@
+server:
+  host: "localhost"
+  port: 8000
+
+database:
+  username: "taidev"
+  password: "taiheo123@"
+  name: "auth_pro"
+  host: "localhost"
+  port: 54333

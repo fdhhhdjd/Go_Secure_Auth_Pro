@@ -1,8 +1,11 @@
 package main
 
-import "github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/routers"
+import (
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/routers"
+)
 
 func main() {
 	r := routers.NewRouter()
-	r.Run(":8002")
+	r.Run(":" + global.Cfg.Server.Port)
 }
