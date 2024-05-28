@@ -21,7 +21,12 @@ func NewErrorResponse(message string, status int) *ErrorResponse {
 }
 
 // BadRequestError represents a 400 Bad Request error
-func BadRequestError(message string) *ErrorResponse {
+func BadRequestError(messages ...string) *ErrorResponse {
+	message := ""
+	if len(messages) > 0 {
+		message = messages[0]
+	}
+
 	if message == "" {
 		message = GetReasonPhrase(StatusBadRequest)
 	}

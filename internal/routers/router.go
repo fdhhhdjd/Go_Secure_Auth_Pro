@@ -3,7 +3,8 @@ package routers
 import (
 	"os"
 
-	constants "github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func NewRouter() *gin.Engine {
 	//* Auth
 	client := r.Group("/auth")
 	{
-		client.POST("/register", controller.Register)
+		client.POST("/register", utils.AsyncHandler(controller.Register))
 	}
 
 	//* Not Found

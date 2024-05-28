@@ -3,7 +3,7 @@ package configs
 import (
 	"os"
 
-	constants "github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/spf13/viper"
 )
 
