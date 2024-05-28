@@ -98,7 +98,7 @@ func main() {
 		}
 		if info.IsDir() {
 			switch info.Name() {
-			case "vendor", "tmp", "node_modules", ".git":
+			case "vendor", "tmp", "node_modules", ".git", ".vscode", "docs", "tests", "scripts", "github":
 				return filepath.SkipDir
 			default:
 				return watcher.Add(path)
