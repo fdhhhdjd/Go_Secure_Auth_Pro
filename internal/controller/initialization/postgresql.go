@@ -20,6 +20,6 @@ func ConnectPG(cfg configs.Config) (*sql.DB, error) {
 		return nil, err
 	}
 
-	fmt.Println("Successfully connected! 🐘")
+	fmt.Println("SUCCESSFULLY CONNECTED POSTGRESQL 🐘!")
 	return db, nil
 }

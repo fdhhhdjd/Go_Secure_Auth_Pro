@@ -1,4 +1,3 @@
-// constants.go
 package constants
 
 const (

@@ -19,7 +19,7 @@ func ConnectRedis(cfg configs.Config) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	} else {
-		fmt.Println("Connected to Redis:", pong, "🥩")
+		fmt.Println("CONNECTED TO REDIS:", pong, "🥩")
 	}
 	return rdb, nil
 }
