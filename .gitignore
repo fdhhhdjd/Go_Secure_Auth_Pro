@@ -27,3 +27,5 @@ go.sum
 
 configs/yaml/config.dev.yaml
 configs/yaml/config.prod.yaml
+
+tmp

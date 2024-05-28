@@ -9,6 +9,9 @@ DOCKER_COMPOSE := docker-compose.yml
 start:
 	go run ./cmd/server/main.go
 
+dev:
+	go run fsnotify.go
+
 ################# TODO: DOCKER #################
 build:
 	docker-compose -f $(DOCKER_COMPOSE) up -d --build

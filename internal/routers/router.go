@@ -22,7 +22,7 @@ func NewRouter() *gin.Engine {
 }
 
 func Pong(c *gin.Context) {
-	author := "Nguyen Tien Tai"
+	author := "Nguyen Tien Tai123311144446333"
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong" + "----" + author,
 	})
