@@ -1,57 +1,50 @@
-package http
+package response
 
-var httpReasonPhrases = map[int]string{
-	// Informational
-	StatusContinue:           "Continue",
-	StatusSwitchingProtocols: "Switching Protocols",
-
-	// Successful
-	StatusOK:                   "OK",
-	StatusCreated:              "Created",
-	StatusAccepted:             "Accepted",
-	StatusNonAuthoritativeInfo: "Non-Authoritative Information",
-	StatusNoContent:            "No Content",
-	StatusResetContent:         "Reset Content",
-	StatusPartialContent:       "Partial Content",
-
-	// Redirection
-	StatusMultipleChoices:   "Multiple Choices",
-	StatusMovedPermanently:  "Moved Permanently",
-	StatusFound:             "Found",
-	StatusSeeOther:          "See Other",
-	StatusNotModified:       "Not Modified",
-	StatusUseProxy:          "Use Proxy",
-	StatusTemporaryRedirect: "Temporary Redirect",
-
-	// Client Error
-	StatusBadRequest:                   "Bad Request",
-	StatusUnauthorized:                 "Unauthorized",
-	StatusPaymentRequired:              "Payment Required",
-	StatusForbidden:                    "Forbidden",
-	StatusNotFound:                     "Not Found",
-	StatusMethodNotAllowed:             "Method Not Allowed",
-	StatusNotAcceptable:                "Not Acceptable",
-	StatusProxyAuthRequired:            "Proxy Authentication Required",
-	StatusRequestTimeout:               "Request Timeout",
-	StatusConflict:                     "Conflict",
-	StatusGone:                         "Gone",
-	StatusLengthRequired:               "Length Required",
-	StatusPreconditionFailed:           "Precondition Failed",
-	StatusRequestEntityTooLarge:        "Request Entity Too Large",
-	StatusRequestURITooLong:            "Request-URI Too Long",
-	StatusUnsupportedMediaType:         "Unsupported Media Type",
-	StatusRequestedRangeNotSatisfiable: "Requested Range Not Satisfiable",
-	StatusExpectationFailed:            "Expectation Failed",
-
-	// Server Error
-	StatusInternalServerError:     "Internal Server Error",
-	StatusNotImplemented:          "Not Implemented",
-	StatusBadGateway:              "Bad Gateway",
-	StatusServiceUnavailable:      "Service Unavailable",
-	StatusGatewayTimeout:          "Gateway Timeout",
-	StatusHTTPVersionNotSupported: "HTTP Version Not Supported",
+// ReasonPhrases is a map of HTTP status codes to their reason phrases
+var ReasonPhrases = map[int]string{
+	100: "Continue",
+	101: "Switching Protocols",
+	200: "OK",
+	201: "Created",
+	202: "Accepted",
+	203: "Non-Authoritative Information",
+	204: "No Content",
+	205: "Reset Content",
+	206: "Partial Content",
+	300: "Multiple Choices",
+	301: "Moved Permanently",
+	302: "Found",
+	303: "See Other",
+	304: "Not Modified",
+	305: "Use Proxy",
+	307: "Temporary Redirect",
+	400: "Bad Request",
+	401: "Unauthorized",
+	402: "Payment Required",
+	403: "Forbidden",
+	404: "Not Found",
+	405: "Method Not Allowed",
+	406: "Not Acceptable",
+	407: "Proxy Authentication Required",
+	408: "Request Timeout",
+	409: "Conflict",
+	410: "Gone",
+	411: "Length Required",
+	412: "Precondition Failed",
+	413: "Payload Too Large",
+	414: "URI Too Long",
+	415: "Unsupported Media Type",
+	416: "Range Not Satisfiable",
+	417: "Expectation Failed",
+	500: "Internal Server Error",
+	501: "Not Implemented",
+	502: "Bad Gateway",
+	503: "Service Unavailable",
+	504: "Gateway Timeout",
+	505: "HTTP Version Not Supported",
 }
 
+// GetReasonPhrase returns the reason phrase for a given status code
 func GetReasonPhrase(statusCode int) string {
-	return httpReasonPhrases[statusCode]
+	return ReasonPhrases[statusCode]
 }
