@@ -9,8 +9,15 @@ database:
   host: ""
   port:
 
-cache:
+Cache:
   username: ""
   password: ""
   host: ""
   port:
+
+gmail:
+  host: "smtp.gmail.com"
+  port: 465
+  service: "gmail"
+  mail: "example@gmail.com"
+  password: "Nguyen Tien Tai"

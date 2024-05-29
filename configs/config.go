@@ -11,6 +11,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Cache    CacheConfig
+	Gmail    GmailConfig
 }
 
 type ServerConfig struct {
@@ -31,6 +32,14 @@ type CacheConfig struct {
 	Password string
 	Host     string
 	Port     string
+}
+
+type GmailConfig struct {
+	Host     string
+	Port     string
+	Password string
+	Service  string
+	Mail     string
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -1,14 +1,11 @@
 package controller
 
 import (
-	"net/http"
-
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
 )
 
 func Pong(c *gin.Context) {
-	author := "Nguyen Tien Tai123311144446333"
-	c.JSON(http.StatusOK, gin.H{
-		"message": "pong" + "----" + author,
-	})
+	author := "pong" + "----" + "Nguyen Tien Tai"
+	response.Ok(c, "Test", author)
 }
