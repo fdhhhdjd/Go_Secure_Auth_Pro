@@ -21,3 +21,9 @@ type BodyVerificationRequest struct {
 	VerifiedToken string    `json:"verified_token" binding:"required"`
 	ExpiresAt     time.Time `json:"expires_at" binding:"required"`
 }
+
+type UpdateVerificationParams struct {
+	IsVerified bool `json:"is_verified"`
+	IsActive   bool `json:"is_active"`
+	UserID     int  `json:"user_id"`
+}

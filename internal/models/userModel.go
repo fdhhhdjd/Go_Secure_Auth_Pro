@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID                int       `json:"id"`
@@ -29,7 +31,30 @@ type BodyLoginRequest struct {
 }
 
 type RegistrationResponse struct {
-	Email string `json:"email"`
 	ID    int    `json:"id"`
+	Email string `json:"email"`
 	Token string `json:"token"`
+}
+
+type QueryLoginRequest struct {
+	UserId int    `form:"user_id" binding:"required"`
+	Token  string `form:"token" binding:"required"`
+}
+
+type VerificationResponse struct {
+	ID     int    `json:"id"`
+	UserId int    `json:"user_id"`
+	Token  string `json:"token"`
+}
+
+type UpdatePasswordParams struct {
+	PasswordHash string `json:"password_hash"`
+	ID           int    `json:"id"`
+	Username     string `json:"username"`
+	FullName     string `json:"fullname"`
+}
+
+type UpdateUserResponse struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
 }

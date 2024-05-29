@@ -9,3 +9,8 @@ INSERT INTO users (
 ) VALUES (
   $1
 ) RETURNING *;
+
+-- name: UpdatePassword :exec
+UPDATE users
+SET password_hash = $1
+WHERE id = $2;

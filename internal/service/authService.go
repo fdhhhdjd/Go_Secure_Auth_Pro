@@ -10,9 +10,11 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/mail"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Register handles the registration process for a user.
@@ -126,5 +128,103 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		ID:    resultCreateUser.ID,
 		Email: reqBody.Email,
 		Token: token,
+	}
+}
+
+// VerificationAccount is a function that handles the verification of a user's account.
+// It takes a Gin context as input and returns a VerificationResponse pointer.
+// The function first binds the query parameters from the context to a QueryLoginRequest struct.
+// If there is an error in binding the query parameters, it returns a BadRequestError response.
+// It then retrieves the verification details from the database using the GetVerification function.
+// If there is an error in retrieving the verification details, it returns a BadRequestError response.
+// Next, it checks if the retrieved verification details match the query parameters and if the verification is active.
+// If any of the conditions fail, it returns a BadRequestError response.
+// It also checks if the verification token has expired. If it has, it returns an UnauthorizedError response.
+// If all the checks pass, it generates a random password, hashes it, and updates the user's password in the database.
+// It also inserts the old password into the password history table.
+// Then, it updates the verification status of the user in the database.
+// After that, it sends an email to the user with the new password.
+// Finally, it returns a VerificationResponse with the verification details.
+func VerificationAccount(c *gin.Context) *models.VerificationResponse {
+	reqQuery := models.QueryLoginRequest{}
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	GetVerification, err := repo.GetVerification(global.DB, models.QueryLoginRequest{
+		UserId: reqQuery.UserId,
+		Token:  reqQuery.Token,
+	})
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if GetVerification.UserID != reqQuery.UserId || GetVerification.VerifiedToken != reqQuery.Token || !GetVerification.IsActive {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
+		c.JSON(response.StatusBadRequest, response.UnauthorizedError())
+		return nil
+	}
+
+	randomPassword := helpers.GenerateRandomPassword(10)
+
+	salt, hashedPassword, err := helpers.HashPassword(randomPassword, bcrypt.DefaultCost)
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultUpdateUser, errUpdatePassword := repo.UpdatePassword(global.DB, models.UpdatePasswordParams{
+		ID:           reqQuery.UserId,
+		PasswordHash: hashedPassword,
+	})
+
+	if errUpdatePassword != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	errInsertHistoryPassword := repo.InsertPasswordHistory(global.DB, models.InsertPasswordHistoryParams{
+		UserID:       reqQuery.UserId,
+		OldPassword:  salt,
+		ReasonStatus: constants.Verification,
+	})
+
+	if errInsertHistoryPassword != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	err = repo.UpdateVerification(global.DB, models.UpdateVerificationParams{
+		UserID:     reqQuery.UserId,
+		IsVerified: true,
+		IsActive:   false,
+	})
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	//* Send email
+	data := models.EmailData{
+		Title:    "Verification Account Success!",
+		Body:     randomPassword,
+		Template: `<h1>{{.Title}}</h1> <p style="font-size: large;">Thank You, You have verification account success 😊. </br> Password New: <b>{{.Body}}</b></p>`,
+	}
+
+	go pkg.SendGoEmail(resultUpdateUser.Email, data)
+
+	return &models.VerificationResponse{
+		ID:     GetVerification.ID,
+		UserId: GetVerification.UserID,
+		Token:  GetVerification.VerifiedToken,
 	}
 }

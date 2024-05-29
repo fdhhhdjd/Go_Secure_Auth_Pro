@@ -18,6 +18,7 @@ type ServerConfig struct {
 	Host         string
 	Port         string
 	PortFrontend string
+	KeyPassword  string
 }
 
 type DatabaseConfig struct {

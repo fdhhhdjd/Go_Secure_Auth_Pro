@@ -14,3 +14,9 @@ const (
 	ExitData    = 1
 	NotExitData = 0
 )
+
+const (
+	Verification   = 10
+	ResetPassword  = 20
+	ChangePassword = 30
+)
