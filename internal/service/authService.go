@@ -72,17 +72,6 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		return nil
 	}
 
-	if err != nil {
-		//* Error for database
-		errorCreateUser := utils.HandleDBError(err)
-		if errorCreateUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateUser))
-			return nil
-		}
-		c.JSON(response.StatusBadRequest, response.InternalServerError())
-		return nil
-	}
-
 	//* Random Token for user verification
 	token, err := utils.GenerateToken()
 	ExpiresAtToken := time.Now().Add(24 * time.Hour)
