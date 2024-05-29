@@ -1,6 +1,7 @@
 server:
   host: "localhost"
   port: 8000
+  port_frontend: "http://localhost:3000"
 
 database:
   username: ""
