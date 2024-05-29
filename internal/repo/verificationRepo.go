@@ -53,6 +53,9 @@ SET is_verified = $1, is_active = $2
 WHERE user_id = $3
 `
 
+// UpdateVerification updates the verification status and activity status of a user in the database.
+// It takes a database connection and the necessary parameters as arguments.
+// Returns an error if the database update fails.
 func UpdateVerification(db *sql.DB, arg models.UpdateVerificationParams) error {
 	_, err := db.ExecContext(context.Background(), updateVerification, arg.IsVerified, arg.IsActive, arg.UserID)
 	return err
