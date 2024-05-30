@@ -40,8 +40,9 @@ type BodyLoginRequest struct {
 }
 
 type LoginResponse struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
+	ID          int    `json:"id"`
+	Email       string `json:"email"`
+	AccessToken string `json:"accessToken"`
 }
 
 // * --- UpdateUser
@@ -57,4 +58,11 @@ type UpdateUserResponse struct {
 	Id          int    `json:"id"`
 	Email       string `json:"email"`
 	HiddenEmail string `json:"hidden_email"`
+}
+
+//*  --- Payload Tolen
+
+type Payload struct {
+	ID    int    `json:"id"`
+	Email string `json:"email"`
 }

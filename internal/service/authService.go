@@ -277,8 +277,42 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	return &models.LoginResponse{
+	privateKey, publicKey, err := helpers.RandomKeyPair()
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultEncodePublicKey := helpers.EncodePublicKeyToPem(publicKey)
+
+	log.Print(resultEncodePublicKey)
+
+	accessToken, err := helpers.CreateToken(models.Payload{
 		ID:    resultUser.ID,
 		Email: resultUser.Email,
+	}, privateKey, 15*time.Minute)
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	refetchToken, err := helpers.CreateToken(models.Payload{
+		ID:    resultUser.ID,
+		Email: resultUser.Email,
+	}, privateKey, 30*24*time.Hour)
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	log.Print(refetchToken)
+
+	return &models.LoginResponse{
+		ID:          resultUser.ID,
+		Email:       resultUser.Email,
+		AccessToken: accessToken,
 	}
 }
