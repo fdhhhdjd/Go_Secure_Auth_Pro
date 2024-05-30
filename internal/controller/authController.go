@@ -31,3 +31,16 @@ func VerificationAccount(c *gin.Context) error {
 	response.Ok(c, "Verification", result)
 	return nil
 }
+
+// LoginIdentifier handles the login identifier request.
+// It calls the LoginIdentifier function from the service package to perform the login identifier logic.
+// If the result is not nil, it sends a successful response with the result.
+// Returns an error if there was an issue during the process.
+func LoginIdentifier(c *gin.Context) error {
+	result := service.LoginIdentifier(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Login Identifier", result)
+	return nil
+}

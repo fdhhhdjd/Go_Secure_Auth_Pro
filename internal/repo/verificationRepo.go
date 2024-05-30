@@ -25,12 +25,11 @@ func CreateVerification(db *sql.DB, data models.BodyVerificationRequest) (models
 // It returns a models.Verification object and an error if any.
 
 const getVerification = `-- name: GetVerification :one
-SELECT id, user_id, verified_token, is_verified, verified_at, expires_at, is_active, created_at, updated_at FROM verification
+SELECT * FROM verification
 WHERE verified_token = $1 AND user_id = $2 AND is_verified = $3 LIMIT 1
 `
 
-func GetVerification(db *sql.DB, arg models.QueryLoginRequest) (models.Verification, error) {
-
+func GetVerification(db *sql.DB, arg models.QueryVerificationRequest) (models.Verification, error) {
 	row := db.QueryRowContext(context.Background(), getVerification, arg.Token, arg.UserId, false)
 	var i models.Verification
 	err := row.Scan(

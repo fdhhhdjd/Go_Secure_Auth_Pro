@@ -26,8 +26,11 @@ func NewRouter() *gin.Engine {
 	//* Auth
 	client := r.Group("/auth")
 	{
-		client.POST("/register", utils.AsyncHandler(controller.Register))
 		client.GET("/veri-account", utils.AsyncHandler(controller.VerificationAccount))
+
+		client.POST("/register", utils.AsyncHandler(controller.Register))
+		client.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
+
 	}
 
 	//* Not Found

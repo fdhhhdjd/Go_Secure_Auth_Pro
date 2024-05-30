@@ -44,9 +44,9 @@ func HashPassword(password string, saltRounds int) (string, string, error) {
 
 // ComparePassword compares a plain-text password with a hashed password and returns true if they match.
 // It uses bcrypt.CompareHashAndPassword to perform the comparison.
-func ComparePassword(password string, hashedPassword string) bool {
+func ComparePassword(password string, hashedPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	return err == nil
+	return err
 }
 
 // HashedPasswordOld generates a hashed password using bcrypt with the provided password and salt.

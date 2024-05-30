@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -135,13 +136,13 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 // After that, it sends an email to the user with the new password.
 // Finally, it returns a VerificationResponse with the verification details.
 func VerificationAccount(c *gin.Context) *models.VerificationResponse {
-	reqQuery := models.QueryLoginRequest{}
+	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
 
-	GetVerification, err := repo.GetVerification(global.DB, models.QueryLoginRequest{
+	GetVerification, err := repo.GetVerification(global.DB, models.QueryVerificationRequest{
 		UserId: reqQuery.UserId,
 		Token:  reqQuery.Token,
 	})
@@ -170,16 +171,6 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 		return nil
 	}
 
-	resultUpdateUser, errUpdatePassword := repo.UpdatePassword(global.DB, models.UpdatePasswordParams{
-		ID:           reqQuery.UserId,
-		PasswordHash: hashedPassword,
-	})
-
-	if errUpdatePassword != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
-
 	errInsertHistoryPassword := repo.InsertPasswordHistory(global.DB, models.InsertPasswordHistoryParams{
 		UserID:       reqQuery.UserId,
 		OldPassword:  salt,
@@ -202,6 +193,17 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 		return nil
 	}
 
+	resultUpdateUser, errUpdatePassword := repo.UpdatePassword(global.DB, models.UpdatePasswordParams{
+		ID:           reqQuery.UserId,
+		PasswordHash: hashedPassword,
+		HiddenEmail:  helpers.HideEmail(reqQuery.Email),
+	})
+	log.Print(errUpdatePassword)
+	if errUpdatePassword != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
 	//* Send email
 	data := models.EmailData{
 		Title:    "Verification Account Success!",
@@ -215,5 +217,68 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 		ID:     GetVerification.ID,
 		UserId: GetVerification.UserID,
 		Token:  GetVerification.VerifiedToken,
+	}
+}
+
+func LoginIdentifier(c *gin.Context) *models.LoginResponse {
+	//* Get data for body
+	reqBody := models.BodyLoginRequest{}
+
+	//* Check body valid
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+	var resultUser *models.User
+
+	switch helpers.IdentifyType(reqBody.Identifier) {
+	case constants.Email:
+		users, err := repo.JoinUsersWithVerificationByEmail(global.DB, reqBody.Identifier)
+		if err != nil {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		if len(users) == 0 {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		resultUser = &users[0]
+	case constants.Phone:
+		users, err := repo.JoinUsersWithVerificationByPhone(global.DB, reqBody.Identifier)
+		if err != nil {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		if len(users) == 0 {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		resultUser = &users[0]
+	case constants.Username:
+		users, err := repo.JoinUsersWithVerificationByUsername(global.DB, reqBody.Identifier)
+		if err != nil {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		if len(users) == 0 {
+			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			return nil
+		}
+		resultUser = &users[0]
+	default:
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash)
+
+	if errPassword != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	return &models.LoginResponse{
+		ID:    resultUser.ID,
+		Email: resultUser.Email,
 	}
 }

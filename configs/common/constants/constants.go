@@ -20,3 +20,9 @@ const (
 	ResetPassword  = 20
 	ChangePassword = 30
 )
+
+const (
+	Email    = 1
+	Phone    = 2
+	Username = 3
+)

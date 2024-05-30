@@ -27,3 +27,15 @@ type UpdateVerificationParams struct {
 	IsActive   bool `json:"is_active"`
 	UserID     int  `json:"user_id"`
 }
+
+type VerificationResponse struct {
+	ID     int    `json:"id"`
+	UserId int    `json:"user_id"`
+	Token  string `json:"token"`
+}
+
+type QueryVerificationRequest struct {
+	UserId int    `form:"user_id" binding:"required"`
+	Token  string `form:"token" binding:"required"`
+	Email  string `form:"email" binding:"required"`
+}
