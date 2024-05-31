@@ -84,7 +84,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 	}
 
 	//* Link token with user
-	linkVerification := fmt.Sprintf("%s/create/account/%s/%s/%s", global.Cfg.Server.PortFrontend, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(resultCreateUser.ID), token)
+	linkVerification := fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, reqBody.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(resultCreateUser.ID), token)
 
 	verification := models.BodyVerificationRequest{
 		UserId:        resultCreateUser.ID,
