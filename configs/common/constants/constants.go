@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 const (
 	DevEnvironment = "dev"
 )
@@ -29,4 +31,9 @@ const (
 
 const (
 	KeyRandomTokenVerification = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+)
+
+const (
+	ExpiresAccessToken  = 15 * time.Minute
+	ExpiresRefreshToken = 7 * 24 * time.Hour
 )

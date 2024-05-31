@@ -6,6 +6,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,11 @@ func NewRouter() *gin.Engine {
 
 	//* Test
 	r.GET("/ping", controller.Pong)
+
+	//* Middleware
+	r.Use(middlewares.CORSMiddleware())
+	r.Use(middlewares.SecurityHeadersMiddleware())
+	r.Use(middlewares.HeadersMiddlewares())
 
 	//* Auth
 	client := r.Group("/auth")

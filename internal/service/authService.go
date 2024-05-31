@@ -277,37 +277,14 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	privateKey, publicKey, err := helpers.RandomKeyPair()
+	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(resultUser)
 
-	if err != nil {
+	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
-
-	resultEncodePublicKey := helpers.EncodePublicKeyToPem(publicKey)
 
 	log.Print(resultEncodePublicKey)
-
-	accessToken, err := helpers.CreateToken(models.Payload{
-		ID:    resultUser.ID,
-		Email: resultUser.Email,
-	}, privateKey, 15*time.Minute)
-
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
-
-	refetchToken, err := helpers.CreateToken(models.Payload{
-		ID:    resultUser.ID,
-		Email: resultUser.Email,
-	}, privateKey, 30*24*time.Hour)
-
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
-
 	log.Print(refetchToken)
 
 	return &models.LoginResponse{
@@ -315,4 +292,35 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		Email:       resultUser.Email,
 		AccessToken: accessToken,
 	}
+}
+
+func createKeyAndToken(resultUser *models.User) (string, string, string) {
+	privateKey, publicKey, err := helpers.RandomKeyPair()
+
+	if err != nil {
+		return "", "", ""
+	}
+
+	resultEncodePublicKey := helpers.EncodePublicKeyToPem(publicKey)
+	log.Print(resultEncodePublicKey)
+
+	accessToken, err := helpers.CreateToken(models.Payload{
+		ID:    resultUser.ID,
+		Email: resultUser.Email,
+	}, privateKey, constants.ExpiresAccessToken)
+
+	if err != nil {
+		return "", "", ""
+	}
+
+	refetchToken, err := helpers.CreateToken(models.Payload{
+		ID:    resultUser.ID,
+		Email: resultUser.Email,
+	}, privateKey, constants.ExpiresRefreshToken)
+
+	if err != nil {
+		return "", "", ""
+	}
+
+	return accessToken, refetchToken, resultEncodePublicKey
 }
