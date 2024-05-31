@@ -26,3 +26,7 @@ const (
 	Phone    = 2
 	Username = 3
 )
+
+const (
+	KeyRandomTokenVerification = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+)

@@ -1,16 +1,17 @@
 package utils
 
 import (
-	"crypto/rand"
-	"encoding/base64"
+	"math/rand"
+
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 )
 
 func GenerateToken() (string, error) {
+	const letters = constants.KeyRandomTokenVerification
 	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
-	token := base64.StdEncoding.EncodeToString(b)
+	token := string(b)
 	return token, nil
 }
