@@ -208,7 +208,7 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 	data := models.EmailData{
 		Title:    "Verification Account Success!",
 		Body:     randomPassword,
-		Template: `<h1>{{.Title}}</h1> <p style="font-size: large;">Thank You, You have verification account success 😊. </br> Password New: <b>{{.Body}}</b></p>`,
+		Template: `<h1>{{.Title}}</h1> <p style="font-size: large;">Thank You, You have verification account success 😊. <br/> Password New: <b>{{.Body}}</b></p>`,
 	}
 
 	go pkg.SendGoEmail(resultUpdateUser.Email, data)
