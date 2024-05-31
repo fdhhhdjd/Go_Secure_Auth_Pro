@@ -74,7 +74,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 	}
 
 	//* Random Token for user verification
-	token, err := utils.GenerateToken()
+	token, err := helpers.GenerateToken()
 	ExpiresAtToken := time.Now().Add(24 * time.Hour)
 	ExpiresAtTokenUnix := ExpiresAtToken.Unix()
 

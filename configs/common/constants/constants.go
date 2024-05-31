@@ -37,3 +37,7 @@ const (
 	ExpiresAccessToken  = 15 * time.Minute
 	ExpiresRefreshToken = 7 * 24 * time.Hour
 )
+
+const (
+	DeviceId = "X-Device-Id"
+)
