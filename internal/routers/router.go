@@ -35,6 +35,7 @@ func NewRouter() *gin.Engine {
 		client.GET("/veri-account", utils.AsyncHandler(controller.VerificationAccount))
 
 		client.POST("/register", utils.AsyncHandler(controller.Register))
+		client.POST("/resend-link-verification", utils.AsyncHandler(controller.ResendVerificationLink))
 		client.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
 
 	}

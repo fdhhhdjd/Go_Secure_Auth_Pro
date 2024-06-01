@@ -19,6 +19,16 @@ func Register(c *gin.Context) error {
 	return nil
 }
 
+// ResendVerificationLink resends the verification link to the user.
+func ResendVerificationLink(c *gin.Context) error {
+	result := service.ResendVerificationLink(c)
+	if result == nil {
+		return nil
+	}
+	response.Created(c, "Resend Verification", result)
+	return nil
+}
+
 // VerificationAccount handles the verification of user accounts.
 // It calls the service.VerificationAccount function to perform the verification.
 // If the verification is successful, it sends a success response using the response.Ok function.

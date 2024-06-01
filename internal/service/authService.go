@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -55,13 +56,6 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
 			return nil
 		}
-	}
-
-	//* Check account have been block
-	accountBlock := checkUserIsActive(resultDetailUser.IsActive)
-	if accountBlock == nil {
-		c.JSON(response.StatusBadRequest, response.UnauthorizedError("Account has been blocked"))
-		return nil
 	}
 
 	//* Check user have exit to yet
@@ -279,7 +273,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	//* Check account have been block
 	accountBlock := checkUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
-		c.JSON(response.StatusBadRequest, response.UnauthorizedError("Account has been blocked"))
+		c.JSON(response.StatusForbidden, response.ForbiddenError())
 		return nil
 	}
 
@@ -309,6 +303,69 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		DeviceID:    resultInfoDevice.DeviceID,
 		Email:       resultUser.Email,
 		AccessToken: accessToken,
+	}
+}
+
+// ResendVerificationLink is a function that handles the resend verification link feature.
+// It takes a gin.Context object as a parameter and returns a pointer to a models.RegistrationResponse object.
+// The function first retrieves the request body data and checks its validity.
+// If the request body is invalid, it returns a JSON response with a bad request error.
+// Next, it retrieves the user details from the repository based on the provided email.
+// If there is an error retrieving the user details, it returns a JSON response with an internal server error.
+// If the user account is already active, it returns a JSON response with an internal server error indicating that the account is already verified.
+// Otherwise, it creates a verification link token and sends an email to the user's email address.
+// The function then updates the user's device information in the database.
+// Finally, it returns a pointer to a models.RegistrationResponse object containing the user ID, email, and verification token.
+func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
+	//* Get data for body
+	reqBody := models.BodyRegisterRequest{}
+
+	//* Check body valid
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	//* Get detail users
+	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
+
+	log.Print(err)
+
+	// * Check account exit into yet
+	if err != nil {
+		errorDetailUser := utils.HandleDBError(err)
+		//* Error for database
+		if errorDetailUser != "" {
+			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
+			return nil
+		}
+	}
+
+	if resultDetailUser.IsActive {
+		c.JSON(response.StatusBadRequest, response.BadRequestError("Account is verification"))
+		return nil
+	}
+
+	resultVerificationLink := createTokenVerificationLink(c, models.UserIDEmail{
+		ID:    resultDetailUser.ID,
+		Email: reqBody.Email,
+	})
+
+	//* Send email
+	data := models.EmailData{
+		Title:    "Resend Verification User!",
+		Body:     resultVerificationLink.Link,
+		Template: `<h1>{{.Title}}</h1>Verification account: <a href="{{.Body}}">Click here to verify your account</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
+	}
+
+	upsetDevice(c, resultDetailUser.ID, "")
+
+	go pkg.SendGoEmail(reqBody.Email, data)
+
+	return &models.RegistrationResponse{
+		ID:    resultDetailUser.ID,
+		Email: reqBody.Email,
+		Token: resultVerificationLink.Token,
 	}
 }
 
@@ -453,6 +510,9 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail) *model
 
 }
 
+// checkUserIsActive checks if a user is active.
+// If the user is not active, it returns nil.
+// Otherwise, it returns a pointer to the isActive parameter.
 func checkUserIsActive(isActive bool) *bool {
 	if !isActive {
 		return nil
