@@ -41,6 +41,7 @@ type BodyLoginRequest struct {
 
 type LoginResponse struct {
 	ID          int    `json:"id"`
+	DeviceID    string `json:"device_id"`
 	Email       string `json:"email"`
 	AccessToken string `json:"accessToken"`
 }

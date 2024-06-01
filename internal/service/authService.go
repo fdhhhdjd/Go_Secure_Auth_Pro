@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"strconv"
@@ -284,11 +285,26 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	log.Print(resultEncodePublicKey)
-	log.Print(refetchToken)
+	deviceID, _ := c.Get("device_id")
+
+	ip := sql.NullString{String: c.ClientIP(), Valid: true}
+
+	resultInfoDevice, err := repo.UpsetDevice(global.DB, models.UpsetDeviceParams{
+		UserID:     resultUser.ID,
+		DeviceID:   deviceID.(string),
+		DeviceType: c.Request.UserAgent(),
+		Ip:         ip,
+		PublicKey:  resultEncodePublicKey,
+	})
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
 
 	return &models.LoginResponse{
 		ID:          resultUser.ID,
+		DeviceID:    resultInfoDevice.DeviceID,
 		Email:       resultUser.Email,
 		AccessToken: accessToken,
 	}
@@ -302,7 +318,6 @@ func createKeyAndToken(resultUser *models.User) (string, string, string) {
 	}
 
 	resultEncodePublicKey := helpers.EncodePublicKeyToPem(publicKey)
-	log.Print(resultEncodePublicKey)
 
 	accessToken, err := helpers.CreateToken(models.Payload{
 		ID:    resultUser.ID,
