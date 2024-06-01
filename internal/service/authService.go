@@ -3,7 +3,6 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -205,7 +204,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 		PasswordHash: hashedPassword,
 		HiddenEmail:  helpers.HideEmail(reqQuery.Email),
 	})
-	log.Print(errUpdatePassword)
+
 	if errUpdatePassword != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
