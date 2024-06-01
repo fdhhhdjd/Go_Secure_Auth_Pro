@@ -57,6 +57,13 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		}
 	}
 
+	//* Check account have been block
+	accountBlock := checkUserIsActive(resultDetailUser.IsActive)
+	if accountBlock == nil {
+		c.JSON(response.StatusBadRequest, response.UnauthorizedError("Account has been blocked"))
+		return nil
+	}
+
 	//* Check user have exit to yet
 	if resultDetailUser.ID != constants.NotExitData {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
@@ -76,42 +83,15 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		return nil
 	}
 
-	//* Random Token for user verification
-	token, err := helpers.GenerateToken()
-	ExpiresAtToken := time.Now().Add(24 * time.Hour)
-	ExpiresAtTokenUnix := ExpiresAtToken.Unix()
-
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
-
-	//* Link token with user
-	linkVerification := fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, reqBody.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(resultCreateUser.ID), token)
-
-	verification := models.BodyVerificationRequest{
-		UserId:        resultCreateUser.ID,
-		VerifiedToken: token,
-		ExpiresAt:     ExpiresAtToken,
-	}
-
-	_, err = repo.CreateVerification(global.DB, verification)
-
-	if err != nil {
-		//* Error for database
-		errorCreateVerification := utils.HandleDBError(err)
-		if errorCreateVerification != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateVerification))
-			return nil
-		}
-		c.JSON(response.StatusBadRequest, response.InternalServerError())
-		return nil
-	}
+	resultVerificationLink := createTokenVerificationLink(c, models.UserIDEmail{
+		ID:    resultCreateUser.ID,
+		Email: reqBody.Email,
+	})
 
 	//* Send email
 	data := models.EmailData{
 		Title:    "Register User!",
-		Body:     linkVerification,
+		Body:     resultVerificationLink.Link,
 		Template: `<h1>{{.Title}}</h1>Verification account: <a href="{{.Body}}">Click here to verify your account</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
 	}
 
@@ -122,7 +102,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 	return &models.RegistrationResponse{
 		ID:    resultCreateUser.ID,
 		Email: reqBody.Email,
-		Token: token,
+		Token: resultVerificationLink.Token,
 	}
 }
 
@@ -203,6 +183,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 		ID:           reqQuery.UserId,
 		PasswordHash: hashedPassword,
 		HiddenEmail:  helpers.HideEmail(reqQuery.Email),
+		IsActive:     true,
 	})
 
 	if errUpdatePassword != nil {
@@ -292,6 +273,13 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		resultUser = &users[0]
 	default:
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	//* Check account have been block
+	accountBlock := checkUserIsActive(resultUser.IsActive)
+	if accountBlock == nil {
+		c.JSON(response.StatusBadRequest, response.UnauthorizedError("Account has been blocked"))
 		return nil
 	}
 
@@ -418,4 +406,56 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 		return nil
 	}
 	return &resultInfoDevice
+}
+
+// createTokenVerificationLink generates a token verification link for the given user.
+// It creates a random token for user verification, links the token with the user,
+// and returns a TokenVerificationLink containing the token and the verification link.
+// If any error occurs during token generation or database operations, it returns nil.
+// The function takes a gin.Context and a user models.UserIDEmail as parameters.
+func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail) *models.TokenVerificationLink {
+	//* Random Token for user verification
+	token, err := helpers.GenerateToken()
+	ExpiresAtToken := time.Now().Add(24 * time.Hour)
+	ExpiresAtTokenUnix := ExpiresAtToken.Unix()
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	//* Link token with user
+	linkVerification := fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, user.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+
+	verification := models.BodyVerificationRequest{
+		UserId:        user.ID,
+		VerifiedToken: token,
+		ExpiresAt:     ExpiresAtToken,
+	}
+
+	_, err = repo.CreateVerification(global.DB, verification)
+
+	if err != nil {
+		//* Error for database
+		errorCreateVerification := utils.HandleDBError(err)
+		if errorCreateVerification != "" {
+			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateVerification))
+			return nil
+		}
+		c.JSON(response.StatusBadRequest, response.InternalServerError())
+		return nil
+	}
+
+	return &models.TokenVerificationLink{
+		Token: token,
+		Link:  linkVerification,
+	}
+
+}
+
+func checkUserIsActive(isActive bool) *bool {
+	if !isActive {
+		return nil
+	}
+	return &isActive
 }

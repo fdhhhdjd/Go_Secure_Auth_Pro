@@ -55,14 +55,14 @@ func CreateUser(db *sql.DB, email string) (models.User, error) {
 // It returns an error if the update operation fails.
 const updatePassword = `
 UPDATE users
-SET password_hash = $1, hidden_email = $3
-WHERE id = $2
-RETURNING id, email, hidden_email
+SET password_hash = $1, hidden_email = $2, is_active = true
+WHERE id = $3
+RETURNING id, email, hidden_email, is_active
 `
 
 func UpdatePassword(db *sql.DB, arg models.UpdatePasswordParams) (models.UpdateUserResponse, error) {
 	var i models.UpdateUserResponse
-	err := db.QueryRowContext(context.Background(), updatePassword, arg.PasswordHash, arg.ID, arg.HiddenEmail).Scan(&i.Id, &i.Email, &i.HiddenEmail)
+	err := db.QueryRowContext(context.Background(), updatePassword, arg.PasswordHash, arg.HiddenEmail, arg.ID).Scan(&i.Id, &i.Email, &i.HiddenEmail, &i.IsActive)
 	return i, err
 }
 

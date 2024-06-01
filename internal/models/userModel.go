@@ -32,6 +32,10 @@ type RegistrationResponse struct {
 	Email string `json:"email"`
 	Token string `json:"token"`
 }
+type TokenVerificationLink struct {
+	Token string
+	Link  string
+}
 
 // * --- Login
 type BodyLoginRequest struct {
@@ -53,12 +57,14 @@ type UpdatePasswordParams struct {
 	Username     string `json:"username"`
 	FullName     string `json:"fullname"`
 	HiddenEmail  string `json:"hidden_email"`
+	IsActive     bool   `json:"is_active"`
 }
 
 type UpdateUserResponse struct {
 	Id          int    `json:"id"`
 	Email       string `json:"email"`
 	HiddenEmail string `json:"hidden_email"`
+	IsActive    bool   `json:"is_active"`
 }
 
 // *  --- Payload Token
