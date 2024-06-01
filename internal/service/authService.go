@@ -221,6 +221,14 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 	}
 }
 
+// LoginIdentifier is a function that handles the login process for a user based on their identifier (email, phone, or username).
+// It takes a *gin.Context object as a parameter and returns a *models.LoginResponse object.
+// The function first retrieves the request body data and checks its validity.
+// Then, based on the identifier type, it queries the database to find the user.
+// If a user is found, it compares the provided password with the user's stored password hash.
+// If the passwords match, it creates an access token, a refresh token, and encodes the public key.
+// It then saves the device information and returns a LoginResponse object with the user's ID, device ID, email, and access token.
+// If any error occurs during the process, it returns a nil value and sends a bad request response to the client.
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	//* Get data for body
 	reqBody := models.BodyLoginRequest{}
@@ -310,6 +318,9 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	}
 }
 
+// createKeyAndToken generates a random key pair, encodes the public key to PEM format,
+// and creates access and refresh tokens using the provided user information and private key.
+// It returns the access token, refresh token, and encoded public key.
 func createKeyAndToken(resultUser *models.User) (string, string, string) {
 	privateKey, publicKey, err := helpers.RandomKeyPair()
 
