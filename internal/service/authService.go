@@ -4,7 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
@@ -221,14 +224,10 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 	}
 }
 
-// LoginIdentifier is a function that handles the login process for a user based on their identifier (email, phone, or username).
-// It takes a *gin.Context object as a parameter and returns a *models.LoginResponse object.
-// The function first retrieves the request body data and checks its validity.
-// Then, based on the identifier type, it queries the database to find the user.
-// If a user is found, it compares the provided password with the user's stored password hash.
-// If the passwords match, it creates an access token, a refresh token, and encodes the public key.
-// It then saves the device information and returns a LoginResponse object with the user's ID, device ID, email, and access token.
-// If any error occurs during the process, it returns a nil value and sends a bad request response to the client.
+// LoginIdentifier handles the login process for identifying the user based on the provided identifier (email, phone, or username).
+// It retrieves the user information from the database based on the identifier and verifies the password.
+// If the login is successful, it generates access and refresh tokens, updates the device information, and sets a cookie with the refresh token.
+// Finally, it returns a LoginResponse containing the user ID, device ID, email, and access token.
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	//* Get data for body
 	reqBody := models.BodyLoginRequest{}
@@ -310,6 +309,8 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
+	setCookie(c, constants.UserLoginKey, refetchToken, "/cookie", constants.AgeCookie)
+
 	return &models.LoginResponse{
 		ID:          resultUser.ID,
 		DeviceID:    resultInfoDevice.DeviceID,
@@ -349,4 +350,37 @@ func createKeyAndToken(resultUser *models.User) (string, string, string) {
 	}
 
 	return accessToken, refetchToken, resultEncodePublicKey
+}
+
+// setCookie sets a cookie in the response with the specified name, value, path, and maxAge.
+// The domain is determined based on the environment and the request's host.
+// The secure flag is set based on whether the environment is not the development environment.
+// The httpOnly flag is set to true if the environment is not the development environment.
+func setCookie(c *gin.Context, name string, value string, path string, maxAge int) {
+	// Set up environment-related variables
+	nodeEnv := os.Getenv("ENV")
+	domain := global.Cfg.Server.Host
+	secure := nodeEnv != constants.DevEnvironment
+	httpOnly := false
+
+	if nodeEnv != constants.DevEnvironment {
+		hostWithPort := c.Request.Host
+		parts := strings.Split(hostWithPort, ":")
+		domain = parts[0]
+		httpOnly = true
+	}
+
+	// Create a new cookie
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     path,
+		Domain:   domain,
+		MaxAge:   maxAge,
+		Secure:   secure,
+		HttpOnly: httpOnly,
+	}
+
+	// Set the cookie in the response
+	http.SetCookie(c.Writer, cookie)
 }

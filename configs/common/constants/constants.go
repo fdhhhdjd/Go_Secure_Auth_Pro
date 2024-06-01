@@ -39,5 +39,13 @@ const (
 )
 
 const (
+	AgeCookie = 7 * 24 * 60 * 60
+)
+
+const (
 	DeviceId = "X-Device-Id"
+)
+
+const (
+	UserLoginKey = "user_login"
 )
