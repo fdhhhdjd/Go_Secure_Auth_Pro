@@ -74,6 +74,8 @@ WHERE verification.is_verified = true
 AND users.email = $1
 `
 
+// JoinUsersWithVerificationByEmail joins the user table with the verification table based on the provided email.
+// It returns a slice of User models and an error if any occurred.
 func JoinUsersWithVerificationByEmail(db *sql.DB, email string) ([]models.User, error) {
 	rows, err := db.QueryContext(context.Background(), joinUsersWithVerificationByEmail, email)
 	if err != nil {
@@ -121,6 +123,10 @@ WHERE verification.is_verified = true
 AND users.phone = $1
 `
 
+// JoinUsersWithVerificationByPhone retrieves a list of users along with their verification information
+// based on the provided phone number.
+// It takes a database connection `db` and a `phone` string as input parameters.
+// It returns a slice of `models.User` and an error if any.
 func JoinUsersWithVerificationByPhone(db *sql.DB, phone string) ([]models.User, error) {
 	rows, err := db.QueryContext(context.Background(), joinUsersWithVerificationByPhone, phone)
 	if err != nil {
@@ -167,6 +173,8 @@ WHERE verification.is_verified = true
 AND users.username = $1
 `
 
+// JoinUsersWithVerificationByUsername joins the user table with the verification table based on the provided username.
+// It returns a slice of models.User and an error if any.
 func JoinUsersWithVerificationByUsername(db *sql.DB, username string) ([]models.User, error) {
 	rows, err := db.QueryContext(context.Background(), joinUsersWithVerificationByUsername, username)
 	if err != nil {
