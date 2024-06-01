@@ -13,7 +13,7 @@ type Device struct {
 	LoggedInAt  time.Time      `json:"logged_in_at"`
 	LoggedOutAt sql.NullTime   `json:"logged_out_at"`
 	Ip          sql.NullString `json:"ip"`
-	PublicKey   string         `json:"public_key"`
+	PublicKey   sql.NullString `json:"public_key"`
 	IsActive    bool           `json:"is_active"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

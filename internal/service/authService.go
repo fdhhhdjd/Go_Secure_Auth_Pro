@@ -116,6 +116,8 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		Template: `<h1>{{.Title}}</h1>Verification account: <a href="{{.Body}}">Click here to verify your account</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
 	}
 
+	upsetDevice(c, resultCreateUser.ID, "")
+
 	go pkg.SendGoEmail(reqBody.Email, data)
 
 	return &models.RegistrationResponse{
@@ -126,20 +128,21 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 }
 
 // VerificationAccount is a function that handles the verification of a user's account.
-// It takes a Gin context as input and returns a VerificationResponse pointer.
-// The function first binds the query parameters from the context to a QueryLoginRequest struct.
+// It takes a gin.Context object as a parameter and returns a pointer to a models.LoginResponse object.
+// The function first binds the query parameters from the request to a models.QueryVerificationRequest object.
 // If there is an error in binding the query parameters, it returns a BadRequestError response.
-// It then retrieves the verification details from the database using the GetVerification function.
-// If there is an error in retrieving the verification details, it returns a BadRequestError response.
-// Next, it checks if the retrieved verification details match the query parameters and if the verification is active.
-// If any of the conditions fail, it returns a BadRequestError response.
-// It also checks if the verification token has expired. If it has, it returns an UnauthorizedError response.
-// If all the checks pass, it generates a random password, hashes it, and updates the user's password in the database.
-// It also inserts the old password into the password history table.
-// Then, it updates the verification status of the user in the database.
-// After that, it sends an email to the user with the new password.
-// Finally, it returns a VerificationResponse with the verification details.
-func VerificationAccount(c *gin.Context) *models.VerificationResponse {
+// It then calls the GetVerification function from the repo package to retrieve the verification details.
+// If there is an error in retrieving the verification details or if the retrieved details do not match the request parameters,
+// it returns a BadRequestError response.
+// If the verification token has expired, it returns an UnauthorizedError response.
+// It generates a random password, hashes it, and inserts the old password into the password history.
+// It updates the verification status of the user to true and deactivates the verification token.
+// It updates the user's password with the new hashed password and hidden email.
+// It creates an access token, refetch token, and encodes the public key.
+// It updates the user's device information and sets a cookie with the refetch token.
+// It sends an email to the user with the new password.
+// Finally, it returns a LoginResponse object with the user's ID, device ID, email, and access token.
+func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
@@ -208,6 +211,20 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 		return nil
 	}
 
+	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
+		ID:    resultUpdateUser.Id,
+		Email: resultUpdateUser.Email,
+	})
+
+	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultInfoDevice := upsetDevice(c, resultUpdateUser.Id, resultEncodePublicKey)
+
+	setCookie(c, constants.UserLoginKey, refetchToken, "/cookie", constants.AgeCookie)
+
 	//* Send email
 	data := models.EmailData{
 		Title:    "Verification Account Success!",
@@ -217,10 +234,11 @@ func VerificationAccount(c *gin.Context) *models.VerificationResponse {
 
 	go pkg.SendGoEmail(resultUpdateUser.Email, data)
 
-	return &models.VerificationResponse{
-		ID:     GetVerification.ID,
-		UserId: GetVerification.UserID,
-		Token:  GetVerification.VerifiedToken,
+	return &models.LoginResponse{
+		ID:          resultUpdateUser.Id,
+		DeviceID:    resultInfoDevice.DeviceID,
+		Email:       resultUpdateUser.Email,
+		AccessToken: accessToken,
 	}
 }
 
@@ -285,29 +303,17 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(resultUser)
+	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
+		ID:    resultUser.ID,
+		Email: resultUser.Email,
+	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
 
-	deviceID, _ := c.Get("device_id")
-
-	ip := sql.NullString{String: c.ClientIP(), Valid: true}
-
-	resultInfoDevice, err := repo.UpsetDevice(global.DB, models.UpsetDeviceParams{
-		UserID:     resultUser.ID,
-		DeviceID:   deviceID.(string),
-		DeviceType: c.Request.UserAgent(),
-		Ip:         ip,
-		PublicKey:  resultEncodePublicKey,
-	})
-
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
+	resultInfoDevice := upsetDevice(c, resultUser.ID, resultEncodePublicKey)
 
 	setCookie(c, constants.UserLoginKey, refetchToken, "/cookie", constants.AgeCookie)
 
@@ -322,7 +328,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 // createKeyAndToken generates a random key pair, encodes the public key to PEM format,
 // and creates access and refresh tokens using the provided user information and private key.
 // It returns the access token, refresh token, and encoded public key.
-func createKeyAndToken(resultUser *models.User) (string, string, string) {
+func createKeyAndToken(resultUser models.UserIDEmail) (string, string, string) {
 	privateKey, publicKey, err := helpers.RandomKeyPair()
 
 	if err != nil {
@@ -383,4 +389,34 @@ func setCookie(c *gin.Context, name string, value string, path string, maxAge in
 
 	// Set the cookie in the response
 	http.SetCookie(c.Writer, cookie)
+}
+
+// upsetDevice updates or inserts a new device record in the database for the given user.
+// It takes a gin.Context, user ID, and encoded public key as input parameters.
+// It returns a pointer to the updated device information if successful, otherwise it returns nil.
+func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.Device {
+	deviceID, _ := c.Get("device_id")
+
+	ip := sql.NullString{String: c.ClientIP(), Valid: true}
+
+	var publicKey string
+	if resultEncodePublicKey != "" {
+		publicKey = resultEncodePublicKey
+	} else {
+		publicKey = ""
+	}
+
+	resultInfoDevice, err := repo.UpsetDevice(global.DB, models.UpsetDeviceParams{
+		UserID:     id,
+		DeviceID:   deviceID.(string),
+		DeviceType: c.Request.UserAgent(),
+		Ip:         ip,
+		PublicKey:  publicKey,
+	})
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+	return &resultInfoDevice
 }

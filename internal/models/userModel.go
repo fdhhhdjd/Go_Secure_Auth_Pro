@@ -61,9 +61,13 @@ type UpdateUserResponse struct {
 	HiddenEmail string `json:"hidden_email"`
 }
 
-//*  --- Payload Tolen
-
+// *  --- Payload Token
 type Payload struct {
 	ID    int    `json:"id"`
 	Email string `json:"email"`
+}
+
+type UserIDEmail struct {
+	ID    int
+	Email string
 }
