@@ -54,3 +54,14 @@ func LoginIdentifier(c *gin.Context) error {
 	response.Ok(c, "Login Identifier", result)
 	return nil
 }
+
+// ForgetPassword handles the forget password functionality.
+// It calls the service to process the forget password request and returns the result.
+func ForgetPassword(c *gin.Context) error {
+	result := service.ForgetPassword(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Forget Password", result)
+	return nil
+}

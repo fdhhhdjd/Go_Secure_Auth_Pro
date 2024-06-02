@@ -79,10 +79,12 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		return nil
 	}
 
+	ExpiresAtToken := time.Now().Add(24 * time.Hour)
+
 	resultVerificationLink := createTokenVerificationLink(c, models.UserIDEmail{
 		ID:    resultCreateUser.ID,
 		Email: reqBody.Email,
-	})
+	}, constants.StatusRegister, ExpiresAtToken)
 
 	//* Send email
 	data := models.EmailData{
@@ -230,9 +232,6 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 // It then updates the user's device information in the database and sets a cookie with the refresh token.
 // Finally, it returns a LoginResponse object containing the user ID, device ID, email, and access token.
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
-	//* Get data for body
-	reqBody := models.BodyLoginRequest{}
-
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
 
@@ -241,6 +240,9 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
 		return nil
 	}
+
+	//* Get data for body
+	reqBody := models.BodyLoginRequest{}
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -395,7 +397,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	resultVerificationLink := createTokenVerificationLink(c, models.UserIDEmail{
 		ID:    resultDetailUser.ID,
 		Email: reqBody.Email,
-	})
+	}, constants.StatusResend, time.Now().Add(24*time.Hour))
 
 	//* Send email
 	data := models.EmailData{
@@ -412,6 +414,66 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 		ID:    resultDetailUser.ID,
 		Email: reqBody.Email,
 		Token: resultVerificationLink.Token,
+	}
+}
+
+// ForgetPassword handles the forget password functionality.
+// It checks if the user is marked as spam, binds the request body,
+// retrieves the user details from the database, and sends a forget password link via email.
+// If successful, it returns the user ID, email, and forget password token.
+// If any error occurs, it returns nil.
+func ForgetPassword(c *gin.Context) *models.ForgetResponse {
+	// * Check UserSpam
+	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyForget, constants.RequestThresholdForget)
+
+	if resultSpam.IsSpam {
+		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
+		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		return nil
+	}
+
+	reqBody := models.BodyForgetRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
+
+	if err != nil {
+		errorDetailUser := utils.HandleDBError(err)
+		//* Error for database
+		if errorDetailUser != "" {
+			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
+			return nil
+		}
+	}
+
+	if !resultDetailUser.IsActive {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	ExpiresAtToken := time.Now().Add(15 * time.Minute)
+	resultForgetLink := createTokenVerificationLink(c, models.UserIDEmail{
+		ID:    resultDetailUser.ID,
+		Email: reqBody.Email,
+	}, constants.StatusForget, ExpiresAtToken)
+
+	//* Send email
+	data := models.EmailData{
+		Title:    "Forget Password!",
+		Body:     resultForgetLink.Link,
+		Template: `<h1>{{.Title}}</h1>Forget account: <a href="{{.Body}}">Click here to reset password your account</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
+	}
+
+	go pkg.SendGoEmail(reqBody.Email, data)
+
+	return &models.ForgetResponse{
+		Id:    resultDetailUser.ID,
+		Email: resultDetailUser.Email,
+		Token: resultForgetLink.Token,
 	}
 }
 
@@ -516,11 +578,10 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 // and returns a TokenVerificationLink containing the token and the verification link.
 // If any error occurs during token generation or database operations, it returns nil.
 // The function takes a gin.Context and a user models.UserIDEmail as parameters.
-func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail) *models.TokenVerificationLink {
+func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status int, expiresToken time.Time) *models.TokenVerificationLink {
 	//* Random Token for user verification
 	token, err := helpers.GenerateToken()
-	ExpiresAtToken := time.Now().Add(24 * time.Hour)
-	ExpiresAtTokenUnix := ExpiresAtToken.Unix()
+	ExpiresAtTokenUnix := expiresToken.Unix()
 
 	if err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
@@ -528,12 +589,17 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail) *model
 	}
 
 	//* Link token with user
-	linkVerification := fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, user.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+	var linkVerification string
+	if status == constants.StatusRegister || status == constants.StatusResend {
+		linkVerification = fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, user.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+	} else {
+		linkVerification = fmt.Sprintf("%s/reset/password/%s/%s/%s", global.Cfg.Server.PortFrontend, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+	}
 
 	verification := models.BodyVerificationRequest{
 		UserId:        user.ID,
 		VerifiedToken: token,
-		ExpiresAt:     ExpiresAtToken,
+		ExpiresAt:     expiresToken,
 	}
 
 	_, err = repo.CreateVerification(global.DB, verification)

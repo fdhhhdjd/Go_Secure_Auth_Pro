@@ -83,3 +83,14 @@ type SpamUserResponse struct {
 	ExpiredSpam int  `json:"expired_spam"`
 	IsSpam      bool `json:"is_spam"`
 }
+
+// * --- Forget Password
+type ForgetResponse struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
+type BodyForgetRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}

@@ -49,3 +49,9 @@ const (
 const (
 	UserLoginKey = "user_login"
 )
+
+const (
+	StatusForget   = 10
+	StatusRegister = 20
+	StatusResend   = 30
+)
