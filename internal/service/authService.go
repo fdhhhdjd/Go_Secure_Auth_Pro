@@ -477,6 +477,17 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	}
 }
 
+func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
+	reqBody := models.BodyForgetRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	return &models.ResetPasswordResponse{}
+}
+
 // createKeyAndToken generates a random key pair, encodes the public key to PEM format,
 // and creates access and refresh tokens using the provided user information and private key.
 // It returns the access token, refresh token, and encoded public key.

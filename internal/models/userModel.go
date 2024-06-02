@@ -94,3 +94,15 @@ type ForgetResponse struct {
 type BodyForgetRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }
+
+// * --- Reset Password
+type BodyResetPasswordRequest struct {
+	Token    string `json:"token" binding:"required"`
+	UserId   int    `json:"user_id" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type ResetPasswordResponse struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
+}

@@ -65,3 +65,14 @@ func ForgetPassword(c *gin.Context) error {
 	response.Ok(c, "Forget Password", result)
 	return nil
 }
+
+// ResetPassword handles the reset password functionality.
+// It calls the service to reset the password and returns the result.
+func ResetPassword(c *gin.Context) error {
+	result := service.ResetPassword(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Reset Password", result)
+	return nil
+}
