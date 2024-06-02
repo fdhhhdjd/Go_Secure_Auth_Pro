@@ -15,7 +15,7 @@ type User struct {
 	HiddenEmail       sql.NullString `json:"hidden_email"`
 	Avatar            sql.NullString `json:"avatar"`
 	Gender            sql.NullInt16  `json:"gender"`
-	PasswordHash      string         `json:"password_hash"`
+	PasswordHash      sql.NullString `json:"password_hash"`
 	TwoFactorEnabled  bool           `json:"two_factor_enabled"`
 	IsActive          bool           `json:"is_active"`
 	CreatedAt         time.Time      `json:"created_at"`
@@ -76,4 +76,10 @@ type Payload struct {
 type UserIDEmail struct {
 	ID    int
 	Email string
+}
+
+// * --- Spam user Redis
+type SpamUserResponse struct {
+	ExpiredSpam int  `json:"expired_spam"`
+	IsSpam      bool `json:"is_spam"`
 }

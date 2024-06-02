@@ -59,3 +59,15 @@ func UpdateVerification(db *sql.DB, arg models.UpdateVerificationParams) error {
 	_, err := db.ExecContext(context.Background(), updateVerification, arg.IsVerified, arg.IsActive, arg.UserID)
 	return err
 }
+
+const getVerificationByUserId = `-- name: GetVerificationByUserId :one
+SELECT COUNT(*) FROM verification
+WHERE user_id = $1 AND is_verified = false
+`
+
+func GetVerificationByUserId(db *sql.DB, userID int) (int, error) {
+	row := db.QueryRowContext(context.Background(), getVerificationByUserId, userID)
+	var count int
+	err := row.Scan(&count)
+	return count, err
+}

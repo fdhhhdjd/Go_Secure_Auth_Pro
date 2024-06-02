@@ -11,3 +11,7 @@ WHERE verified_token = $1 AND user_id = $2 LIMIT 1;
 UPDATE verification
 SET is_verified = $1, is_active = $2
 WHERE user_id = $3;
+
+-- name: GetVerificationByUserId :one
+SELECT COUNT(*) FROM verification
+WHERE user_id = $1 AND is_verified = false;

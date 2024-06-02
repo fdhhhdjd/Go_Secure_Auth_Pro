@@ -15,6 +15,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo/redis"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/mail"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
@@ -23,19 +24,20 @@ import (
 )
 
 // Register handles the registration process for a user.
-// It receives a Gin context object and returns a RegistrationResponse pointer.
-// The function first retrieves the request body data and checks its validity.
-// If the body is invalid, it returns a BadRequestError response.
-// Next, it checks if the user already exists in the database.
-// If the user exists, it returns a BadRequestError response.
-// If the user does not exist, it creates a new user in the database.
-// If there is an error during user creation, it returns an InternalServerError response.
-// After creating the user, it generates a random verification token and sets its expiration time.
-// It then links the token with the user and saves the verification details in the database.
-// If there is an error during verification creation, it returns an InternalServerError response.
-// Finally, it sends an email to the user with the verification link.
-// The function returns a RegistrationResponse object containing the user ID, email, and token.
+// It checks for user spam, validates the request body, checks if the user already exists,
+// creates a new user if not, generates a verification link, sends an email for verification,
+// and returns the registration response containing the user ID, email, and verification token.
+// If any error occurs during the process, it returns an appropriate error response.
 func Register(c *gin.Context) *models.RegistrationResponse {
+	// * Check UserSpam
+	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKey, constants.RequestThreshold)
+
+	if resultSpam.IsSpam {
+		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
+		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		return nil
+	}
+
 	//* Get data for body
 	reqBody := models.BodyRegisterRequest{}
 
@@ -73,7 +75,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateUser))
 			return nil
 		}
-		c.JSON(response.StatusBadRequest, response.InternalServerError())
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
 
@@ -216,13 +218,29 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	}
 }
 
-// LoginIdentifier handles the login process for identifying the user based on the provided identifier (email, phone, or username).
-// It retrieves the user information from the database based on the identifier and verifies the password.
-// If the login is successful, it generates access and refresh tokens, updates the device information, and sets a cookie with the refresh token.
-// Finally, it returns a LoginResponse containing the user ID, device ID, email, and access token.
+// LoginIdentifier handles the login process for the user. It takes a gin.Context object as a parameter and returns a pointer to a models.LoginResponse struct.
+// The function first checks if the user is marked as spam based on the request threshold. If the user is marked as spam, it returns an error response.
+// Then, it checks the validity of the request body and binds it to the reqBody variable. If the request body is invalid, it returns an error response.
+// Next, it identifies the type of identifier (email, phone, or username) and retrieves the user information from the database based on the identifier.
+// If no user is found for the given identifier, it returns an error response.
+// After that, it checks if the user account is active. If the account is blocked, it returns a forbidden error response.
+// Then, it compares the provided password with the hashed password stored in the database. If the passwords do not match, it returns an error response.
+// If the password is correct, it creates an access token, a refresh token, and encodes the public key.
+// If any of the tokens or the encoded public key is empty, it returns an error response.
+// It then updates the user's device information in the database and sets a cookie with the refresh token.
+// Finally, it returns a LoginResponse object containing the user ID, device ID, email, and access token.
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	//* Get data for body
 	reqBody := models.BodyLoginRequest{}
+
+	// * Check UserSpam
+	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
+
+	if resultSpam.IsSpam {
+		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
+		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		return nil
+	}
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -277,7 +295,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash)
+	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash.String)
 
 	if errPassword != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
@@ -306,16 +324,19 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	}
 }
 
-// ResendVerificationLink is a function that handles the resend verification link feature.
+// ResendVerificationLink is a function that handles the resend verification link request.
 // It takes a gin.Context object as a parameter and returns a pointer to a models.RegistrationResponse object.
 // The function first retrieves the request body data and checks its validity.
-// If the request body is invalid, it returns a JSON response with a bad request error.
-// Next, it retrieves the user details from the repository based on the provided email.
-// If there is an error retrieving the user details, it returns a JSON response with an internal server error.
-// If the user account is already active, it returns a JSON response with an internal server error indicating that the account is already verified.
-// Otherwise, it creates a verification link token and sends an email to the user's email address.
-// The function then updates the user's device information in the database.
-// Finally, it returns a pointer to a models.RegistrationResponse object containing the user ID, email, and verification token.
+// If the request body is invalid, it returns a bad request error response.
+// It then checks if the user is marked as spam based on the verification link requests made.
+// If the user is marked as spam, it returns a bad request error response with a message indicating the blocking duration.
+// Next, it retrieves the details of the user based on the provided email.
+// If there is an error retrieving the user details, it returns an appropriate error response.
+// It then counts the number of verification link requests made by the user.
+// If the user has reached the maximum number of allowed verification link requests, it returns a bad request error response.
+// If the user's account is already active, it returns a bad request error response indicating that the account is already verified.
+// It then generates a verification link token for the user and sends an email containing the verification link.
+// Finally, it returns a registration response object containing the user ID, email, and verification token.
 func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	//* Get data for body
 	reqBody := models.BodyRegisterRequest{}
@@ -325,11 +346,18 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
+	// * Check UserSpam
+	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLinkVerification, constants.RequestThresholdLinkVerification)
+
+	if resultSpam.IsSpam {
+		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
+		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		return nil
+	}
 
 	//* Get detail users
 	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
-
-	log.Print(err)
+	log.Print("OK", err, resultDetailUser)
 
 	// * Check account exit into yet
 	if err != nil {
@@ -339,6 +367,24 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
 			return nil
 		}
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	//* Count user had send verification
+	count, err := repo.GetVerificationByUserId(global.DB, resultDetailUser.ID)
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	log.Print(count, err)
+	numberSend := 5
+	if count >= numberSend {
+		times := fmt.Sprintf("You have sent verification %d times", numberSend)
+		c.JSON(response.StatusBadRequest, response.BadRequestError(times))
+		return nil
 	}
 
 	if resultDetailUser.IsActive {
