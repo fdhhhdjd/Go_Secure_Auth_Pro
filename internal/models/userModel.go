@@ -103,6 +103,10 @@ type BodyResetPasswordRequest struct {
 }
 
 type ResetPasswordResponse struct {
-	Id    int    `json:"id"`
-	Email string `json:"email"`
+	Id int `json:"id"`
+}
+
+type UpdateOnlyPasswordParams struct {
+	PasswordHash string `json:"password_hash"`
+	ID           int    `json:"id"`
 }

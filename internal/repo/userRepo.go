@@ -212,3 +212,14 @@ func JoinUsersWithVerificationByUsername(db *sql.DB, username string) ([]models.
 	}
 	return items, nil
 }
+
+const updateOnlyPassword = `-- name: UpdatePassword :exec
+UPDATE users
+SET password_hash = $1
+WHERE id = $2
+`
+
+func UpdateOnlyPassword(db *sql.DB, arg models.UpdateOnlyPasswordParams) error {
+	_, err := db.ExecContext(context.Background(), updateOnlyPassword, arg.PasswordHash, arg.ID)
+	return err
+}

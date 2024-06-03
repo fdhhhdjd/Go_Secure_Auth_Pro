@@ -17,6 +17,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo/redis"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers/validate"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/mail"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
@@ -166,17 +167,6 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	err = repo.UpdateVerification(global.DB, models.UpdateVerificationParams{
-		UserID:     reqQuery.UserId,
-		IsVerified: true,
-		IsActive:   false,
-	})
-
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
-		return nil
-	}
-
 	resultUpdateUser, errUpdatePassword := repo.UpdatePassword(global.DB, models.UpdatePasswordParams{
 		ID:           reqQuery.UserId,
 		PasswordHash: hashedPassword,
@@ -185,6 +175,17 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if errUpdatePassword != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	err = repo.UpdateVerification(global.DB, models.UpdateVerificationParams{
+		UserID:     reqQuery.UserId,
+		IsVerified: true,
+		IsActive:   false,
+	})
+
+	if err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
@@ -477,15 +478,80 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	}
 }
 
+// ResetPassword resets the password for a user.
+// It takes a gin.Context object as a parameter and returns a *models.ResetPasswordResponse.
+// The function first binds the JSON request body to a models.BodyResetPasswordRequest object.
+// If there is an error in binding the JSON, it returns a BadRequestError response.
+// It then retrieves the verification details from the database using the GetVerification function.
+// If there is an error in retrieving the verification details, it returns a BadRequestError response.
+// The function checks if the retrieved verification details match the request body and if the verification is active.
+// If the details do not match or the verification is not active, it returns a BadRequestError response.
+// It also checks if the verification token has expired. If it has, it returns a ForbiddenError response.
+// The function validates the strength of the new password using the IsValidPassword function.
+// If the password is weak, it returns a BadRequestError response with a custom message.
+// It then hashes the new password and inserts the old password into the password history table.
+// After that, it updates the user's password in the database.
+// Finally, it updates the verification status of the user in the database and returns a ResetPasswordResponse object.
 func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
-	reqBody := models.BodyForgetRequest{}
+	reqBody := models.BodyResetPasswordRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
 
-	return &models.ResetPasswordResponse{}
+	GetVerification, err := repo.GetVerification(global.DB, models.QueryVerificationRequest{
+		UserId: reqBody.UserId,
+		Token:  reqBody.Token,
+	})
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if GetVerification.UserID != reqBody.UserId || GetVerification.VerifiedToken != reqBody.Token || !GetVerification.IsActive {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
+		c.JSON(response.StatusForbidden, response.ForbiddenError())
+		return nil
+	}
+
+	if !validate.IsValidPassword(reqBody.Password) {
+		c.JSON(response.StatusBadRequest, response.BadRequestError("Password is weak"))
+		return nil
+	}
+
+	salt, hashedPassword, err := helpers.HashPassword(reqBody.Password, bcrypt.DefaultCost)
+
+	if err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	repo.InsertPasswordHistory(global.DB, models.InsertPasswordHistoryParams{
+		UserID:       reqBody.UserId,
+		OldPassword:  salt,
+		ReasonStatus: constants.Verification,
+	})
+
+	repo.UpdateOnlyPassword(global.DB, models.UpdateOnlyPasswordParams{
+		ID:           reqBody.UserId,
+		PasswordHash: hashedPassword,
+	})
+
+	repo.UpdateVerification(global.DB, models.UpdateVerificationParams{
+		UserID:     reqBody.UserId,
+		IsVerified: true,
+		IsActive:   false,
+	})
+
+	return &models.ResetPasswordResponse{
+		Id: reqBody.UserId,
+	}
 }
 
 // createKeyAndToken generates a random key pair, encodes the public key to PEM format,
