@@ -46,7 +46,7 @@ func NewRouter() *gin.Engine {
 		//* Group v1/user routes (example, you can add more routes here)
 		user := v1.Group("/user")
 		{
-			user.GET("/profile", utils.AsyncHandler(controller.GetProfileUser))
+			user.GET("/profile/:id", utils.AsyncHandler(controller.GetProfileUser))
 		}
 	}
 

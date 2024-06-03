@@ -13,3 +13,4 @@ sql:
         overrides:
           - db_type: "timestamptz"
             go_type: "time.Time"
+            nullable: true

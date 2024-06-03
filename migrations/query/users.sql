@@ -2,6 +2,10 @@
 SELECT * FROM users
 WHERE email = $1 LIMIT 1;
 
+-- name: GetUserId :one
+SELECT * FROM users
+WHERE id = $1 AND is_active = $2 LIMIT 1;
+
 
 -- name: CreateUser :one
 INSERT INTO users (

@@ -219,7 +219,35 @@ SET password_hash = $1
 WHERE id = $2
 `
 
+// UpdateOnlyPassword updates the password hash for a user in the database.
+// It takes a database connection (`db`) and an argument (`arg`) of type `models.UpdateOnlyPasswordParams`.
+// It returns an error if the update operation fails.
 func UpdateOnlyPassword(db *sql.DB, arg models.UpdateOnlyPasswordParams) error {
 	_, err := db.ExecContext(context.Background(), updateOnlyPassword, arg.PasswordHash, arg.ID)
 	return err
+}
+
+const getUserId = `-- name: GetUserId :one
+SELECT id, username, email, phone, hidden_phone_number, fullname, hidden_email, avatar, gender, two_factor_enabled, is_active, created_at FROM users
+WHERE id = $1 AND is_active = $2 LIMIT 1
+`
+
+func GetUserId(db *sql.DB, arg models.GetUserIdParams) (models.ProfileResponse, error) {
+	row := db.QueryRowContext(context.Background(), getUserId, arg.ID, arg.IsActive)
+	var i models.ProfileResponse
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Phone,
+		&i.HiddenPhoneNumber,
+		&i.FullName,
+		&i.HiddenEmail,
+		&i.Avatar,
+		&i.Gender,
+		&i.TwoFactorEnabled,
+		&i.IsActive,
+		&i.CreatedAt,
+	)
+	return i, err
 }

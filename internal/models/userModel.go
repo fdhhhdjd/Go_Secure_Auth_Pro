@@ -110,3 +110,42 @@ type UpdateOnlyPasswordParams struct {
 	PasswordHash string `json:"password_hash"`
 	ID           int    `json:"id"`
 }
+
+// * --- Profile
+type ProfileResponse struct {
+	ID                int            `json:"id"`
+	Username          sql.NullString `json:"username"`
+	Email             string         `json:"email"`
+	Phone             sql.NullString `json:"phone"`
+	HiddenPhoneNumber sql.NullString `json:"hidden_phone_number"`
+	FullName          sql.NullString `json:"fullname"`
+	HiddenEmail       sql.NullString `json:"hidden_email"`
+	Avatar            sql.NullString `json:"avatar"`
+	Gender            sql.NullInt16  `json:"gender"`
+	TwoFactorEnabled  bool           `json:"two_factor_enabled"`
+	IsActive          bool           `json:"is_active"`
+	CreatedAt         time.Time      `json:"created_at"`
+}
+
+func NullStringToString(ns sql.NullString) string {
+	if ns.Valid {
+		return ns.String
+	}
+	return ""
+}
+
+func NullInt16ToInt16(ni sql.NullInt16) int16 {
+	if ni.Valid {
+		return ni.Int16
+	}
+	return 0
+}
+
+type PramsProfileRequest struct {
+	UserId int `uri:"id" binding:"required,min=1`
+}
+
+type GetUserIdParams struct {
+	ID       int  `json:"id"`
+	IsActive bool `json:"is_active"`
+}
