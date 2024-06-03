@@ -3,7 +3,6 @@ package repo
 import (
 	"context"
 	"database/sql"
-	"log"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 )
@@ -111,7 +110,6 @@ func JoinUsersWithVerificationByEmail(db *sql.DB, email string) ([]models.User, 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	log.Print(items)
 	return items, nil
 }
 

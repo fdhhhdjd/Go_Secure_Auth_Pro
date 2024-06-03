@@ -30,3 +30,9 @@ type UpsetDeviceParams struct {
 	DeviceType string         `json:"device_type"`
 	PublicKey  string         `json:"public_key"`
 }
+
+// * -- Get Device
+type GetDeviceIdParams struct {
+	DeviceId string `json:"device_id"`
+	IsActive bool   `json:"is_active"`
+}

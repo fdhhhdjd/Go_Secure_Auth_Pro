@@ -23,3 +23,8 @@ ON CONFLICT (device_id) DO UPDATE SET
   is_active = excluded.is_active,
   updated_at = excluded.updated_at
 RETURNING *;
+
+
+-- name: GetDeviceId :one
+SELECT * FROM devices
+WHERE device_id = $1 AND is_active = $2 LIMIT 1;

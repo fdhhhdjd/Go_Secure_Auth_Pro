@@ -127,20 +127,6 @@ type ProfileResponse struct {
 	CreatedAt         time.Time      `json:"created_at"`
 }
 
-func NullStringToString(ns sql.NullString) string {
-	if ns.Valid {
-		return ns.String
-	}
-	return ""
-}
-
-func NullInt16ToInt16(ni sql.NullInt16) int16 {
-	if ni.Valid {
-		return ni.Int16
-	}
-	return 0
-}
-
 type PramsProfileRequest struct {
 	UserId int `uri:"id" binding:"required,min=1`
 }

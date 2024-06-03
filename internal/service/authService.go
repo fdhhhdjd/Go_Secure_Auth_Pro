@@ -3,7 +3,6 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -360,7 +359,6 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 
 	//* Get detail users
 	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
-	log.Print("OK", err, resultDetailUser)
 
 	// * Check account exit into yet
 	if err != nil {
@@ -382,7 +380,6 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 		return nil
 	}
 
-	log.Print(count, err)
 	numberSend := 5
 	if count >= numberSend {
 		times := fmt.Sprintf("You have sent verification %d times", numberSend)
