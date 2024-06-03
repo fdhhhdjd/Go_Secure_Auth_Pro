@@ -484,14 +484,17 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 // If there is an error in binding the JSON, it returns a BadRequestError response.
 // It then retrieves the verification details from the database using the GetVerification function.
 // If there is an error in retrieving the verification details, it returns a BadRequestError response.
-// The function checks if the retrieved verification details match the request body and if the verification is active.
+// Next, it checks if the retrieved verification details match the request body details and if the verification is active.
 // If the details do not match or the verification is not active, it returns a BadRequestError response.
 // It also checks if the verification token has expired. If it has, it returns a ForbiddenError response.
-// The function validates the strength of the new password using the IsValidPassword function.
+// The function then validates the password using the IsValidPassword function.
 // If the password is weak, it returns a BadRequestError response with a custom message.
-// It then hashes the new password and inserts the old password into the password history table.
-// After that, it updates the user's password in the database.
-// Finally, it updates the verification status of the user in the database and returns a ResetPasswordResponse object.
+// It checks if the password has been used before using the checkPasswordOld function.
+// If the password has been used before, it returns a BadRequestError response with a custom message.
+// It inserts the old password into the password history table using the InsertPasswordHistory function.
+// It updates the user's password in the database using the UpdateOnlyPassword function.
+// Finally, it updates the verification status in the database using the UpdateVerification function.
+// The function returns a ResetPasswordResponse object with the user's ID.
 func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	reqBody := models.BodyResetPasswordRequest{}
 
@@ -525,22 +528,22 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 		return nil
 	}
 
-	salt, hashedPassword, err := helpers.HashPassword(reqBody.Password, bcrypt.DefaultCost)
+	hashedPassword := checkPasswordOld(reqBody.Password, reqBody.UserId)
 
-	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+	if hashedPassword == nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError("Password had been used"))
 		return nil
 	}
 
 	repo.InsertPasswordHistory(global.DB, models.InsertPasswordHistoryParams{
 		UserID:       reqBody.UserId,
-		OldPassword:  salt,
-		ReasonStatus: constants.Verification,
+		OldPassword:  hashedPassword.Salt,
+		ReasonStatus: constants.ResetPassword,
 	})
 
 	repo.UpdateOnlyPassword(global.DB, models.UpdateOnlyPasswordParams{
 		ID:           reqBody.UserId,
-		PasswordHash: hashedPassword,
+		PasswordHash: hashedPassword.HashedPassword,
 	})
 
 	repo.UpdateVerification(global.DB, models.UpdateVerificationParams{
@@ -707,4 +710,37 @@ func checkUserIsActive(isActive bool) *bool {
 		return nil
 	}
 	return &isActive
+}
+
+// checkPasswordOld checks if the provided password is valid for the given user ID.
+// It also checks if the password has been used previously by the user.
+// If the password is valid and not found in the previous passwords, it returns the salt and hashed password.
+// If an error occurs during the process, it returns nil.
+func checkPasswordOld(password string, userId int) *models.CheckPreviousResponse {
+	limitPassword := 10
+	resultPasswordOld, err := repo.CheckPreviousPasswords(global.DB, userId, limitPassword)
+
+	if err != nil {
+		salt, hashedPassword, err := helpers.HashPassword(password, bcrypt.DefaultCost)
+		if err != nil {
+			return nil
+		}
+		return &models.CheckPreviousResponse{
+			Salt:           salt,
+			HashedPassword: hashedPassword,
+		}
+	}
+
+	for _, saltRecord := range resultPasswordOld {
+		err := bcrypt.CompareHashAndPassword([]byte(saltRecord.OldPassword), []byte(password))
+		if err == nil {
+			return nil
+		}
+	}
+
+	salt, hashedPassword, _ := helpers.HashPassword(password, bcrypt.DefaultCost)
+	return &models.CheckPreviousResponse{
+		Salt:           salt,
+		HashedPassword: hashedPassword,
+	}
 }
