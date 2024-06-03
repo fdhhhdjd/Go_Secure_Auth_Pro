@@ -29,16 +29,25 @@ func NewRouter() *gin.Engine {
 	r.Use(middlewares.SecurityHeadersMiddleware())
 	r.Use(middlewares.HeadersMiddlewares())
 
-	//* Auth
-	client := r.Group("/auth")
+	//* Group v1 routes
+	v1 := r.Group("/v1")
 	{
-		client.GET("/veri-account", utils.AsyncHandler(controller.VerificationAccount))
+		//* Group v1/auth routes
+		auth := v1.Group("/auth")
+		{
+			auth.GET("/veri-account", utils.AsyncHandler(controller.VerificationAccount))
+			auth.POST("/register", utils.AsyncHandler(controller.Register))
+			auth.POST("/resend-link-verification", utils.AsyncHandler(controller.ResendVerificationLink))
+			auth.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
+			auth.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
+			auth.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
+		}
 
-		client.POST("/register", utils.AsyncHandler(controller.Register))
-		client.POST("/resend-link-verification", utils.AsyncHandler(controller.ResendVerificationLink))
-		client.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
-		client.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
-		client.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
+		//* Group v1/user routes (example, you can add more routes here)
+		user := v1.Group("/user")
+		{
+			user.GET("/profile", utils.AsyncHandler(controller.GetProfileUser))
+		}
 	}
 
 	//* Not Found
