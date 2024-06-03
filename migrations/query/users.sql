@@ -19,6 +19,8 @@ UPDATE users
 SET password_hash = $1
 WHERE id = $2;
 
+
+
 -- name: JoinUsersWithVerificationByEmail :many
 SELECT users.*
 FROM users

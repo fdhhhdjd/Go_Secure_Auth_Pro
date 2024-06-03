@@ -86,3 +86,14 @@ func GetDeviceId(db *sql.DB, arg models.GetDeviceIdParams) (models.Device, error
 	)
 	return i, err
 }
+
+const updateTimeLogout = `-- name: UpdateTimeLogout :exec
+UPDATE devices
+SET logged_out_at = $1
+WHERE device_id = $2
+`
+
+func UpdateTimeLogout(db *sql.DB, arg models.UpdateTimeLogoutParams) error {
+	_, err := db.ExecContext(context.Background(), updateTimeLogout, arg.LoggedOutAt, arg.DeviceId)
+	return err
+}

@@ -201,7 +201,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 
 	resultInfoDevice := upsetDevice(c, resultUpdateUser.Id, resultEncodePublicKey)
 
-	setCookie(c, constants.UserLoginKey, refetchToken, "/cookie", constants.AgeCookie)
+	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
 
 	//* Send email
 	data := models.EmailData{

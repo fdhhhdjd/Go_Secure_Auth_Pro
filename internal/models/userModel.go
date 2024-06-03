@@ -135,3 +135,9 @@ type GetUserIdParams struct {
 	ID       int  `json:"id"`
 	IsActive bool `json:"is_active"`
 }
+
+// * --- Logout
+type LogoutResponse struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
+}

@@ -36,3 +36,9 @@ type GetDeviceIdParams struct {
 	DeviceId string `json:"device_id"`
 	IsActive bool   `json:"is_active"`
 }
+
+// * --- Update Time Logout
+type UpdateTimeLogoutParams struct {
+	LoggedOutAt sql.NullTime `json:"logged_out_at"`
+	DeviceId    string       `json:"device_id"`
+}

@@ -28,3 +28,8 @@ RETURNING *;
 -- name: GetDeviceId :one
 SELECT * FROM devices
 WHERE device_id = $1 AND is_active = $2 LIMIT 1;
+
+-- name: UpdateTimeLogout :exec
+UPDATE devices
+SET logged_out_at = $1
+WHERE id = $2;

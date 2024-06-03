@@ -48,6 +48,7 @@ func NewRouter() *gin.Engine {
 		{
 			user.Use(middlewares.AuthorizationMiddleware())
 
+			user.GET("/logout", utils.AsyncHandler(controller.LogoutUser))
 			user.GET("/profile/:id", utils.AsyncHandler(controller.GetProfileUser))
 		}
 	}
