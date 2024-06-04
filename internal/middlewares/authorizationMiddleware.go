@@ -13,6 +13,11 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// AuthorizationMiddleware is a middleware function that handles authorization logic.
+// It checks the Authorization header and device ID in the request context to ensure the request is authorized.
+// If the request is not authorized, it aborts the request with a JSON response containing an unauthorized error.
+// It also verifies the access token and checks if the user email and ID match the device information.
+// If all checks pass, it sets the user information in the request context and proceeds to the next middleware or handler.
 func AuthorizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -60,6 +65,13 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		email := userInfo["email"].(string)
 		userId := userInfo["id"].(float64)
 
+		resultCheckUser := CheckUser(email)
+
+		if !resultCheckUser {
+			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			return
+		}
+
 		if int(userId) != resultDevice.UserID {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return
@@ -73,4 +85,20 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		c.Next()
 
 	}
+}
+
+// checkUser checks if a user is valid and active based on the provided email.
+// It retrieves the user details from the repository and returns true if the user is valid and active, false otherwise.
+func CheckUser(email string) bool {
+	resultDetailUser, err := repo.GetUserDetail(global.DB, email)
+
+	if err != nil {
+		return false
+	}
+
+	if !resultDetailUser.IsActive {
+		return false
+	}
+
+	return true
 }

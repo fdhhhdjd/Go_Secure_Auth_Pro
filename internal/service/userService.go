@@ -2,17 +2,18 @@ package service
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers/validate"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
 )
@@ -31,8 +32,6 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 		ID:       req.UserId,
 		IsActive: true,
 	})
-
-	log.Print(err)
 
 	if err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
@@ -56,8 +55,58 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	return response
 }
 
+// UpdateProfileUser updates the profile of a user based on the provided request body.
+// It validates the request body fields, checks the user's access information, and updates the user's profile in the database.
+// If any validation or database error occurs, it returns an appropriate error response.
+// Otherwise, it returns the updated user profile.
 func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
-	return &models.UpdateUserRow{}
+	reqBody := models.BodyUpdateRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if !validate.ValidateAndRespond(reqBody.Username, validate.IsValidateUser) {
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.UsernameInvalid))
+		return nil
+	}
+
+	if !validate.ValidateAndRespond(reqBody.Phone, validate.IsValidatePhone) {
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PhoneInvalid))
+		return nil
+	}
+
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+
+	if !existsUserInfo {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultUpdateProfile, err := repo.UpdateUser(global.DB, models.UpdateUserParams{
+		Username:          sql.NullString{String: reqBody.Username, Valid: reqBody.Username != ""},
+		Phone:             sql.NullString{String: reqBody.Phone, Valid: reqBody.Phone != ""},
+		Fullname:          sql.NullString{String: reqBody.FullName, Valid: reqBody.FullName != ""},
+		Avatar:            sql.NullString{String: reqBody.Avatar, Valid: reqBody.Avatar != ""},
+		Gender:            sql.NullInt64{Int64: int64(reqBody.Gender), Valid: true},
+		HiddenPhoneNumber: sql.NullString{String: helpers.HidePhoneNumber(reqBody.Phone), Valid: reqBody.Phone != ""},
+		ID:                payload.(models.Payload).ID,
+	})
+
+	if err != nil {
+		//* Error for database
+		errorCreateUser := utils.HandleDBError(err)
+		if errorCreateUser != "" {
+			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateUser))
+			return nil
+		}
+
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	return &resultUpdateProfile
 }
 
 // Logout logs out the user and clears the session.

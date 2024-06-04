@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 )
@@ -252,32 +253,68 @@ func GetUserId(db *sql.DB, arg models.GetUserIdParams) (models.ProfileResponse, 
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET username = $1, email = $2, phone = $3, fullname = $4, hidden_email = $5, avatar = $6, gender = $7, hidden_phone_number=$8
-WHERE id = $9
-RETURNING id, email,username, phone,hidden_phone_number, fullname, hidden_email,avatar,gender
+SET username = $1, phone = $2, fullname = $3, avatar = $4, gender = $5, hidden_phone_number = $6
+WHERE id = $7
+RETURNING id, username, hidden_phone_number, fullname, avatar, gender
 `
 
 func UpdateUser(db *sql.DB, arg models.UpdateUserParams) (models.UpdateUserRow, error) {
-	row := db.QueryRowContext(context.Background(), updateUser,
-		arg.Username,
-		arg.Email,
-		arg.Phone,
-		arg.Fullname,
-		arg.HiddenEmail,
-		arg.Avatar,
-		arg.Gender,
-		arg.HiddenPhoneNumber,
-		arg.ID,
-	)
+	// Start with the base update statement
+	updateUser := "UPDATE users SET"
+
+	// Use a slice to hold the values to be updated
+	var updateValues []interface{}
+
+	// Use a counter for the placeholder values
+	counter := 1
+
+	// Check each field and add it to the update statement if it's provided
+	if arg.Username.Valid {
+		updateUser += fmt.Sprintf(" username = $%d,", counter)
+		updateValues = append(updateValues, arg.Username)
+		counter++
+	}
+
+	if arg.Phone.Valid {
+		updateUser += fmt.Sprintf(" phone = $%d,", counter)
+		updateValues = append(updateValues, arg.Phone)
+		counter++
+	}
+
+	if arg.Fullname.Valid {
+		updateUser += fmt.Sprintf(" fullname = $%d,", counter)
+		updateValues = append(updateValues, arg.Fullname)
+		counter++
+	}
+
+	if arg.Avatar.Valid {
+		updateUser += fmt.Sprintf(" avatar = $%d,", counter)
+		updateValues = append(updateValues, arg.Avatar)
+		counter++
+	}
+
+	if arg.Gender.Valid {
+		updateUser += fmt.Sprintf(" gender = $%d,", counter)
+		updateValues = append(updateValues, arg.Gender)
+		counter++
+	}
+
+	// Remove the trailing comma
+	updateUser = updateUser[:len(updateUser)-1]
+
+	// Add the WHERE clause
+	updateUser += fmt.Sprintf(" WHERE id = $%d RETURNING id, username, hidden_phone_number, fullname, avatar, gender", counter)
+	updateValues = append(updateValues, arg.ID)
+
+	// Execute the query
+	row := db.QueryRowContext(context.Background(), updateUser, updateValues...)
+
 	var i models.UpdateUserRow
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Username,
-		&i.Phone,
 		&i.HiddenPhoneNumber,
 		&i.Fullname,
-		&i.HiddenEmail,
 		&i.Avatar,
 		&i.Gender,
 	)

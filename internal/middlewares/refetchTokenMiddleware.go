@@ -58,6 +58,13 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 		userId := userInfo["id"].(float64)
 		email := userInfo["email"].(string)
 
+		resultCheckUser := CheckUser(email)
+
+		if !resultCheckUser {
+			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			return
+		}
+
 		if int(userId) != resultDevice.UserID {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return

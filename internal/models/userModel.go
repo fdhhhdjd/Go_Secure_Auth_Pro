@@ -68,27 +68,30 @@ type UpdateUserResponse struct {
 }
 
 type UpdateUserRow struct {
-	ID                int32  `json:"id"`
-	Email             string `json:"email"`
-	Username          string `json:"username"`
-	Phone             string `json:"phone"`
-	HiddenPhoneNumber string `json:"hidden_phone_number"`
-	Fullname          string `json:"fullname"`
-	HiddenEmail       string `json:"hidden_email"`
-	Avatar            string `json:"avatar"`
-	Gender            int    `json:"gender"`
+	ID                int32          `json:"id"`
+	Username          sql.NullString `json:"username"`
+	HiddenPhoneNumber sql.NullString `json:"hidden_phone_number"`
+	Fullname          sql.NullString `json:"fullname"`
+	Avatar            sql.NullString `json:"avatar"`
+	Gender            sql.NullInt32  `json:"gender"`
 }
 
 type UpdateUserParams struct {
 	Username          sql.NullString `json:"username"`
-	Email             string         `json:"email"`
 	Phone             sql.NullString `json:"phone"`
 	Fullname          sql.NullString `json:"fullname"`
-	HiddenEmail       sql.NullString `json:"hidden_email"`
 	Avatar            sql.NullString `json:"avatar"`
-	Gender            sql.NullInt16  `json:"gender"`
+	Gender            sql.NullInt64  `json:"gender"`
 	HiddenPhoneNumber sql.NullString `json:"hidden_phone_number"`
-	ID                int32          `json:"id"`
+	ID                int            `json:"id"`
+}
+
+type BodyUpdateRequest struct {
+	Username string `json:"username"`
+	Phone    string `json:"phone"`
+	FullName string `json:"fullname"`
+	Avatar   string `json:"avatar"`
+	Gender   int    `json:"gender"`
 }
 
 // *  --- Payload Token
