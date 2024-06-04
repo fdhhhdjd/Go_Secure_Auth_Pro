@@ -136,6 +136,61 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 	}
 }
 
+// ChangePassword is a function that handles the change password request.
+// It takes a gin.Context object as a parameter and returns a pointer to a models.ChangePassResponse object.
+// The function first binds the JSON request body to a models.BodyChangePasswordRequest object.
+// If the binding fails, it returns a BadRequestError response with the error message "PasswordInvalid".
+// It then checks if the user information exists in the context.
+// If not, it returns a BadRequestError response.
+// Next, it validates the password using the validate.IsValidPassword function.
+// If the password is weak, it returns a BadRequestError response with the error message "PasswordWeak".
+// It then checks the old password against the hashed password stored in the payload.
+// If the old password is not valid, it returns a BadRequestError response with the error message "PasswordHasUsed".
+// The function inserts the old password into the password history table and updates the password in the user table.
+// Finally, it returns a ChangePassResponse object with the user ID and email.
+func ChangePassword(c *gin.Context) *models.ChangePassResponse {
+	reqBody := models.BodyChangePasswordRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordInvalid))
+		return nil
+	}
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+
+	if !existsUserInfo {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	if !validate.ValidateAndRespond(reqBody.Password, validate.IsValidPassword) {
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordWeak))
+		return nil
+	}
+
+	hashedPassword := checkPasswordOld(reqBody.Password, payload.(models.Payload).ID)
+
+	if hashedPassword == nil {
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordHasUsed))
+		return nil
+	}
+
+	repo.InsertPasswordHistory(global.DB, models.InsertPasswordHistoryParams{
+		UserID:       payload.(models.Payload).ID,
+		OldPassword:  hashedPassword.Salt,
+		ReasonStatus: constants.ResetPassword,
+	})
+
+	repo.UpdateOnlyPassword(global.DB, models.UpdateOnlyPasswordParams{
+		ID:           payload.(models.Payload).ID,
+		PasswordHash: hashedPassword.HashedPassword,
+	})
+
+	return &models.ChangePassResponse{
+		Id:    payload.(models.Payload).ID,
+		Email: payload.(models.Payload).Email,
+	}
+}
+
 // clearCookie clears the specified cookie from the response.
 // The cookie is set to expire immediately and its value is emptied.
 // The `httpOnly` flag is set based on the environment.

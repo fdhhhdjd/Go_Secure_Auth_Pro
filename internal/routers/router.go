@@ -56,6 +56,7 @@ func NewRouter() *gin.Engine {
 			user.GET("/profile/:id", utils.AsyncHandler(controller.GetProfileUser))
 
 			user.POST("/update-profile", utils.AsyncHandler(controller.UpdateProfile))
+			user.POST("/change-pass", utils.AsyncHandler(controller.ChangePassword))
 
 		}
 	}

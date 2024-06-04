@@ -521,14 +521,14 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	}
 
 	if !validate.IsValidPassword(reqBody.Password) {
-		c.JSON(response.StatusBadRequest, response.BadRequestError("Password is weak"))
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordWeak))
 		return nil
 	}
 
 	hashedPassword := checkPasswordOld(reqBody.Password, reqBody.UserId)
 
 	if hashedPassword == nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError("Password had been used"))
+		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordHasUsed))
 		return nil
 	}
 

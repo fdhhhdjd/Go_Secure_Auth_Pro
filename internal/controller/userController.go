@@ -44,3 +44,16 @@ func LogoutUser(c *gin.Context) error {
 	response.Ok(c, "Logout User", result)
 	return nil
 }
+
+// ChangePassword is a controller function that handles the change password request.
+// It calls the service.ChangePassword function to perform the password change operation.
+// If the operation is successful, it returns a success response with the updated user information.
+// If the operation fails, it returns an error response.
+func ChangePassword(c *gin.Context) error {
+	result := service.ChangePassword(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Change Password User", result)
+	return nil
+}

@@ -190,3 +190,14 @@ type PayloadRefetchResponse struct {
 	ID    int    `json:"id"`
 	Email string `json:"email"`
 }
+
+//* --- Change Password
+
+type ChangePassResponse struct {
+	Id    int    `json:"id"`
+	Email string `json:"email"`
+}
+
+type BodyChangePasswordRequest struct {
+	Password string `json:"password" binding:"required,min=6"`
+}
