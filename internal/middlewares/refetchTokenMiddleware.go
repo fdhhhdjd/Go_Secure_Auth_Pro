@@ -23,10 +23,6 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if err != nil {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
-			return
-		}
 		deviceID, exists := c.Get("device_id")
 
 		if deviceID == nil || !exists {
@@ -39,10 +35,15 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 			IsActive: true,
 		})
 
+		if errDevice != nil {
+			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			return
+		}
+
 		DecodePublicKeyFromPem, _ := helpers.DecodePublicKeyFromPem(resultDevice.PublicKey.String)
 
 		payload, err := helpers.VerifyToken(refetchToken, DecodePublicKeyFromPem)
-		if err != nil || errDevice != nil {
+		if err != nil {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return
 		}

@@ -67,6 +67,30 @@ type UpdateUserResponse struct {
 	IsActive    bool   `json:"is_active"`
 }
 
+type UpdateUserRow struct {
+	ID                int32  `json:"id"`
+	Email             string `json:"email"`
+	Username          string `json:"username"`
+	Phone             string `json:"phone"`
+	HiddenPhoneNumber string `json:"hidden_phone_number"`
+	Fullname          string `json:"fullname"`
+	HiddenEmail       string `json:"hidden_email"`
+	Avatar            string `json:"avatar"`
+	Gender            int    `json:"gender"`
+}
+
+type UpdateUserParams struct {
+	Username          sql.NullString `json:"username"`
+	Email             string         `json:"email"`
+	Phone             sql.NullString `json:"phone"`
+	Fullname          sql.NullString `json:"fullname"`
+	HiddenEmail       sql.NullString `json:"hidden_email"`
+	Avatar            sql.NullString `json:"avatar"`
+	Gender            sql.NullInt16  `json:"gender"`
+	HiddenPhoneNumber sql.NullString `json:"hidden_phone_number"`
+	ID                int32          `json:"id"`
+}
+
 // *  --- Payload Token
 type Payload struct {
 	ID    int    `json:"id"`
@@ -125,6 +149,21 @@ type ProfileResponse struct {
 	TwoFactorEnabled  bool           `json:"two_factor_enabled"`
 	IsActive          bool           `json:"is_active"`
 	CreatedAt         time.Time      `json:"created_at"`
+}
+
+type ProfileResponseJSON struct {
+	ID                int    `json:"id"`
+	Username          string `json:"username"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
+	HiddenPhoneNumber string `json:"hidden_phone_number"`
+	FullName          string `json:"fullname"`
+	HiddenEmail       string `json:"hidden_email"`
+	Avatar            string `json:"avatar"`
+	Gender            int    `json:"gender"`
+	TwoFactorEnabled  string `json:"two_factor_enabled"`
+	IsActive          string `json:"is_active"`
+	CreatedAt         string `json:"created_at"`
 }
 
 type PramsProfileRequest struct {

@@ -2,21 +2,24 @@ package service
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
 )
 
 // GetProfileUser retrieves the profile of a user based on the provided user ID.
 // It returns a pointer to a models.ProfileResponse struct.
-func GetProfileUser(c *gin.Context) *models.ProfileResponse {
+func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	var req models.PramsProfileRequest
 
 	if err := c.ShouldBindUri(&req); err != nil {
@@ -24,16 +27,37 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponse {
 		return nil
 	}
 
-	resultUser, err := repo.GetUserId(global.DB, models.GetUserIdParams{
+	user, err := repo.GetUserId(global.DB, models.GetUserIdParams{
 		ID:       req.UserId,
 		IsActive: true,
 	})
+
+	log.Print(err)
 
 	if err != nil {
 		c.JSON(response.StatusBadRequest, response.BadRequestError())
 		return nil
 	}
-	return &resultUser
+	response := &models.ProfileResponseJSON{
+		ID:                user.ID,
+		Username:          helpers.NullStringToString(user.Username),
+		Email:             user.Email,
+		Phone:             helpers.NullStringToString(user.Phone),
+		HiddenPhoneNumber: helpers.NullStringToString(user.HiddenPhoneNumber),
+		FullName:          helpers.NullStringToString(user.FullName),
+		HiddenEmail:       helpers.NullStringToString(user.HiddenEmail),
+		Avatar:            helpers.NullStringToString(user.Avatar),
+		Gender:            helpers.NullInt16ToString(user.Gender),
+		TwoFactorEnabled:  strconv.FormatBool(user.TwoFactorEnabled),
+		IsActive:          strconv.FormatBool(user.IsActive),
+		CreatedAt:         user.CreatedAt.Format(time.RFC3339),
+	}
+
+	return response
+}
+
+func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
+	return &models.UpdateUserRow{}
 }
 
 // Logout logs out the user and clears the session.

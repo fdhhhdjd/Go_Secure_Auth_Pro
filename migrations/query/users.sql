@@ -19,7 +19,11 @@ UPDATE users
 SET password_hash = $1
 WHERE id = $2;
 
-
+-- name: UpdateUser :one
+UPDATE users
+SET username = $1, email = $2, phone = $3, fullname = $4, hidden_email = $5, avatar = $6, gender = $7, hidden_phone_number=$8
+WHERE id = $9
+RETURNING id, email,username, phone,hidden_phone_number, fullname, hidden_email,avatar,gender;
 
 -- name: JoinUsersWithVerificationByEmail :many
 SELECT users.*

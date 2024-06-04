@@ -249,3 +249,37 @@ func GetUserId(db *sql.DB, arg models.GetUserIdParams) (models.ProfileResponse, 
 	)
 	return i, err
 }
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET username = $1, email = $2, phone = $3, fullname = $4, hidden_email = $5, avatar = $6, gender = $7, hidden_phone_number=$8
+WHERE id = $9
+RETURNING id, email,username, phone,hidden_phone_number, fullname, hidden_email,avatar,gender
+`
+
+func UpdateUser(db *sql.DB, arg models.UpdateUserParams) (models.UpdateUserRow, error) {
+	row := db.QueryRowContext(context.Background(), updateUser,
+		arg.Username,
+		arg.Email,
+		arg.Phone,
+		arg.Fullname,
+		arg.HiddenEmail,
+		arg.Avatar,
+		arg.Gender,
+		arg.HiddenPhoneNumber,
+		arg.ID,
+	)
+	var i models.UpdateUserRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Username,
+		&i.Phone,
+		&i.HiddenPhoneNumber,
+		&i.Fullname,
+		&i.HiddenEmail,
+		&i.Avatar,
+		&i.Gender,
+	)
+	return i, err
+}

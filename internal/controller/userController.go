@@ -19,6 +19,19 @@ func GetProfileUser(c *gin.Context) error {
 	return nil
 }
 
+// UpdateProfile updates the profile of a user.
+// It retrieves the user's profile using the service.GetProfileUser function,
+// and if the result is not nil, it sends a successful response with the updated profile.
+// If the result is nil, it returns nil.
+func UpdateProfile(c *gin.Context) error {
+	result := service.UpdateProfileUser(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Update Profile User", result)
+	return nil
+}
+
 // LogoutUser handles the logout functionality for a user.
 // It calls the Logout function from the service package to perform the logout operation.
 // If the logout is successful, it returns a success response.
