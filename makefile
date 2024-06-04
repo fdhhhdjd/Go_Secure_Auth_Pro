@@ -3,7 +3,8 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 # * CONSTANTS
-DOCKER_COMPOSE := docker-compose.yml
+DOCKER_COMPOSE_DEV := docker-compose.dev.yml
+DOCKER_COMPOSE_PRO := docker-compose.pro.yml
 
 ################# TODO: GOLANG #################
 start:
@@ -13,11 +14,17 @@ dev:
 	go run fsnotify.go
 
 ################# TODO: DOCKER #################
-build:
-	docker-compose -f $(DOCKER_COMPOSE) up -d --build
+build-pro:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --build
 
-down:
-	docker-compose -f $(DOCKER_COMPOSE) down
+down-pro:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) down
+
+build-dev:
+	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d --build
+
+down-pro:
+	docker-compose -f $(DOCKER_COMPOSE_DEV) down
 
 ################# TODO: SQLC #################
 sqlc:

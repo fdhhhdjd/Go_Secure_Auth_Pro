@@ -73,7 +73,7 @@ func NewRouter() *gin.Engine {
 
 func NotFound() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.AbortWithStatusJSON(response.StatusNotFound, response.NotFoundError())
+		response.NotFoundError(c)
 	}
 }
 
@@ -81,7 +81,7 @@ func ServiceUnavailable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 		if len(c.Errors) > 0 {
-			c.AbortWithStatusJSON(response.StatusNotFound, response.ServiceUnavailable())
+			response.ServiceUnavailable(c)
 		}
 	}
 

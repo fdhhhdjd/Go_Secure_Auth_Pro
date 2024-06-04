@@ -11,7 +11,7 @@ func HeadersMiddlewares() gin.HandlerFunc {
 		headers := utils.GetXDeviceId(c.Request)
 
 		if headers.XDeviceId == "" {
-			c.AbortWithStatusJSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return
 		}
 

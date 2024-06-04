@@ -19,14 +19,14 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		refetchToken, err := c.Cookie("user_login")
 		if err != nil {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
 		deviceID, exists := c.Get("device_id")
 
 		if deviceID == nil || !exists {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
@@ -36,7 +36,7 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 		})
 
 		if errDevice != nil {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
@@ -44,13 +44,13 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 
 		payload, err := helpers.VerifyToken(refetchToken, DecodePublicKeyFromPem)
 		if err != nil {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
 		claims, ok := payload.Claims.(jwt.MapClaims)
 		if !ok {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
@@ -61,12 +61,12 @@ func RefetchTokenMiddleware() gin.HandlerFunc {
 		resultCheckUser := CheckUser(email)
 
 		if !resultCheckUser {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 
 		if int(userId) != resultDevice.UserID {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			response.UnauthorizedError(c)
 			return
 		}
 

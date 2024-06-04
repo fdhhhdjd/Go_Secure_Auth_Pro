@@ -34,7 +34,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		response.BadRequestError(c, ttl)
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -55,14 +55,14 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
+			response.InternalServerError(c, errorDetailUser)
 			return nil
 		}
 	}
 
 	//* Check user have exit to yet
 	if resultDetailUser.ID != constants.NotExitData {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -72,10 +72,10 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		//* Error for database
 		errorCreateUser := utils.HandleDBError(err)
 		if errorCreateUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateUser))
+			response.InternalServerError(c, errorCreateUser)
 			return nil
 		}
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -122,7 +122,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -132,17 +132,17 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if GetVerification.UserID != reqQuery.UserId || GetVerification.VerifiedToken != reqQuery.Token || !GetVerification.IsActive {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
-		c.JSON(response.StatusBadRequest, response.UnauthorizedError())
+		response.UnauthorizedError(c)
 		return nil
 	}
 
@@ -151,7 +151,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	salt, hashedPassword, err := helpers.HashPassword(randomPassword, bcrypt.DefaultCost)
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -162,7 +162,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if errInsertHistoryPassword != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -174,7 +174,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if errUpdatePassword != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -185,7 +185,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -195,7 +195,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -237,7 +237,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		response.BadRequestError(c, ttl)
 		return nil
 	}
 
@@ -246,7 +246,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 	var resultUser *models.User
@@ -255,52 +255,52 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	case constants.Email:
 		users, err := repo.JoinUsersWithVerificationByEmail(global.DB, reqBody.Identifier)
 		if err != nil {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		if len(users) == 0 {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		resultUser = &users[0]
 	case constants.Phone:
 		users, err := repo.JoinUsersWithVerificationByPhone(global.DB, reqBody.Identifier)
 		if err != nil {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		if len(users) == 0 {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		resultUser = &users[0]
 	case constants.Username:
 		users, err := repo.JoinUsersWithVerificationByUsername(global.DB, reqBody.Identifier)
 		if err != nil {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		if len(users) == 0 {
-			c.JSON(response.StatusBadRequest, response.BadRequestError())
+			response.BadRequestError(c)
 			return nil
 		}
 		resultUser = &users[0]
 	default:
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	//* Check account have been block
 	accountBlock := checkUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
-		c.JSON(response.StatusForbidden, response.ForbiddenError())
+		response.ForbiddenError(c)
 		return nil
 	}
 
 	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash.String)
 
 	if errPassword != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -310,7 +310,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -345,7 +345,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 	// * Check UserSpam
@@ -353,7 +353,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		response.BadRequestError(c, ttl)
 		return nil
 	}
 
@@ -365,10 +365,10 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
+			response.InternalServerError(c, errorDetailUser)
 			return nil
 		}
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -376,19 +376,19 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	count, err := repo.GetVerificationByUserId(global.DB, resultDetailUser.ID)
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	numberSend := 5
 	if count >= numberSend {
 		times := fmt.Sprintf("You have sent verification %d times", numberSend)
-		c.JSON(response.StatusBadRequest, response.BadRequestError(times))
+		response.BadRequestError(c, times)
 		return nil
 	}
 
 	if resultDetailUser.IsActive {
-		c.JSON(response.StatusBadRequest, response.BadRequestError("Account is verification"))
+		response.BadRequestError(c, constants.AccountHasVerify)
 		return nil
 	}
 
@@ -426,14 +426,14 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		c.JSON(response.StatusBadRequest, response.BadRequestError(ttl))
+		response.BadRequestError(c, ttl)
 		return nil
 	}
 
 	reqBody := models.BodyForgetRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -443,13 +443,13 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorDetailUser))
+			response.InternalServerError(c, errorDetailUser)
 			return nil
 		}
 	}
 
 	if !resultDetailUser.IsActive {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -496,7 +496,7 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	reqBody := models.BodyResetPasswordRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -506,29 +506,29 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	})
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if GetVerification.UserID != reqBody.UserId || GetVerification.VerifiedToken != reqBody.Token || !GetVerification.IsActive {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
-		c.JSON(response.StatusForbidden, response.ForbiddenError())
+		response.ForbiddenError(c)
 		return nil
 	}
 
 	if !validate.IsValidPassword(reqBody.Password) {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordWeak))
+		response.BadRequestError(c, constants.PasswordWeak)
 		return nil
 	}
 
 	hashedPassword := checkPasswordOld(reqBody.Password, reqBody.UserId)
 
 	if hashedPassword == nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordHasUsed))
+		response.BadRequestError(c, constants.PasswordHasUsed)
 		return nil
 	}
 
@@ -562,7 +562,7 @@ func RenewToken(c *gin.Context) *models.LoginResponse {
 	resultRefetch, exists := c.Get(constants.InfoRefetch)
 
 	if !exists || resultRefetch == nil || resultRefetch == "" {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -575,7 +575,7 @@ func RenewToken(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -682,7 +682,7 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 	})
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 	return &resultInfoDevice
@@ -699,7 +699,7 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 	ExpiresAtTokenUnix := expiresToken.Unix()
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -723,10 +723,10 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 		//* Error for database
 		errorCreateVerification := utils.HandleDBError(err)
 		if errorCreateVerification != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateVerification))
+			response.InternalServerError(c, errorCreateVerification)
 			return nil
 		}
-		c.JSON(response.StatusBadRequest, response.InternalServerError())
+		response.InternalServerError(c)
 		return nil
 	}
 

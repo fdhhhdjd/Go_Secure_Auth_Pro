@@ -24,7 +24,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	var req models.PramsProfileRequest
 
 	if err := c.ShouldBindUri(&req); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -34,7 +34,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	})
 
 	if err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 	response := &models.ProfileResponseJSON{
@@ -63,24 +63,24 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	reqBody := models.BodyUpdateRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if !validate.ValidateAndRespond(reqBody.Username, validate.IsValidateUser) {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.UsernameInvalid))
+		response.BadRequestError(c, constants.UsernameInvalid)
 		return nil
 	}
 
 	if !validate.ValidateAndRespond(reqBody.Phone, validate.IsValidatePhone) {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PhoneInvalid))
+		response.BadRequestError(c, constants.PhoneInvalid)
 		return nil
 	}
 
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 
 	if !existsUserInfo {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -98,11 +98,11 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 		//* Error for database
 		errorCreateUser := utils.HandleDBError(err)
 		if errorCreateUser != "" {
-			c.JSON(response.StatusInternalServerError, response.InternalServerError(errorCreateUser))
+			response.InternalServerError(c, errorCreateUser)
 			return nil
 		}
 
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -119,7 +119,7 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 	deviceId, existsDevice := c.Get("device_id")
 
 	if !existsUserInfo || !existsDevice {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
@@ -152,25 +152,25 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	reqBody := models.BodyChangePasswordRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordInvalid))
+		response.BadRequestError(c, constants.PasswordInvalid)
 		return nil
 	}
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 
 	if !existsUserInfo {
-		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		response.BadRequestError(c)
 		return nil
 	}
 
 	if !validate.ValidateAndRespond(reqBody.Password, validate.IsValidPassword) {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordWeak))
+		response.BadRequestError(c, constants.PasswordWeak)
 		return nil
 	}
 
 	hashedPassword := checkPasswordOld(reqBody.Password, payload.(models.Payload).ID)
 
 	if hashedPassword == nil {
-		c.JSON(response.StatusBadRequest, response.BadRequestError(constants.PasswordHasUsed))
+		response.BadRequestError(c, constants.PasswordHasUsed)
 		return nil
 	}
 

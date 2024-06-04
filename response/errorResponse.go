@@ -2,6 +2,8 @@ package response
 
 import (
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ErrorResponse represents a structured error response
@@ -20,8 +22,12 @@ func NewErrorResponse(message string, status int) *ErrorResponse {
 	}
 }
 
+func (sr *ErrorResponse) Send(c *gin.Context) {
+	c.AbortWithStatusJSON(sr.Status, sr)
+}
+
 // BadRequestError represents a 400 Bad Request error
-func BadRequestError(messages ...string) *ErrorResponse {
+func BadRequestError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -30,11 +36,13 @@ func BadRequestError(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusBadRequest)
 	}
-	return NewErrorResponse(message, StatusBadRequest)
+	response := NewErrorResponse(message, StatusBadRequest)
+	response.Send(c)
+
 }
 
 // NotFoundError represents a 404 Not Found error
-func NotFoundError(messages ...string) *ErrorResponse {
+func NotFoundError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -43,11 +51,13 @@ func NotFoundError(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusNotFound)
 	}
-	return NewErrorResponse(message, StatusNotFound)
+	response := NewErrorResponse(message, StatusNotFound)
+	response.Send(c)
+
 }
 
 // UnauthorizedError represents a 401 Unauthorized error
-func UnauthorizedError(messages ...string) *ErrorResponse {
+func UnauthorizedError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -56,10 +66,11 @@ func UnauthorizedError(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusUnauthorized)
 	}
-	return NewErrorResponse(message, StatusUnauthorized)
+	response := NewErrorResponse(message, StatusUnauthorized)
+	response.Send(c)
 }
 
-func ForbiddenError(messages ...string) *ErrorResponse {
+func ForbiddenError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -68,11 +79,12 @@ func ForbiddenError(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusForbidden)
 	}
-	return NewErrorResponse(message, StatusForbidden)
+	response := NewErrorResponse(message, StatusForbidden)
+	response.Send(c)
 }
 
 // InternalServerError represents a 500 Internal Server Error
-func InternalServerError(messages ...string) *ErrorResponse {
+func InternalServerError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -81,11 +93,13 @@ func InternalServerError(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusInternalServerError)
 	}
-	return NewErrorResponse(message, StatusInternalServerError)
+	response := NewErrorResponse(message, StatusInternalServerError)
+	response.Send(c)
+
 }
 
 // ServiceUnavailable represents a 503 Service Unavailable
-func ServiceUnavailable(messages ...string) *ErrorResponse {
+func ServiceUnavailable(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
 		message = messages[0]
@@ -94,5 +108,6 @@ func ServiceUnavailable(messages ...string) *ErrorResponse {
 	if message == "" {
 		message = GetReasonPhrase(StatusServiceUnavailable)
 	}
-	return NewErrorResponse(message, StatusServiceUnavailable)
+	response := NewErrorResponse(message, StatusServiceUnavailable)
+	response.Send(c)
 }
