@@ -22,6 +22,8 @@ func NewErrorResponse(message string, status int) *ErrorResponse {
 	}
 }
 
+// Send sends the error response to the client.
+// It aborts the request and responds with the error response as JSON.
 func (sr *ErrorResponse) Send(c *gin.Context) {
 	c.AbortWithStatusJSON(sr.Status, sr)
 }
