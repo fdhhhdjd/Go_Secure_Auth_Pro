@@ -36,5 +36,4 @@ func init() {
 		fmt.Printf("Error connecting to Redis: %v\n", err)
 		panic(err)
 	}
-
 }

@@ -21,7 +21,7 @@ services:
     ports:
       - "${POSTGRES_PORT_MAPPING}:${POSTGRES_PORT}" # Map the container port to the host port
     networks:
-      - service_banking-network # Connect to the custom network
+      - service_auth-network # Connect to the custom network
     healthcheck:
       test: [
           "CMD-SHELL",
@@ -31,6 +31,35 @@ services:
       timeout: 3s # Health check timeout
       retries: 3 # Number of retries before marking the service as unhealthy
 
+  # TODO: GO
+  # App Service
+  app:
+    # Configuration for building the docker image for the service
+    restart: unless-stopped
+    build:
+      context: . # Use the Dockerfile in the current directory to build the image
+      dockerfile: ./third_party/docker/go/Dockerfile # Specify the Dockerfile location
+    env_file:
+      - .env # Load environment variables from .env file
+    environment:
+      ENV: "pro" # Port for the service
+    ports:
+      - "${PORT}:${PORT}" # Map the container port to the host port
+    depends_on:
+      - postgresql # This service depends on PostgreSQL. Start PostgreSQL first.
+    networks:
+      - service_auth-network # Connect to the custom network
+    healthcheck:
+      test: [
+          "CMD",
+          "sh",
+          "-c",
+          "curl -sSf http://${HOST}:${PORT}/ping > /dev/null",
+        ] # Health check to verify the app is running
+      interval: 60s # Interval between health checks
+      timeout: 2s # Health check timeout
+      retries: 3 # Number of retries before marking the service as unhealthy
+
 # Use local driver for the volume
 volumes:
   db_data:
@@ -38,5 +67,5 @@ volumes:
 
 # Use bridge network driver
 networks:
-  service_banking-network:
+  service_auth-network:
     driver: bridge

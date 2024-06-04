@@ -30,3 +30,4 @@ configs/yaml/config.prod.yaml
 
 tmp
 migrations/repo
+docs/postman

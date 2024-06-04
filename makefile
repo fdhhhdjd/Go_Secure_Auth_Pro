@@ -16,6 +16,9 @@ dev:
 build:
 	docker-compose -f $(DOCKER_COMPOSE) up -d --build
 
+down:
+	docker-compose -f $(DOCKER_COMPOSE) down
+
 ################# TODO: SQLC #################
 sqlc:
 	sqlc generate

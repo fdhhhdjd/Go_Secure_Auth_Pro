@@ -1,11 +1,12 @@
 server:
   host: "localhost"
   port: 8000
-  port_frontend: "http://localhost:3000"
+  portfrontend: "http://localhost:3000"
+  keypassword: ""
 
 database:
   username: ""
-  password: ""
+  password: "@"
   name: ""
   host: ""
   port:
@@ -18,7 +19,7 @@ Cache:
 
 gmail:
   host: "smtp.gmail.com"
-  port: 465
+  port:
   service: "gmail"
-  mail: "example@gmail.com"
-  password: "Nguyen Tien Tai"
+  mail: ""
+  password: ""
