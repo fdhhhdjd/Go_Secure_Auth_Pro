@@ -29,7 +29,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	}
 
 	user, err := repo.GetUserId(global.DB, models.GetUserIdParams{
-		ID:       req.UserId,
+		ID:       req.Id,
 		IsActive: true,
 	})
 

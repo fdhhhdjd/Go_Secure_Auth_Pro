@@ -170,7 +170,7 @@ type ProfileResponseJSON struct {
 }
 
 type PramsProfileRequest struct {
-	UserId int `uri:"id" binding:"required,min=1`
+	Id int `uri:"id" binding:"required,min=1"`
 }
 
 type GetUserIdParams struct {

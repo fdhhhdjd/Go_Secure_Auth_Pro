@@ -567,10 +567,11 @@ func RenewToken(c *gin.Context) *models.LoginResponse {
 	}
 
 	payloadRefetch := resultRefetch.(models.PayloadRefetchResponse)
+	userIDEmail := models.UserIDEmail(payloadRefetch)
 
 	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
-		ID:    payloadRefetch.ID,
-		Email: payloadRefetch.Email,
+		ID:    userIDEmail.ID,
+		Email: userIDEmail.Email,
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
@@ -602,9 +603,10 @@ func createKeyAndToken(resultUser models.UserIDEmail) (string, string, string) {
 
 	resultEncodePublicKey := helpers.EncodePublicKeyToPem(publicKey)
 
+	payload := models.Payload(resultUser)
 	accessToken, err := helpers.CreateToken(models.Payload{
-		ID:    resultUser.ID,
-		Email: resultUser.Email,
+		ID:    payload.ID,
+		Email: payload.Email,
 	}, privateKey, constants.ExpiresAccessToken)
 
 	if err != nil {
@@ -612,8 +614,8 @@ func createKeyAndToken(resultUser models.UserIDEmail) (string, string, string) {
 	}
 
 	refetchToken, err := helpers.CreateToken(models.Payload{
-		ID:    resultUser.ID,
-		Email: resultUser.Email,
+		ID:    payload.ID,
+		Email: payload.Email,
 	}, privateKey, constants.ExpiresRefreshToken)
 
 	if err != nil {
