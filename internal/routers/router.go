@@ -41,6 +41,10 @@ func NewRouter() *gin.Engine {
 			auth.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
 			auth.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
 			auth.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
+
+			auth.Use(middlewares.RefetchTokenMiddleware())
+			auth.GET("/renew-token", utils.AsyncHandler(controller.RenewToken))
+
 		}
 
 		//* Group v1/user routes (example, you can add more routes here)

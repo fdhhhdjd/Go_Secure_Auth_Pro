@@ -141,3 +141,10 @@ type LogoutResponse struct {
 	Id    int    `json:"id"`
 	Email string `json:"email"`
 }
+
+//* --- Renew Token
+
+type PayloadRefetchResponse struct {
+	ID    int    `json:"id"`
+	Email string `json:"email"`
+}

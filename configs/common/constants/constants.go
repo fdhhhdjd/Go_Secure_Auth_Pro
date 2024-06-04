@@ -48,6 +48,8 @@ const (
 
 const (
 	UserLoginKey = "user_login"
+	InfoAccess   = "info_access"
+	InfoRefetch  = "info_refetch"
 )
 
 const (

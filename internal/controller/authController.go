@@ -76,3 +76,16 @@ func ResetPassword(c *gin.Context) error {
 	response.Ok(c, "Reset Password", result)
 	return nil
 }
+
+// RenewToken renews the authentication token.
+// It calls the RenewToken function from the service package to renew the token.
+// If the token renewal is successful, it sends an "OK" response with the renewed token.
+// If there is an error during the token renewal process, it returns the error.
+func RenewToken(c *gin.Context) error {
+	result := service.RenewToken(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Renew Token", result)
+	return nil
+}

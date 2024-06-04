@@ -42,7 +42,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponse {
 // Otherwise, it updates the logout time in the database, clears the user login cookie,
 // and returns a pointer to models.LogoutResponse containing the user ID and email.
 func Logout(c *gin.Context) *models.LogoutResponse {
-	payload, existsUserInfo := c.Get("user_info")
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	deviceId, existsDevice := c.Get("device_id")
 
 	if !existsUserInfo || !existsDevice {

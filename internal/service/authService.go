@@ -316,7 +316,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	resultInfoDevice := upsetDevice(c, resultUser.ID, resultEncodePublicKey)
 
-	setCookie(c, constants.UserLoginKey, refetchToken, "/cookie", constants.AgeCookie)
+	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
 
 	return &models.LoginResponse{
 		ID:          resultUser.ID,
@@ -551,6 +551,42 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 
 	return &models.ResetPasswordResponse{
 		Id: reqBody.UserId,
+	}
+}
+
+// RenewToken generates a new access token and refresh token for the user,
+// and returns a LoginResponse containing the user's ID, email, device ID, and access token.
+// It takes a gin.Context as input and returns a pointer to a LoginResponse.
+// If any error occurs during the token generation or device update, it returns nil.
+func RenewToken(c *gin.Context) *models.LoginResponse {
+	resultRefetch, exists := c.Get(constants.InfoRefetch)
+
+	if !exists || resultRefetch == nil || resultRefetch == "" {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	payloadRefetch := resultRefetch.(models.PayloadRefetchResponse)
+
+	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
+		ID:    payloadRefetch.ID,
+		Email: payloadRefetch.Email,
+	})
+
+	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
+		c.JSON(response.StatusBadRequest, response.BadRequestError())
+		return nil
+	}
+
+	resultInfoDevice := upsetDevice(c, payloadRefetch.ID, resultEncodePublicKey)
+
+	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
+
+	return &models.LoginResponse{
+		ID:          payloadRefetch.ID,
+		Email:       payloadRefetch.Email,
+		DeviceID:    resultInfoDevice.DeviceID,
+		AccessToken: accessToken,
 	}
 }
 

@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"strings"
-
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
@@ -13,39 +11,38 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func AuthorizationMiddleware() gin.HandlerFunc {
+// RefetchTokenMiddleware is a middleware function that handles the refetch token logic.
+// It checks if the refetch token is valid and associated with the correct device and user.
+// If the refetch token is invalid or the device/user is unauthorized, it aborts the request with an unauthorized status.
+// Otherwise, it sets the refetch token in the context and proceeds to the next middleware or handler.
+func RefetchTokenMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
+		refetchToken, err := c.Cookie("user_login")
+		if err != nil {
+			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			return
+		}
 
+		if err != nil {
+			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
+			return
+		}
 		deviceID, exists := c.Get("device_id")
 
-		if authHeader == "" || deviceID == nil || !exists {
+		if deviceID == nil || !exists {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return
 		}
 
-		fields := strings.Fields(authHeader)
-		if len(fields) < 2 {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
-			return
-		}
-
-		resultDevice, err := repo.GetDeviceId(global.DB, models.GetDeviceIdParams{
+		resultDevice, errDevice := repo.GetDeviceId(global.DB, models.GetDeviceIdParams{
 			DeviceId: deviceID.(string),
 			IsActive: true,
 		})
 
-		if err != nil || resultDevice.PublicKey.String == "" {
-			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
-			return
-		}
-
-		accessToken := fields[1]
-
 		DecodePublicKeyFromPem, _ := helpers.DecodePublicKeyFromPem(resultDevice.PublicKey.String)
 
-		payload, err := helpers.VerifyToken(accessToken, DecodePublicKeyFromPem)
-		if err != nil {
+		payload, err := helpers.VerifyToken(refetchToken, DecodePublicKeyFromPem)
+		if err != nil || errDevice != nil {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return
 		}
@@ -57,20 +54,19 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		}
 
 		userInfo := claims["userInfo"].(map[string]interface{})
-		email := userInfo["email"].(string)
 		userId := userInfo["id"].(float64)
+		email := userInfo["email"].(string)
 
 		if int(userId) != resultDevice.UserID {
 			c.AbortWithStatusJSON(response.StatusUnauthorized, response.UnauthorizedError())
 			return
 		}
 
-		c.Set(constants.InfoAccess, models.Payload{
+		c.Set(constants.InfoRefetch, models.PayloadRefetchResponse{
 			ID:    int(userId),
 			Email: email,
 		})
 
 		c.Next()
-
 	}
 }
