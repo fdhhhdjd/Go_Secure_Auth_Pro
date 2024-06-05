@@ -4,15 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 
+	firebase "firebase.google.com/go"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller/initialization"
+	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/setting"
 	"github.com/redis/go-redis/v9"
 )
 
 var (
-	Cfg   configs.Config
-	DB    *sql.DB
-	Cache *redis.Client
+	Cfg      configs.Config
+	DB       *sql.DB
+	Cache    *redis.Client
+	AdminSdk *firebase.App
 )
 
 func init() {
@@ -34,6 +37,13 @@ func init() {
 	Cache, err = initialization.ConnectRedis(Cfg)
 	if err != nil {
 		fmt.Printf("Error connecting to Redis: %v\n", err)
+		panic(err)
+	}
+
+	//* FIREBASE
+	AdminSdk, err = pkg.InitializeApp()
+	if err != nil {
+		fmt.Printf("Error connecting to firebase: %v\n", err)
 		panic(err)
 	}
 }

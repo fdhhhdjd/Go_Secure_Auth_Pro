@@ -50,6 +50,17 @@ type LoginResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
+// * ---Login Social
+type BodyLoginSocialRequest struct {
+	Uid string `json:"uid" binding:"required"`
+}
+
+type SocialResponse struct {
+	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
+	Picture  string `json:"picture"`
+}
+
 // * --- UpdateUser
 type UpdatePasswordParams struct {
 	PasswordHash string `json:"password_hash"`

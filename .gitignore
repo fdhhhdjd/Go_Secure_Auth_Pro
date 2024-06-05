@@ -31,3 +31,4 @@ configs/yaml/config.prod.yaml
 tmp
 migrations/repo
 docs/postman
+third_party/firebase/go-auth-pro-firebase-admin-sdk.json

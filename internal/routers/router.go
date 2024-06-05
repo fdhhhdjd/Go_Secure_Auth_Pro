@@ -40,6 +40,7 @@ func NewRouter() *gin.Engine {
 			auth.POST("/register", utils.AsyncHandler(controller.Register))
 			auth.POST("/resend-link-verification", utils.AsyncHandler(controller.ResendVerificationLink))
 			auth.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
+			auth.POST("/login-social", utils.AsyncHandler(controller.LoginSocial))
 			auth.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
 			auth.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
 

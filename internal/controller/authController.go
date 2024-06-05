@@ -55,6 +55,19 @@ func LoginIdentifier(c *gin.Context) error {
 	return nil
 }
 
+// LoginSocial handles the social login functionality.
+// It calls the LoginSocial function from the service package to perform the login operation.
+// If the login is successful, it returns the result as a response using the Ok function from the response package.
+// If the login fails, it returns an error.
+func LoginSocial(c *gin.Context) error {
+	result := service.LoginSocial(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Login Social", result)
+	return nil
+}
+
 // ForgetPassword handles the forget password functionality.
 // It calls the service to process the forget password request and returns the result.
 func ForgetPassword(c *gin.Context) error {
