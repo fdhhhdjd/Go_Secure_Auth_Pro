@@ -6,6 +6,9 @@ export $(shell sed 's/=.*//' .env)
 DOCKER_COMPOSE_DEV := docker-compose.dev.yml
 DOCKER_COMPOSE_PRO := docker-compose.pro.yml
 
+DOCKER_IMAGE_NAME :=nguyentientai/go-secure-auth-pro:lastest
+DOCKERFILE_PATH := ./third_party/docker/go/Dockerfile
+
 ################# TODO: GOLANG #################
 start:
 	go run ./cmd/server/main.go
@@ -25,6 +28,18 @@ build-dev:
 
 down-pro:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) down
+
+
+################# TODO: DOCKER HUB #################
+image-tag:
+	docker build -t $(DOCKER_IMAGE_NAME) -f $(DOCKERFILE_PATH) .
+
+push-registry:
+	docker push $(DOCKER_IMAGE_NAME)
+
+update-registry:
+	make image-tag
+	make push-registry
 
 ################# TODO: SQLC #################
 sqlc:

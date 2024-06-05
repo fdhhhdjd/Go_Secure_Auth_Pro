@@ -16,10 +16,24 @@ B2. Run PostGresql Docker
     make build-dev
 ```
 
-B2. Run Go On PC or Laptop
+B3. Run Go On PC or Laptop
 
 Note: If on PC or Laptop not have go, let install go
 
 ```bash
     make dev
+```
+
+## Production
+
+B1. Clone source code and edit environment
+
+```bash
+    git clone git@github.com:fdhhhdjd/Go_Secure_Auth_Pro.git
+```
+
+B3. Build equal Docker
+
+```bash
+    make build-pro
 ```

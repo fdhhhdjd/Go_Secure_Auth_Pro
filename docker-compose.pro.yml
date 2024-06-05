@@ -33,14 +33,16 @@ services:
 
   # TODO: GO
   # App Service
-  app:
+  service_auth:
+    # Name container
+    container_name: service_auth
     # Configuration for building the docker image for the service
     restart: unless-stopped
-    build:
-      context: . # Use the Dockerfile in the current directory to build the image
-      dockerfile: ./third_party/docker/go/Dockerfile # Specify the Dockerfile location
+    # Image production
+    image: nguyentientai/go-secure-auth-pro:lastest
+    # Load environment variables from .env file
     env_file:
-      - .env # Load environment variables from .env file
+      - .env
     environment:
       ENV: "pro" # Port for the service
     ports:
