@@ -19,3 +19,9 @@ const (
 	ExtendedBlock  = 30 * time.Minute
 	ExpireDuration = 30 * time.Second
 )
+
+const (
+	SocialGoogle   = 10
+	SocialFacebook = 20
+	SocialGithub   = 30
+)

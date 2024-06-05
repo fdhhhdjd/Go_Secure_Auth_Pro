@@ -95,6 +95,8 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	upsetDevice(c, resultCreateUser.ID, "")
 
+	helpers.CreateUser(c, reqBody.Email, helpers.RandomPassword())
+
 	go pkg.SendGoEmail(reqBody.Email, data)
 
 	return &models.RegistrationResponse{
@@ -291,7 +293,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	}
 
 	//* Check account have been block
-	accountBlock := checkUserIsActive(resultUser.IsActive)
+	accountBlock := CheckUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
 		response.ForbiddenError(c)
 		return nil
@@ -737,10 +739,10 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 
 }
 
-// checkUserIsActive checks if a user is active.
+// CheckUserIsActive checks if a user is active.
 // If the user is not active, it returns nil.
 // Otherwise, it returns a pointer to the isActive parameter.
-func checkUserIsActive(isActive bool) *bool {
+func CheckUserIsActive(isActive bool) *bool {
 	if !isActive {
 		return nil
 	}

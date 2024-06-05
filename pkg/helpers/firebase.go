@@ -52,12 +52,14 @@ func GetUserIDToken(c *gin.Context, uid string) *models.SocialResponse {
 
 // createUser creates a new user in Firebase Authentication with the provided email and password.
 // It returns the created user record or an error if the user creation fails.
-func createUser(authClient *auth.Client, email, password string) (*auth.UserRecord, error) {
+func CreateUser(c *gin.Context, email, password string) (*auth.UserRecord, error) {
+	authClient := getAuthClient(c)
+
 	params := (&auth.UserToCreate{}).
 		Email(email).
-		EmailVerified(false).
+		EmailVerified(true).
 		Password(password).
-		DisplayName("Example User").
+		DisplayName(email).
 		Disabled(false)
 
 	u, err := authClient.CreateUser(context.Background(), params)
@@ -71,11 +73,10 @@ func createUser(authClient *auth.Client, email, password string) (*auth.UserReco
 // CreateAndGetUidTestFireBase is a function that creates a new user in Firebase
 // and retrieves the ID token for the user.
 func CreateAndGetUidTestFireBase(c *gin.Context) {
-	authClient := getAuthClient(c)
 	// Create a new user
 	email := RandomEmail()
 	password := RandomPassword()
-	u, err := createUser(authClient, email, password)
+	u, err := CreateUser(c, email, password)
 	if err != nil {
 		errMsg := fmt.Errorf("error creating user: %v", err)
 		log.Fatalf(errMsg.Error())

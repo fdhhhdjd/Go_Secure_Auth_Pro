@@ -52,7 +52,8 @@ type LoginResponse struct {
 
 // * ---Login Social
 type BodyLoginSocialRequest struct {
-	Uid string `json:"uid" binding:"required"`
+	Uid  string `json:"uid" binding:"required"`
+	Type int    `json:"type" binding:"required"`
 }
 
 type SocialResponse struct {
