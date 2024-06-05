@@ -69,24 +69,3 @@ func CreateUser(c *gin.Context, email, password string) (*auth.UserRecord, error
 	fmt.Printf("Successfully created user: %v\n", u.UID)
 	return u, nil
 }
-
-// CreateAndGetUidTestFireBase is a function that creates a new user in Firebase
-// and retrieves the ID token for the user.
-func CreateAndGetUidTestFireBase(c *gin.Context) {
-	// Create a new user
-	email := RandomEmail()
-	password := RandomPassword()
-	u, err := CreateUser(c, email, password)
-	if err != nil {
-		errMsg := fmt.Errorf("error creating user: %v", err)
-		log.Fatalf(errMsg.Error())
-	}
-
-	// Get the ID Token for the user
-	userRecord := GetUserIDToken(c, u.UID)
-	if userRecord != nil {
-		fmt.Printf("ID userRecord: %s\n", userRecord)
-	} else {
-		log.Fatalf("error getting ID userRecord")
-	}
-}
