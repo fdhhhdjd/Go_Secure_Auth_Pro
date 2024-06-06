@@ -55,6 +55,11 @@ func LoginSocial(c *gin.Context) *models.LoginResponse {
 
 	resultUser := &users[0]
 
+	if !resultUser.TwoFactorEnabled {
+		response.BadRequestError(c, constants.TwoFactorEnabled)
+		return nil
+	}
+
 	accountBlock := CheckUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
 		response.ForbiddenError(c)

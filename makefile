@@ -29,7 +29,7 @@ down-pro:
 build-dev:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d --build
 
-down-pro:
+down-dev:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) down
 
 

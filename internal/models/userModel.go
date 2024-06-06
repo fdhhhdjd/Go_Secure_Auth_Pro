@@ -213,3 +213,13 @@ type ChangePassResponse struct {
 type BodyChangePasswordRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
+
+// * Update Two Factor Enable
+type UpdateTwoFactorEnableParams struct {
+	TwoFactorEnabled bool `json:"two_factor_enabled"`
+	ID               int  `json:"id"`
+}
+
+type BodyTwoFactorEnableRequest struct {
+	TwoFactorEnabled bool `json:"two_factor_enabled"`
+}

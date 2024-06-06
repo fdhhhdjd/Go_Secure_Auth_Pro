@@ -59,7 +59,7 @@ func NewRouter() *gin.Engine {
 
 			user.POST("/update-profile", utils.AsyncHandler(controller.UpdateProfile))
 			user.POST("/change-pass", utils.AsyncHandler(controller.ChangePassword))
-
+			user.POST("/enable-tow-factor", utils.AsyncHandler(controller.EnableTowFactor))
 		}
 	}
 

@@ -191,6 +191,39 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	}
 }
 
+// EnableTowFactor enables two-factor authentication for a user.
+// It takes a Gin context `c` and returns an `UpdateTwoFactorEnableParams` pointer.
+// The function first parses the JSON request body into a `BodyTwoFactorEnableRequest` struct.
+// If the JSON parsing fails, it responds with a bad request error and returns nil.
+// Then, it retrieves the user information from the Gin context.
+// If the user information does not exist, it responds with a bad request error and returns nil.
+// Finally, it updates the two-factor authentication status for the user in the database
+// and returns an `UpdateTwoFactorEnableParams` pointer with the updated information.
+func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
+	reqBody := models.BodyTwoFactorEnableRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		response.BadRequestError(c, constants.TwoFactorEnabledInvalid)
+		return nil
+	}
+
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+
+	if !existsUserInfo {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	repo.UpdateTwoFactorEnable(global.DB, models.UpdateTwoFactorEnableParams{
+		ID:               payload.(models.Payload).ID,
+		TwoFactorEnabled: reqBody.TwoFactorEnabled,
+	})
+	return &models.UpdateTwoFactorEnableParams{
+		ID:               payload.(models.Payload).ID,
+		TwoFactorEnabled: reqBody.TwoFactorEnabled,
+	}
+}
+
 // clearCookie clears the specified cookie from the response.
 // The cookie is set to expire immediately and its value is emptied.
 // The `httpOnly` flag is set based on the environment.

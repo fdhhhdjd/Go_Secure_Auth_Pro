@@ -320,3 +320,14 @@ func UpdateUser(db *sql.DB, arg models.UpdateUserParams) (models.UpdateUserRow, 
 	)
 	return i, err
 }
+
+const updateTwoFactorEnable = `-- name: UpdateTwoFactorEnable :exec
+UPDATE users
+SET two_factor_enabled = $1
+WHERE id = $2
+`
+
+func UpdateTwoFactorEnable(db *sql.DB, arg models.UpdateTwoFactorEnableParams) error {
+	_, err := db.ExecContext(context.Background(), updateTwoFactorEnable, arg.TwoFactorEnabled, arg.ID)
+	return err
+}

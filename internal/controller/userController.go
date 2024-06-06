@@ -57,3 +57,16 @@ func ChangePassword(c *gin.Context) error {
 	response.Ok(c, "Change Password User", result)
 	return nil
 }
+
+// EnableTowFactor enables two-factor authentication for a user.
+// It calls the ChangePassword function from the service package to change the user's password.
+// If the password change is successful, it returns a success response with the updated user information.
+// Otherwise, it returns an error.
+func EnableTowFactor(c *gin.Context) error {
+	result := service.EnableTowFactor(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Enable Tow Factor User", result)
+	return nil
+}
