@@ -514,68 +514,6 @@ paths:
       summary: Verify OTP
       tags:
       - Auth
-  /change-password:
-    post:
-      consumes:
-      - application/json
-      description: Changes the password for a user
-      parameters:
-      - description: Device ID
-        in: header
-        name: X-Device-Id
-        required: true
-        type: string
-      - description: Password change request body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.BodyChangePasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ChangePassResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Change user password
-      tags:
-      - Users
-  /enable-two-factor:
-    post:
-      consumes:
-      - application/json
-      description: Enables two-factor authentication for a user
-      parameters:
-      - description: Device ID
-        in: header
-        name: X-Device-Id
-        required: true
-        type: string
-      - description: Two-factor enable request body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.BodyTwoFactorEnableRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.UpdateTwoFactorEnableParams'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Enable two-factor authentication
-      tags:
-      - Users
   /login-social:
     post:
       consumes:
@@ -615,31 +553,6 @@ paths:
       summary: Login with social account
       tags:
       - Auth
-  /logout:
-    post:
-      consumes:
-      - application/json
-      description: Logs out a user
-      parameters:
-      - description: Device ID
-        in: header
-        name: X-Device-Id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.LogoutResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Logout user
-      tags:
-      - Users
   /users/{id}:
     get:
       consumes:
@@ -668,6 +581,93 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Get user profile
+      tags:
+      - Users
+  /users/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Changes the password for a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Password change request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ChangePassResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Change user password
+      tags:
+      - Users
+  /users/enable-two-factor:
+    post:
+      consumes:
+      - application/json
+      description: Enables two-factor authentication for a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Two-factor enable request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyTwoFactorEnableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateTwoFactorEnableParams'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Enable two-factor authentication
+      tags:
+      - Users
+  /users/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logs out a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LogoutResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Logout user
       tags:
       - Users
   /users/profile:

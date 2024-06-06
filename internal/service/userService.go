@@ -145,7 +145,7 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 // @Param X-Device-Id header string true "Device ID"
 // @Success 200 {object} models.LogoutResponse
 // @Failure 400 {object} response.ErrorResponse
-// @Router /logout [post]
+// @Router /users/logout [post]
 func Logout(c *gin.Context) *models.LogoutResponse {
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	deviceId, existsDevice := c.Get("device_id")
@@ -190,7 +190,7 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 // @Param body body models.BodyChangePasswordRequest true "Password change request body"
 // @Success 200 {object} models.ChangePassResponse
 // @Failure 400 {object} response.ErrorResponse
-// @Router /change-password [post]
+// @Router /users/change-password [post]
 func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	reqBody := models.BodyChangePasswordRequest{}
 
@@ -255,7 +255,7 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 // @name Authorization
 // @Success 200 {object} models.UpdateTwoFactorEnableParams
 // @Failure 400 {object} response.ErrorResponse
-// @Router /enable-two-factor [post]
+// @Router /users/enable-two-factor [post]
 func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 	reqBody := models.BodyTwoFactorEnableRequest{}
 
