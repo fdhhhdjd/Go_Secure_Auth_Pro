@@ -12,6 +12,9 @@ DOCKER_COMPOSE_PRO := docker-compose.pro.yml
 DOCKER_IMAGE_NAME :=nguyentientai/go-secure-auth-pro:lastest
 DOCKERFILE_PATH := ./third_party/docker/go/Dockerfile
 
+SWAGGER_DIR=./docs/swagger
+
+
 ################# TODO: GOLANG #################
 start:
 	go run $(GO_SERVER_PRO)
@@ -47,5 +50,12 @@ update-registry:
 ################# TODO: SQLC #################
 sqlc:
 	sqlc generate
+
+################# TODO: SWAGGER #################
+swagger:
+	@echo "Generating Swagger documentation..."
+	swag init --parseDependency -g  $(GO_SERVER_PRO) -o $(SWAGGER_DIR)
+
+
 
 

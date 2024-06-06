@@ -46,6 +46,17 @@ func SendOtp(c *gin.Context, userId int) *models.SendOtpResponse {
 // If any of these values are empty, it returns a bad request error response.
 // It then updates the user's device information using the upsetDevice function.
 // Finally, it sets a cookie with the refetch token and returns a LoginResponse object with the user's ID, device ID, email, and access token.
+//
+// @Summary Verify OTP
+// @Description Handles the OTP verification process
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.OtpRequest true "OTP verification request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Router /auth/verify-otp [post]
 func VerificationOtp(c *gin.Context) *models.LoginResponse {
 	var req models.OtpRequest
 

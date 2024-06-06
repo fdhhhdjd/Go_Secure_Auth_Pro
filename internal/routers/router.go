@@ -5,10 +5,13 @@ import (
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
+	_ "github.com/fdhhhdjd/Go_Secure_Auth_Pro/docs/swagger"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter() *gin.Engine {
@@ -20,6 +23,9 @@ func NewRouter() *gin.Engine {
 	}
 
 	r := gin.Default()
+
+	//* Swaggers
+	r.GET("/docs/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	//* Test
 	r.GET("/ping", controller.Pong)

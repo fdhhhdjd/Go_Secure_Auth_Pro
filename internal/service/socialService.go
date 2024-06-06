@@ -24,6 +24,18 @@ import (
 // If any of the tokens or the encoded public key is empty, it returns a bad request error response and nil.
 // Next, it updates the user's device information and returns the device ID.
 // Finally, it sets a cookie with the refresh token and returns a models.LoginResponse object with the user's ID, device ID, email, and access token.
+// @Summary Login with social account
+// @Description Handles the login process with social account
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyLoginSocialRequest true "Social login request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Router /login-social [post]
 func LoginSocial(c *gin.Context) *models.LoginResponse {
 	reqBody := models.BodyLoginSocialRequest{}
 

@@ -1,0 +1,704 @@
+basePath: /v1
+definitions:
+  models.BodyChangePasswordRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+    required:
+    - password
+    type: object
+  models.BodyForgetRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  models.BodyLoginRequest:
+    properties:
+      identifier:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - identifier
+    - password
+    type: object
+  models.BodyLoginSocialRequest:
+    properties:
+      type:
+        type: integer
+      uid:
+        type: string
+    required:
+    - type
+    - uid
+    type: object
+  models.BodyRegisterRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  models.BodyResetPasswordRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - password
+    - token
+    - user_id
+    type: object
+  models.BodyTwoFactorEnableRequest:
+    properties:
+      two_factor_enabled:
+        type: boolean
+    type: object
+  models.BodyUpdateRequest:
+    properties:
+      avatar:
+        type: string
+      fullname:
+        type: string
+      gender:
+        type: integer
+      phone:
+        type: string
+      username:
+        type: string
+    type: object
+  models.ChangePassResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.ForgetResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      device_id:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.LogoutResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.OtpRequest:
+    properties:
+      otp:
+        type: string
+    required:
+    - otp
+    type: object
+  models.ProfileResponseJSON:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      fullname:
+        type: string
+      gender:
+        type: integer
+      hidden_email:
+        type: string
+      hidden_phone_number:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: string
+      phone:
+        type: string
+      two_factor_enabled:
+        type: string
+      username:
+        type: string
+    type: object
+  models.RegistrationResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+  models.ResetPasswordResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  models.UpdateTwoFactorEnableParams:
+    properties:
+      id:
+        type: integer
+      two_factor_enabled:
+        type: boolean
+    type: object
+  models.UpdateUserRow:
+    properties:
+      avatar:
+        $ref: '#/definitions/sql.NullString'
+      fullname:
+        $ref: '#/definitions/sql.NullString'
+      gender:
+        $ref: '#/definitions/sql.NullInt32'
+      hidden_phone_number:
+        $ref: '#/definitions/sql.NullString'
+      id:
+        type: integer
+      username:
+        $ref: '#/definitions/sql.NullString'
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+      now:
+        type: integer
+      status:
+        type: integer
+    type: object
+  sql.NullInt32:
+    properties:
+      int32:
+        type: integer
+      valid:
+        description: Valid is true if Int32 is not NULL
+        type: boolean
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is server auth API in Go using Gin framework
+  title: Server Auth
+  version: "1.0"
+paths:
+  /auth/forget-password:
+    post:
+      consumes:
+      - application/json
+      description: Handles the process of initiating password reset for a user
+      parameters:
+      - description: Forget password request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyForgetRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ForgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Forget password
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Handles the login process for a user with identifier (email, phone,
+        username)
+      parameters:
+      - description: Login request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyLoginRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login with identifier
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Handles the registration process for a user
+      parameters:
+      - description: Registration request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyRegisterRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+  /auth/renew-token:
+    get:
+      consumes:
+      - application/json
+      description: Handles the process of renewing access token for a user
+      parameters:
+      - description: Cookie
+        in: header
+        name: Cookie
+        required: true
+        type: string
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Renew access token
+      tags:
+      - Auth
+  /auth/resend-verification:
+    post:
+      consumes:
+      - application/json
+      description: Handles the process of resending verification link to a user
+      parameters:
+      - description: Resend verification link request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyRegisterRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Resend verification link
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Handles the process of resetting password for a user
+      parameters:
+      - description: Reset password request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResetPasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Reset password
+      tags:
+      - Auth
+  /auth/verify-account:
+    get:
+      consumes:
+      - application/json
+      description: Handles the verification process for a user account
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Verification token
+        in: query
+        name: token
+        required: true
+        type: string
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Verify user account
+      tags:
+      - Auth
+  /auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Handles the OTP verification process
+      parameters:
+      - description: OTP verification request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.OtpRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Verify OTP
+      tags:
+      - Auth
+  /change-password:
+    post:
+      consumes:
+      - application/json
+      description: Changes the password for a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Password change request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ChangePassResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Change user password
+      tags:
+      - Users
+  /enable-two-factor:
+    post:
+      consumes:
+      - application/json
+      description: Enables two-factor authentication for a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Two-factor enable request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyTwoFactorEnableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateTwoFactorEnableParams'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Enable two-factor authentication
+      tags:
+      - Users
+  /login-social:
+    post:
+      consumes:
+      - application/json
+      description: Handles the login process with social account
+      parameters:
+      - description: Social login request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyLoginSocialRequest'
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login with social account
+      tags:
+      - Auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Logs out a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LogoutResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Logout user
+      tags:
+      - Users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the profile information of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProfileResponseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get user profile
+      tags:
+      - Users
+  /users/profile:
+    post:
+      consumes:
+      - application/json
+      description: Updates the profile information of a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Profile update request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateUserRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update user profile
+      tags:
+      - Users
+swagger: "2.0"

@@ -20,6 +20,17 @@ import (
 
 // GetProfileUser retrieves the profile of a user based on the provided user ID.
 // It returns a pointer to a models.ProfileResponse struct.
+//
+// @Summary Get user profile
+// @Description Retrieves the profile information of a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.ProfileResponseJSON
+// @Failure 400 {object} response.ErrorResponse
+// @Router /users/{id} [get]
 func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	var req models.PramsProfileRequest
 
@@ -59,6 +70,17 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 // It validates the request body fields, checks the user's access information, and updates the user's profile in the database.
 // If any validation or database error occurs, it returns an appropriate error response.
 // Otherwise, it returns the updated user profile.
+//
+// @Summary Update user profile
+// @Description Updates the profile information of a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param body body models.BodyUpdateRequest true "Profile update request body"
+// @Success 200 {object} models.UpdateUserRow
+// @Failure 400 {object} response.ErrorResponse
+// @Router /users/profile [post]
 func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	reqBody := models.BodyUpdateRequest{}
 
@@ -114,6 +136,16 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 // If the user_info or device_id is missing in the context, it returns a BadRequestError.
 // Otherwise, it updates the logout time in the database, clears the user login cookie,
 // and returns a pointer to models.LogoutResponse containing the user ID and email.
+//
+// @Summary Logout user
+// @Description Logs out a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LogoutResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Router /logout [post]
 func Logout(c *gin.Context) *models.LogoutResponse {
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	deviceId, existsDevice := c.Get("device_id")
@@ -148,6 +180,17 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 // If the old password is not valid, it returns a BadRequestError response with the error message "PasswordHasUsed".
 // The function inserts the old password into the password history table and updates the password in the user table.
 // Finally, it returns a ChangePassResponse object with the user ID and email.
+//
+// @Summary Change user password
+// @Description Changes the password for a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param body body models.BodyChangePasswordRequest true "Password change request body"
+// @Success 200 {object} models.ChangePassResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Router /change-password [post]
 func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	reqBody := models.BodyChangePasswordRequest{}
 
@@ -199,6 +242,20 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 // If the user information does not exist, it responds with a bad request error and returns nil.
 // Finally, it updates the two-factor authentication status for the user in the database
 // and returns an `UpdateTwoFactorEnableParams` pointer with the updated information.
+//
+// @Summary Enable two-factor authentication
+// @Description Enables two-factor authentication for a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param body body models.BodyTwoFactorEnableRequest true "Two-factor enable request body"
+// @SecurityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
+// @Success 200 {object} models.UpdateTwoFactorEnableParams
+// @Failure 400 {object} response.ErrorResponse
+// @Router /enable-two-factor [post]
 func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 	reqBody := models.BodyTwoFactorEnableRequest{}
 

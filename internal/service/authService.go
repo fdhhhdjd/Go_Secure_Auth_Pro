@@ -28,6 +28,18 @@ import (
 // creates a new user if not, generates a verification link, sends an email for verification,
 // and returns the registration response containing the user ID, email, and verification token.
 // If any error occurs during the process, it returns an appropriate error response.
+//
+// @Summary Register a new user
+// @Description Handles the registration process for a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyRegisterRequest true "Registration request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.RegistrationResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/register [post]
 func Register(c *gin.Context) *models.RegistrationResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKey, constants.RequestThreshold)
@@ -121,6 +133,27 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 // It updates the user's device information and sets a cookie with the refetch token.
 // It sends an email to the user with the new password.
 // Finally, it returns a LoginResponse object with the user's ID, device ID, email, and access token.
+// VerificationAccount is a function that handles the verification of user accounts.
+// It verifies the user's account based on the provided query parameters and updates the password.
+// It also sends a verification success email to the user.
+// This function returns a LoginResponse containing the user's ID, device ID, email, and access token.
+// VerificationAccount verifies the user's account based on the provided query parameters.
+// It returns a LoginResponse containing the user's ID, device ID, email, and access token upon successful verification.
+// If any error occurs during the verification process, it returns nil.
+//
+// @Summary Verify user account
+// @Description Handles the verification process for a user account
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Param token query string true "Verification token"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/verify-account [get]
 func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
@@ -239,6 +272,20 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 // If any of these values are empty, it returns a BadRequestError response.
 // The function updates the user's device information and sets a cookie for the user's login.
 // Finally, it returns a LoginResponse object containing the user's ID, device ID, email, and access token.
+//
+// @Summary Login with identifier
+// @Description Handles the login process for a user with identifier (email, phone, username)
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyLoginRequest true "Login request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/login [post]
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
@@ -367,6 +414,20 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 // If the user's account is already active, it returns a bad request error response indicating that the account is already verified.
 // It then generates a verification link token for the user and sends an email containing the verification link.
 // Finally, it returns a registration response object containing the user ID, email, and verification token.
+//
+// @Summary Resend verification link
+// @Description Handles the process of resending verification link to a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyRegisterRequest true "Resend verification link request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.RegistrationResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/resend-verification [post]
 func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	//* Get data for body
 	reqBody := models.BodyRegisterRequest{}
@@ -448,6 +509,19 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 // retrieves the user details from the database, and sends a forget password link via email.
 // If successful, it returns the user ID, email, and forget password token.
 // If any error occurs, it returns nil.
+//
+// @Summary Forget password
+// @Description Handles the process of initiating password reset for a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyForgetRequest true "Forget password request body"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.ForgetResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/forget-password [post]
 func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyForget, constants.RequestThresholdForget)
@@ -520,6 +594,19 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 // It updates the user's password in the database using the UpdateOnlyPassword function.
 // Finally, it updates the verification status in the database using the UpdateVerification function.
 // The function returns a ResetPasswordResponse object with the user's ID.
+//
+// @Summary Reset password
+// @Description Handles the process of resetting password for a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body models.BodyResetPasswordRequest true "Reset password request body"
+// @Success 200 {object} models.ResetPasswordResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /auth/reset-password [post]
 func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	reqBody := models.BodyResetPasswordRequest{}
 
@@ -586,6 +673,17 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 // and returns a LoginResponse containing the user's ID, email, device ID, and access token.
 // It takes a gin.Context as input and returns a pointer to a LoginResponse.
 // If any error occurs during the token generation or device update, it returns nil.
+//
+// @Summary Renew access token
+// @Description Handles the process of renewing access token for a user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param Cookie header string true "Cookie"
+// @Param X-Device-Id header string true "Device ID"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Router /auth/renew-token [get]
 func RenewToken(c *gin.Context) *models.LoginResponse {
 	resultRefetch, exists := c.Get(constants.InfoRefetch)
 
