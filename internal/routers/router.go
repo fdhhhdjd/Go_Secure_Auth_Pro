@@ -43,6 +43,7 @@ func NewRouter() *gin.Engine {
 			auth.POST("/login-social", utils.AsyncHandler(controller.LoginSocial))
 			auth.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
 			auth.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
+			auth.POST("/verify-otp", utils.AsyncHandler(controller.VerificationOtp))
 
 			auth.Use(middlewares.RefetchTokenMiddleware())
 			auth.GET("/renew-token", utils.AsyncHandler(controller.RenewToken))

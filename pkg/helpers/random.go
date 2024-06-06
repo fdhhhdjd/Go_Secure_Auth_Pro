@@ -39,3 +39,15 @@ func RandomPassword() string {
 	password := fmt.Sprintf("password%d", randPart)
 	return password
 }
+
+// GenerateOTP generates a random one-time password (OTP) of the specified length.
+// It uses the current time as the seed for the random number generator.
+// The generated OTP consists of numeric digits only.
+func GenerateOTP(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	otp := ""
+	for i := 0; i < length; i++ {
+		otp += fmt.Sprintf("%d", rand.Intn(10))
+	}
+	return otp
+}

@@ -222,17 +222,23 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	}
 }
 
-// LoginIdentifier handles the login process for the user. It takes a gin.Context object as a parameter and returns a pointer to a models.LoginResponse struct.
-// The function first checks if the user is marked as spam based on the request threshold. If the user is marked as spam, it returns an error response.
-// Then, it checks the validity of the request body and binds it to the reqBody variable. If the request body is invalid, it returns an error response.
-// Next, it identifies the type of identifier (email, phone, or username) and retrieves the user information from the database based on the identifier.
-// If no user is found for the given identifier, it returns an error response.
-// After that, it checks if the user account is active. If the account is blocked, it returns a forbidden error response.
-// Then, it compares the provided password with the hashed password stored in the database. If the passwords do not match, it returns an error response.
-// If the password is correct, it creates an access token, a refresh token, and encodes the public key.
-// If any of the tokens or the encoded public key is empty, it returns an error response.
-// It then updates the user's device information in the database and sets a cookie with the refresh token.
-// Finally, it returns a LoginResponse object containing the user ID, device ID, email, and access token.
+// LoginIdentifier handles the login process for a user.
+// It takes a gin.Context object as a parameter and returns a pointer to a models.LoginResponse object.
+// The function first checks if the user is marked as spam based on the request threshold.
+// If the user is marked as spam, it returns a BadRequestError response.
+// Otherwise, it retrieves the request body and checks its validity.
+// If the request body is invalid, it returns a BadRequestError response.
+// Next, it identifies the type of identifier (email, phone, or username) and retrieves the user based on the identifier.
+// If no user is found, it returns a BadRequestError response.
+// It then checks if the user's account is blocked. If the account is blocked, it returns a ForbiddenError response.
+// The function compares the provided password with the user's password hash.
+// If the passwords do not match, it returns a BadRequestError response.
+// If two-factor authentication is enabled for the user, it sends an OTP (one-time password) to the user's email.
+// If sending the OTP fails, it returns a BadRequestError response.
+// It creates an access token, a refetch token, and encodes the public key for the user.
+// If any of these values are empty, it returns a BadRequestError response.
+// The function updates the user's device information and sets a cookie for the user's login.
+// Finally, it returns a LoginResponse object containing the user's ID, device ID, email, and access token.
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
@@ -303,6 +309,26 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	if errPassword != nil {
 		response.BadRequestError(c)
+		return nil
+	}
+
+	if resultUser.TwoFactorEnabled {
+		resultOTP := SendOtp(c, resultUser.ID)
+
+		if resultOTP == nil {
+			response.BadRequestError(c)
+			return nil
+		}
+
+		data := models.EmailData{
+			Title:    "OTP Login!",
+			Body:     resultOTP.Code,
+			Template: `<h1>{{.Title}}</h1> <p style="font-size: large;">Thank You, this is code of you 😊. <br/> OTP: <b>{{.Body}}</b></p>`,
+		}
+
+		go pkg.SendGoEmail(resultUser.Email, data)
+
+		response.UnauthorizedError(c, constants.TwoFactorUnauthorized)
 		return nil
 	}
 
