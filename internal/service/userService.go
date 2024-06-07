@@ -177,22 +177,7 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	// Update only the fields that were updated in the database
 	updatedFields := map[string]interface{}{}
 
-	if reqBody.Username != "" {
-		updatedFields["Username"] = reqBody.Username
-	}
-	if reqBody.Phone != "" {
-		updatedFields["Phone"] = reqBody.Phone
-		updatedFields["HiddenPhoneNumber"] = helpers.HidePhoneNumber(reqBody.Phone)
-	}
-	if reqBody.FullName != "" {
-		updatedFields["Fullname"] = reqBody.FullName
-	}
-	if reqBody.Avatar != "" {
-		updatedFields["Avatar"] = reqBody.Avatar
-	}
-	if reqBody.Gender >= 0 {
-		updatedFields["Gender"] = reqBody.Gender
-	}
+	fieldUpdateKeyCache(reqBody, updatedFields)
 
 	resultUpdateProfile, err := repo.UpdateUser(global.DB, models.UpdateUserParams{
 		Username:          sql.NullString{String: reqBody.Username, Valid: reqBody.Username != ""},
@@ -223,6 +208,28 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	}
 
 	return &resultUpdateProfile
+}
+
+// FieldUpdateKeyCache updates the fields in the provided map based on the values in the request body.
+// It checks each field in the request body and updates the corresponding field in the map if a non-empty value is found.
+// If the "Phone" field is updated, it also updates the "HiddenPhoneNumber" field with a hidden version of the phone number.
+func fieldUpdateKeyCache(reqBody models.BodyUpdateRequest, updatedFields map[string]interface{}) {
+	if reqBody.Username != "" {
+		updatedFields["Username"] = reqBody.Username
+	}
+	if reqBody.Phone != "" {
+		updatedFields["Phone"] = reqBody.Phone
+		updatedFields["HiddenPhoneNumber"] = helpers.HidePhoneNumber(reqBody.Phone)
+	}
+	if reqBody.FullName != "" {
+		updatedFields["Fullname"] = reqBody.FullName
+	}
+	if reqBody.Avatar != "" {
+		updatedFields["Avatar"] = reqBody.Avatar
+	}
+	if reqBody.Gender >= 0 {
+		updatedFields["Gender"] = reqBody.Gender
+	}
 }
 
 // Logout logs out the user and clears the session.
