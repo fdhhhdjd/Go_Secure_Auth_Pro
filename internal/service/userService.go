@@ -2,6 +2,8 @@ package service
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,8 +20,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetProfileUser retrieves the profile of a user based on the provided user ID.
-// It returns a pointer to a models.ProfileResponse struct.
+// GetProfileUser retrieves the profile information of a user based on the provided ID.
+// It first checks if the profile information is available in the cache. If found, it returns the cached profile.
+// If not found, it fetches the profile from the database, stores it in the cache, and returns the profile.
+// If any error occurs during the process, it returns a nil value.
 //
 // @Summary Get user profile
 // @Description Retrieves the profile information of a user
@@ -40,6 +44,38 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 		return nil
 	}
 
+	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(req.Id))
+
+	cachedProfileMap := global.Cache.HGetAll(c, keyCache).Val()
+
+	if len(cachedProfileMap) > 0 {
+		log.Printf("Cache hit for key %s", keyCache)
+		id, _ := strconv.Atoi(cachedProfileMap["ID"])
+		twoFactorEnabled, _ := strconv.ParseBool(cachedProfileMap["TwoFactorEnabled"])
+		isActive, _ := strconv.ParseBool(cachedProfileMap["IsActive"])
+		createdAt := cachedProfileMap["CreatedAt"]
+
+		gender, _ := strconv.Atoi(cachedProfileMap["Gender"])
+		profileResponse := models.ProfileResponseJSON{
+			ID:                id,
+			Username:          cachedProfileMap["Username"],
+			Email:             cachedProfileMap["Email"],
+			Phone:             cachedProfileMap["Phone"],
+			HiddenPhoneNumber: cachedProfileMap["HiddenPhoneNumber"],
+			FullName:          cachedProfileMap["FullName"],
+			HiddenEmail:       cachedProfileMap["HiddenEmail"],
+			Avatar:            cachedProfileMap["Avatar"],
+			Gender:            gender,
+			TwoFactorEnabled:  strconv.FormatBool(twoFactorEnabled),
+			IsActive:          strconv.FormatBool(isActive),
+			CreatedAt:         createdAt,
+		}
+
+		return &profileResponse
+	}
+
+	log.Printf("Cache miss for key %s", keyCache)
+
 	user, err := repo.GetUserId(global.DB, models.GetUserIdParams{
 		ID:       req.Id,
 		IsActive: true,
@@ -49,6 +85,37 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 		response.BadRequestError(c)
 		return nil
 	}
+
+	profileMap := map[string]interface{}{
+		"ID":                user.ID,
+		"Username":          helpers.NullStringToString(user.Username),
+		"Email":             user.Email,
+		"Phone":             helpers.NullStringToString(user.Phone),
+		"HiddenPhoneNumber": helpers.NullStringToString(user.HiddenPhoneNumber),
+		"FullName":          helpers.NullStringToString(user.FullName),
+		"HiddenEmail":       helpers.NullStringToString(user.HiddenEmail),
+		"Avatar":            helpers.NullStringToString(user.Avatar),
+		"Gender":            helpers.NullInt16ToString(user.Gender),
+		"TwoFactorEnabled":  strconv.FormatBool(user.TwoFactorEnabled),
+		"IsActive":          strconv.FormatBool(user.IsActive),
+		"CreatedAt":         user.CreatedAt.Format(time.RFC3339),
+	}
+
+	err = global.Cache.HMSet(c, keyCache, profileMap).Err()
+	if err != nil {
+		log.Printf("Failed to set cache: %v", err)
+		response.BadRequestError(c)
+		return nil
+	} else {
+		log.Printf("Cache set for key %s: %v", keyCache, profileMap)
+	}
+
+	expireDuration := helpers.RandomExpireDuration(7)
+	if err := global.Cache.Expire(c, keyCache, expireDuration).Err(); err != nil {
+		log.Printf("Failed to set expiration for key %s: %v", keyCache, err)
+	}
+
+	// Trả về response
 	response := &models.ProfileResponseJSON{
 		ID:                user.ID,
 		Username:          helpers.NullStringToString(user.Username),
@@ -90,7 +157,6 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 		response.BadRequestError(c)
 		return nil
 	}
-
 	if !validate.ValidateAndRespond(reqBody.Username, validate.IsValidateUser) {
 		response.BadRequestError(c, constants.UsernameInvalid)
 		return nil
@@ -106,6 +172,26 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	if !existsUserInfo {
 		response.BadRequestError(c)
 		return nil
+	}
+
+	// Update only the fields that were updated in the database
+	updatedFields := map[string]interface{}{}
+
+	if reqBody.Username != "" {
+		updatedFields["Username"] = reqBody.Username
+	}
+	if reqBody.Phone != "" {
+		updatedFields["Phone"] = reqBody.Phone
+		updatedFields["HiddenPhoneNumber"] = helpers.HidePhoneNumber(reqBody.Phone)
+	}
+	if reqBody.FullName != "" {
+		updatedFields["Fullname"] = reqBody.FullName
+	}
+	if reqBody.Avatar != "" {
+		updatedFields["Avatar"] = reqBody.Avatar
+	}
+	if reqBody.Gender >= 0 {
+		updatedFields["Gender"] = reqBody.Gender
 	}
 
 	resultUpdateProfile, err := repo.UpdateUser(global.DB, models.UpdateUserParams{
@@ -128,6 +214,12 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 
 		response.BadRequestError(c)
 		return nil
+	}
+
+	// Update only the fields that were updated in Redis
+	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(payload.(models.Payload).ID))
+	if err := global.Cache.HMSet(c, keyCache, updatedFields).Err(); err != nil {
+		log.Printf("Failed to update cache: %v", err)
 	}
 
 	return &resultUpdateProfile

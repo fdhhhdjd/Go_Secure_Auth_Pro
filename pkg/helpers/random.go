@@ -51,3 +51,17 @@ func GenerateOTP(length int) string {
 	}
 	return otp
 }
+
+// RandomExpireDuration generates a random expiration duration based on the given number of days.
+// It returns a time.Duration representing the random expiration duration.
+func RandomExpireDuration(day int) time.Duration {
+	days := rand.Intn(day)   // Random ngày trong khoảng day ngày tới
+	hours := rand.Intn(24)   // Random giờ trong ngày từ 0 đến 23 giờ
+	minutes := rand.Intn(60) // Random phút trong giờ từ 0 đến 59 phút
+	seconds := rand.Intn(60) // Random giây trong phút từ 0 đến 59 giây
+	expireDuration := time.Duration(days*24)*time.Hour +
+		time.Duration(hours)*time.Hour +
+		time.Duration(minutes)*time.Minute +
+		time.Duration(seconds)*time.Second
+	return expireDuration
+}
