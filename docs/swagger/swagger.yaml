@@ -204,14 +204,14 @@ definitions:
         description: Valid is true if String is not NULL
         type: boolean
     type: object
-host: localhost:8000
+host: 103.82.195.138:8000
 info:
   contact: {}
   description: This is server auth API in Go using Gin framework
   title: Server Auth
   version: "1.0"
 paths:
-  /auth/forget-password:
+  /auth/forget:
     post:
       consumes:
       - application/json
@@ -250,7 +250,7 @@ paths:
       summary: Forget password
       tags:
       - Auth
-  /auth/login:
+  /auth/login-identifier:
     post:
       consumes:
       - application/json
@@ -359,7 +359,7 @@ paths:
       summary: Renew access token
       tags:
       - Auth
-  /auth/resend-verification:
+  /auth/resend-link-verification:
     post:
       consumes:
       - application/json
@@ -440,7 +440,7 @@ paths:
       summary: Reset password
       tags:
       - Auth
-  /auth/verify-account:
+  /auth/veri-account:
     get:
       consumes:
       - application/json

@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/forget-password": {
+        "/auth/forget": {
             "post": {
                 "description": "Handles the process of initiating password reset for a user",
                 "consumes": [
@@ -74,7 +74,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login": {
+        "/auth/login-identifier": {
             "post": {
                 "description": "Handles the login process for a user with identifier (email, phone, username)",
                 "consumes": [
@@ -237,7 +237,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/resend-verification": {
+        "/auth/resend-link-verification": {
             "post": {
                 "description": "Handles the process of resending verification link to a user",
                 "consumes": [
@@ -360,7 +360,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/verify-account": {
+        "/auth/veri-account": {
             "get": {
                 "description": "Handles the verification process for a user account",
                 "consumes": [
@@ -1114,7 +1114,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8000",
+	Host:             "103.82.195.138:8000",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "Server Auth",

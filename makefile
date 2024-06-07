@@ -14,6 +14,8 @@ DOCKERFILE_PATH := ./third_party/docker/go/Dockerfile
 
 SWAGGER_DIR=./docs/swagger
 
+CONTAINER_SERVICE_AUTH := service_auth
+
 
 ################# TODO: GOLANG #################
 start:
@@ -28,6 +30,10 @@ build-pro:
 
 down-pro:
 	docker-compose -f $(DOCKER_COMPOSE_PRO) down
+
+update-image:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
+	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
 
 build-dev:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d --build

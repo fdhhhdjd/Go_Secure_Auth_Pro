@@ -153,7 +153,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /auth/verify-account [get]
+// @Router /auth/veri-account [get]
 func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
@@ -285,7 +285,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /auth/login [post]
+// @Router /auth/login-identifier [post]
 func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
@@ -427,7 +427,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /auth/resend-verification [post]
+// @Router /auth/resend-link-verification [post]
 func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	//* Get data for body
 	reqBody := models.BodyRegisterRequest{}
@@ -521,7 +521,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /auth/forget-password [post]
+// @Router /auth/forget [post]
 func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyForget, constants.RequestThresholdForget)

@@ -6,10 +6,10 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8000",
+    "host": "103.82.195.138:8000",
     "basePath": "/v1",
     "paths": {
-        "/auth/forget-password": {
+        "/auth/forget": {
             "post": {
                 "description": "Handles the process of initiating password reset for a user",
                 "consumes": [
@@ -68,7 +68,7 @@
                 }
             }
         },
-        "/auth/login": {
+        "/auth/login-identifier": {
             "post": {
                 "description": "Handles the login process for a user with identifier (email, phone, username)",
                 "consumes": [
@@ -231,7 +231,7 @@
                 }
             }
         },
-        "/auth/resend-verification": {
+        "/auth/resend-link-verification": {
             "post": {
                 "description": "Handles the process of resending verification link to a user",
                 "consumes": [
@@ -354,7 +354,7 @@
                 }
             }
         },
-        "/auth/verify-account": {
+        "/auth/veri-account": {
             "get": {
                 "description": "Handles the verification process for a user account",
                 "consumes": [
