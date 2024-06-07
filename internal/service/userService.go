@@ -28,9 +28,10 @@ import (
 // @Produce json
 // @Param id path string true "User ID"
 // @Param X-Device-Id header string true "Device ID"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Success 200 {object} models.ProfileResponseJSON
 // @Failure 400 {object} response.ErrorResponse
-// @Router /users/{id} [get]
+// @Router /user/profile/{id} [get]
 func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	var req models.PramsProfileRequest
 
@@ -78,9 +79,10 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 // @Produce json
 // @Param X-Device-Id header string true "Device ID"
 // @Param body body models.BodyUpdateRequest true "Profile update request body"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Success 200 {object} models.UpdateUserRow
 // @Failure 400 {object} response.ErrorResponse
-// @Router /users/profile [post]
+// @Router /user/update-profile [post]
 func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	reqBody := models.BodyUpdateRequest{}
 
@@ -143,9 +145,10 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 // @Accept json
 // @Produce json
 // @Param X-Device-Id header string true "Device ID"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Success 200 {object} models.LogoutResponse
 // @Failure 400 {object} response.ErrorResponse
-// @Router /users/logout [post]
+// @Router /user/logout [post]
 func Logout(c *gin.Context) *models.LogoutResponse {
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	deviceId, existsDevice := c.Get("device_id")
@@ -188,9 +191,10 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 // @Produce json
 // @Param X-Device-Id header string true "Device ID"
 // @Param body body models.BodyChangePasswordRequest true "Password change request body"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Success 200 {object} models.ChangePassResponse
 // @Failure 400 {object} response.ErrorResponse
-// @Router /users/change-password [post]
+// @Router /user/change-pass [post]
 func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	reqBody := models.BodyChangePasswordRequest{}
 
@@ -250,12 +254,11 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 // @Produce json
 // @Param X-Device-Id header string true "Device ID"
 // @Param body body models.BodyTwoFactorEnableRequest true "Two-factor enable request body"
-// @SecurityDefinitions.apiKey ApiKeyAuth
-// @in header
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @name Authorization
 // @Success 200 {object} models.UpdateTwoFactorEnableParams
 // @Failure 400 {object} response.ErrorResponse
-// @Router /users/enable-two-factor [post]
+// @Router /user/enable-tow-factor [post]
 func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 	reqBody := models.BodyTwoFactorEnableRequest{}
 

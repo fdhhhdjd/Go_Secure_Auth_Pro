@@ -530,7 +530,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/change-password": {
+        "/user/change-pass": {
             "post": {
                 "description": "Changes the password for a user",
                 "consumes": [
@@ -559,6 +559,14 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.BodyChangePasswordRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -577,7 +585,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/enable-two-factor": {
+        "/user/enable-tow-factor": {
             "post": {
                 "description": "Enables two-factor authentication for a user",
                 "consumes": [
@@ -606,6 +614,14 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.BodyTwoFactorEnableRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -624,7 +640,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/logout": {
+        "/user/logout": {
             "post": {
                 "description": "Logs out a user",
                 "consumes": [
@@ -642,6 +658,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Device ID",
                         "name": "X-Device-Id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }
@@ -662,7 +686,60 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/profile": {
+        "/user/profile/{id}": {
+            "get": {
+                "description": "Retrieves the profile information of a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "X-Device-Id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ProfileResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/update-profile": {
             "post": {
                 "description": "Updates the profile information of a user",
                 "consumes": [
@@ -691,49 +768,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.BodyUpdateRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.UpdateUserRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "description": "Retrieves the profile information of a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Get user profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Device ID",
-                        "name": "X-Device-Id",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }
@@ -742,7 +782,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProfileResponseJSON"
+                            "$ref": "#/definitions/models.UpdateUserRow"
                         }
                     },
                     "400": {

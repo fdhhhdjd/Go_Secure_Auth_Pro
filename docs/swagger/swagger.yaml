@@ -553,37 +553,7 @@ paths:
       summary: Login with social account
       tags:
       - Auth
-  /users/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves the profile information of a user
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Device ID
-        in: header
-        name: X-Device-Id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ProfileResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get user profile
-      tags:
-      - Users
-  /users/change-password:
+  /user/change-pass:
     post:
       consumes:
       - application/json
@@ -600,6 +570,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.BodyChangePasswordRequest'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -614,7 +590,7 @@ paths:
       summary: Change user password
       tags:
       - Users
-  /users/enable-two-factor:
+  /user/enable-tow-factor:
     post:
       consumes:
       - application/json
@@ -631,6 +607,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.BodyTwoFactorEnableRequest'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -645,7 +627,7 @@ paths:
       summary: Enable two-factor authentication
       tags:
       - Users
-  /users/logout:
+  /user/logout:
     post:
       consumes:
       - application/json
@@ -654,6 +636,12 @@ paths:
       - description: Device ID
         in: header
         name: X-Device-Id
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -670,7 +658,43 @@ paths:
       summary: Logout user
       tags:
       - Users
-  /users/profile:
+  /user/profile/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the profile information of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProfileResponseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get user profile
+      tags:
+      - Users
+  /user/update-profile:
     post:
       consumes:
       - application/json
@@ -687,6 +711,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.BodyUpdateRequest'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
