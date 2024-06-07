@@ -46,12 +46,8 @@ down-dev:
 image-tag:
 	docker build -t $(DOCKER_IMAGE_NAME) -f $(DOCKERFILE_PATH) .
 
-push-registry:
+push-registry: image-tag
 	docker push $(DOCKER_IMAGE_NAME)
-
-update-registry:
-	make image-tag
-	make push-registry
 
 ################# TODO: SQLC #################
 sqlc:
