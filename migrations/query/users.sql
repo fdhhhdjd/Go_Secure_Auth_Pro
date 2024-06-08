@@ -50,3 +50,14 @@ FROM users
 JOIN verification ON users.id = verification.user_id
 WHERE verification.is_verified = true
 AND users.username = $1;
+
+-- name: CheckEmailExists :one
+SELECT EXISTS (
+    SELECT 1 
+    FROM users 
+    WHERE email = $1 
+    AND id != $2
+) AS email_exists;
+
+
+

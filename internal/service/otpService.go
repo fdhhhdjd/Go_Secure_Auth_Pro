@@ -15,9 +15,9 @@ import (
 // SendOtp generates and sends an OTP (One-Time Password) to the user.
 // It retrieves the user information from the request context, generates an OTP,
 // saves it in the database, and returns a response containing the OTP details.
-func SendOtp(c *gin.Context, userId int) *models.SendOtpResponse {
+func SendOtp(c *gin.Context, userId int, time time.Time) *models.SendOtpResponse {
 	otp := helpers.GenerateOTP(6)
-	timeExpired := time.Now().Add(time.Minute * 5)
+	timeExpired := time
 	resultOtp, err := repo.CreateOtp(global.DB, models.CreateOtpParams{
 		UserID:    userId,
 		OtpCode:   otp,

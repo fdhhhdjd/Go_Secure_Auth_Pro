@@ -70,3 +70,15 @@ func EnableTowFactor(c *gin.Context) error {
 	response.Ok(c, "Enable Tow Factor User", result)
 	return nil
 }
+
+// SendOtpUpdateEmail sends an OTP (One-Time Password) to update the user's email.
+// It calls the SendOtpUpdateEmail function from the service package and returns the result.
+// If the result is nil, it returns nil. Otherwise, it sends a success response with the result.
+func SendOtpUpdateEmail(c *gin.Context) error {
+	result := service.SendOtpUpdateEmail(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Send Otp Update Email", result)
+	return nil
+}

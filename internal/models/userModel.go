@@ -223,3 +223,18 @@ type UpdateTwoFactorEnableParams struct {
 type BodyTwoFactorEnableRequest struct {
 	TwoFactorEnabled bool `json:"two_factor_enabled"`
 }
+
+// * Update Email
+type UpdateEmailParams struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type CheckEmailExistsParams struct {
+	Email string `json:"email"`
+	ID    int    `json:"id"`
+}
+
+type UpdateEmailResponse struct {
+	ID    int    `json:"id"`
+	Email string `json:"email"`
+}

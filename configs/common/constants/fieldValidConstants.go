@@ -10,4 +10,5 @@ const (
 	TwoFactorEnabled        = "Two factor enabled disable"
 	TwoFactorEnabledInvalid = "Two factor enabled invalid"
 	TwoFactorUnauthorized   = "Please check your email or SMS for the OTP."
+	EmailExits              = "Email already exists"
 )

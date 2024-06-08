@@ -16,6 +16,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers/validate"
+	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/mail"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	"github.com/gin-gonic/gin"
 )
@@ -380,6 +381,106 @@ func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 	return &models.UpdateTwoFactorEnableParams{
 		ID:               payload.(models.Payload).ID,
 		TwoFactorEnabled: reqBody.TwoFactorEnabled,
+	}
+}
+
+// SendOtpUpdateEmail sends an OTP (One-Time Password) to update the user's email.
+// It takes a gin.Context object as a parameter and returns a pointer to a models.SendOtpResponse object.
+// The function first parses the request body into a models.UpdateEmailParams object.
+// If the JSON binding fails, it returns a bad request error response and nil.
+// It then retrieves the user's information from the gin.Context object.
+// If the user's information does not exist, it returns a bad request error response and nil.
+// Next, it checks if the email already exists in the database for any other user.
+// If the email exists, it returns a bad request error response and nil.
+// It then calls the SendOtp function to generate an OTP for the user.
+// If the OTP generation fails, it returns a bad request error response and nil.
+// The function constructs an email data object with the OTP code and sends it asynchronously using the SendGoEmail function.
+// Finally, it returns a pointer to a models.SendOtpResponse object containing the user's ID, OTP code, and expiration time.
+
+// @Summary Send OTP to update email
+// @Description Sends an OTP to update the user's email
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param body body models.UpdateEmailParams true "Update email request body"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Success 200 {object} models.SendOtpResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /user/send-otp-update-email [post]
+func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
+	// Parse the request body into a models.UpdateEmailParams object
+	reqBody := models.UpdateEmailParams{}
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	// Retrieve the user's information from the gin.Context object
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+	if !existsUserInfo {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	// Check if the email already exists in the database for any other user
+	emailExists, err := repo.CheckEmailExists(global.DB, models.CheckEmailExistsParams{
+		Email: reqBody.Email,
+		ID:    payload.(models.Payload).ID,
+	})
+	if err != nil {
+		response.InternalServerError(c)
+		return nil
+	}
+
+	if emailExists {
+		response.BadRequestError(c, constants.EmailExits)
+		return nil
+	}
+
+	expiredAt := time.Now().Add(time.Hour)
+
+	// Generate an OTP for the user
+	resultOTP := SendOtp(c, payload.(models.Payload).ID, expiredAt)
+	if resultOTP == nil {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	// Construct an email data object with the OTP code and send it asynchronously
+	data := models.EmailData{
+		Title:    "Update Email OTP",
+		Body:     resultOTP.Code,
+		Template: `<h1>{{.Title}}</h1> <p style="font-size: large;">Thank you for updating your email. Here is your OTP: <b>{{.Body}}</b></p>`,
+	}
+	go pkg.SendGoEmail(reqBody.Email, data)
+
+	// Return a pointer to a models.SendOtpResponse object containing the user's ID, OTP code, and expiration time
+	return &models.SendOtpResponse{
+		Id:        payload.(models.Payload).ID,
+		Code:      resultOTP.Code,
+		ExpiredAt: resultOTP.ExpiredAt,
+	}
+}
+
+func UpdateEmailUser(c *gin.Context) *models.UpdateEmailResponse {
+	reqBody := models.UpdateEmailParams{}
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	// Retrieve the user's information from the gin.Context object
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+	if !existsUserInfo {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	return &models.UpdateEmailResponse{
+		ID:    payload.(models.Payload).ID,
+		Email: reqBody.Email,
 	}
 }
 

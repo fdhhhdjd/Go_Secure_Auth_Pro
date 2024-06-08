@@ -359,8 +359,9 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
+	expiredAt := time.Now().Add(time.Minute * 5)
 	if resultUser.TwoFactorEnabled {
-		resultOTP := SendOtp(c, resultUser.ID)
+		resultOTP := SendOtp(c, resultUser.ID, expiredAt)
 
 		if resultOTP == nil {
 			response.BadRequestError(c)

@@ -331,3 +331,22 @@ func UpdateTwoFactorEnable(db *sql.DB, arg models.UpdateTwoFactorEnableParams) e
 	_, err := db.ExecContext(context.Background(), updateTwoFactorEnable, arg.TwoFactorEnabled, arg.ID)
 	return err
 }
+
+// CheckEmailExists checks if an email exists in the database.
+// It takes a database connection and a CheckEmailExistsParams struct as arguments.
+// It returns a boolean indicating whether the email exists and an error, if any.
+const checkEmailExists = `-- name: CheckEmailExists :one
+SELECT EXISTS (
+    SELECT 1 
+    FROM users 
+    WHERE email = $1 
+    AND id != $2
+) AS email_exists
+`
+
+func CheckEmailExists(db *sql.DB, arg models.CheckEmailExistsParams) (bool, error) {
+	row := db.QueryRowContext(context.Background(), checkEmailExists, arg.Email, arg.ID)
+	var email_exists bool
+	err := row.Scan(&email_exists)
+	return email_exists, err
+}
