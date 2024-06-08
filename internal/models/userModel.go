@@ -226,7 +226,9 @@ type BodyTwoFactorEnableRequest struct {
 
 // * Update Email
 type UpdateEmailParams struct {
-	Email string `json:"email" binding:"required,email"`
+	Email       string `json:"email" binding:"required,email"`
+	HiddenEmail string `json:"hidden_email"`
+	ID          int    `json:"id"`
 }
 
 type CheckEmailExistsParams struct {
@@ -234,7 +236,7 @@ type CheckEmailExistsParams struct {
 	ID    int    `json:"id"`
 }
 
-type UpdateEmailResponse struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
+type BodyUpdateEmailRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	Otp   string `json:"otp" binding:"required"`
 }

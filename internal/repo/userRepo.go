@@ -350,3 +350,14 @@ func CheckEmailExists(db *sql.DB, arg models.CheckEmailExistsParams) (bool, erro
 	err := row.Scan(&email_exists)
 	return email_exists, err
 }
+
+const updateEmail = `-- name: UpdateEmail :exec
+UPDATE users
+SET email = $1, hidden_email = $2
+WHERE id = $3
+`
+
+func UpdateEmail(db *sql.DB, arg models.UpdateEmailParams) error {
+	_, err := db.ExecContext(context.Background(), updateEmail, arg.Email, arg.HiddenEmail, arg.ID)
+	return err
+}

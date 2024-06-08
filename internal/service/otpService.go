@@ -65,21 +65,11 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	otp, err := repo.GetNewOtps(global.DB, req.Otp)
-
-	if err != nil {
-		response.BadRequestError(c)
+	resultInfo := VeriOtp(c, req.Otp)
+	if resultInfo == nil {
+		response.BadRequestError(c, constants.OTPInvalid)
 		return nil
 	}
-
-	if len(otp) == 0 {
-		response.BadRequestError(c)
-		return nil
-	}
-
-	resultInfo := &otp[0]
-
-	repo.UpdateOtpIsActive(global.DB, models.UpdateOtpIsActiveParams{IsActive: false, OtpCode: otp[0].OtpCode})
 
 	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
 		ID:    resultInfo.ID,
@@ -101,4 +91,32 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 		Email:       resultInfo.Email,
 		AccessToken: accessToken,
 	}
+}
+
+// VeriOtp verifies the OTP (One-Time Password) provided in the request.
+// It retrieves the OTP from the repository and checks if it exists.
+// If the OTP is valid, it updates the OTP's IsActive status to false.
+// Parameters:
+//   - req: The OTP request containing the OTP code.
+//   - c: The Gin context for handling the HTTP request and response.
+//
+// Returns:
+//   - The first OTP information from the repository.
+//   - A boolean indicating if there was an error.
+//   - The login response, which is currently set to nil.
+func VeriOtp(c *gin.Context, otpCode string) *models.GetNewOtpsRow {
+	otp, err := repo.GetNewOtps(global.DB, otpCode)
+
+	if err != nil {
+		return nil
+	}
+
+	if len(otp) == 0 {
+		return nil
+	}
+
+	resultInfo := &otp[0]
+
+	repo.UpdateOtpIsActive(global.DB, models.UpdateOtpIsActiveParams{IsActive: false, OtpCode: otp[0].OtpCode})
+	return resultInfo
 }

@@ -59,5 +59,10 @@ SELECT EXISTS (
     AND id != $2
 ) AS email_exists;
 
+-- name: UpdateEmail :exec
+UPDATE users
+SET email = $1
+WHERE id = $2;
+
 
 

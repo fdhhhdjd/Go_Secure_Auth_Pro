@@ -464,23 +464,77 @@ func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
 	}
 }
 
-func UpdateEmailUser(c *gin.Context) *models.UpdateEmailResponse {
-	reqBody := models.UpdateEmailParams{}
+// UpdateEmailUser updates the email of a user based on the provided request body.
+// It validates the request body fields, checks the user's access information, and updates the user's email in the database.
+// If any validation or database error occurs, it returns an appropriate error response.
+// Otherwise, it returns the updated user email.
+//
+// @Summary Update user email
+// @Description Updates the email of a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param body body models.BodyUpdateEmailRequest true "Email update request body"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Router /user/update-email [post]
+func UpdateEmailUser(c *gin.Context) *models.LoginResponse {
+	reqBody := models.BodyUpdateEmailRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, constants.OTPInvalid)
 		return nil
 	}
 
-	// Retrieve the user's information from the gin.Context object
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	if !existsUserInfo {
 		response.BadRequestError(c)
 		return nil
 	}
 
-	return &models.UpdateEmailResponse{
+	resultInfo := VeriOtp(c, reqBody.Otp)
+	if resultInfo == nil {
+		response.BadRequestError(c, constants.OTPInvalid)
+		return nil
+	}
+
+	repo.UpdateEmail(global.DB, models.UpdateEmailParams{
+		Email:       reqBody.Email,
+		ID:          payload.(models.Payload).ID,
+		HiddenEmail: helpers.HideEmail(reqBody.Email),
+	})
+
+	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(payload.(models.Payload).ID))
+
+	updatedFields := map[string]interface{}{
+		"Email":       reqBody.Email,
+		"HiddenEmail": helpers.HideEmail(reqBody.Email),
+	}
+
+	if err := global.Cache.HMSet(c, keyCache, updatedFields).Err(); err != nil {
+		log.Printf("Failed to update cache: %v", err)
+	}
+
+	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
 		ID:    payload.(models.Payload).ID,
 		Email: reqBody.Email,
+	})
+
+	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	resultInfoDevice := upsetDevice(c, payload.(models.Payload).ID, resultEncodePublicKey)
+
+	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
+
+	return &models.LoginResponse{
+		ID:          payload.(models.Payload).ID,
+		DeviceID:    resultInfoDevice.DeviceID,
+		Email:       reqBody.Email,
+		AccessToken: accessToken,
 	}
 }
 

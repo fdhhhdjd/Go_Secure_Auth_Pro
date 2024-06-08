@@ -82,3 +82,16 @@ func SendOtpUpdateEmail(c *gin.Context) error {
 	response.Ok(c, "Send Otp Update Email", result)
 	return nil
 }
+
+// UpdateEmailUser updates the email of a user.
+// It calls the service.UpdateEmailUser function to perform the update operation.
+// If the update is successful, it returns a success response with the updated user information.
+// If there is an error during the update, it returns the error.
+func UpdateEmailUser(c *gin.Context) error {
+	result := service.UpdateEmailUser(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Update Email User", result)
+	return nil
+}

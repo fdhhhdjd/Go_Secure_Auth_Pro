@@ -62,6 +62,16 @@ definitions:
       two_factor_enabled:
         type: boolean
     type: object
+  models.BodyUpdateEmailRequest:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
+    type: object
   models.BodyUpdateRequest:
     properties:
       avatar:
@@ -156,6 +166,26 @@ definitions:
     properties:
       id:
         type: integer
+    type: object
+  models.SendOtpResponse:
+    properties:
+      code:
+        type: string
+      expired_at:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.UpdateEmailParams:
+    properties:
+      email:
+        type: string
+      hidden_email:
+        type: string
+      id:
+        type: integer
+    required:
+    - email
     type: object
   models.UpdateTwoFactorEnableParams:
     properties:
@@ -692,6 +722,84 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Get user profile
+      tags:
+      - Users
+  /user/send-otp-update-email:
+    post:
+      consumes:
+      - application/json
+      description: Sends an OTP to update the user's email
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Update email request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateEmailParams'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SendOtpResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Send OTP to update email
+      tags:
+      - Users
+  /user/update-email:
+    post:
+      consumes:
+      - application/json
+      description: Updates the email of a user
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - description: Email update request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyUpdateEmailRequest'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update user email
       tags:
       - Users
   /user/update-profile:
