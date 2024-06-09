@@ -378,6 +378,17 @@ func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 		ID:               payload.(models.Payload).ID,
 		TwoFactorEnabled: reqBody.TwoFactorEnabled,
 	})
+
+	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(payload.(models.Payload).ID))
+
+	updatedFields := map[string]interface{}{
+		"TwoFactorEnabled": strconv.FormatBool(reqBody.TwoFactorEnabled),
+	}
+
+	if err := global.Cache.HMSet(c, keyCache, updatedFields).Err(); err != nil {
+		log.Printf("Failed to update cache: %v", err)
+	}
+
 	return &models.UpdateTwoFactorEnableParams{
 		ID:               payload.(models.Payload).ID,
 		TwoFactorEnabled: reqBody.TwoFactorEnabled,
