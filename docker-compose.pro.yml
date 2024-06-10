@@ -64,8 +64,8 @@ services:
 
   # TODO: CRON JOB
   # Defines a cron service that runs scheduled tasks
-  cron_service:
-    container_name: cron_service
+  service_cron:
+    container_name: service_cron
     restart: unless-stopped
     image: nguyentientai/go_cronjob_auth:lastest
     env_file:

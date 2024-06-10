@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -24,7 +25,11 @@ func main() {
 	// Start the cron scheduler
 	c.Start()
 
-	// Keep the program running to ensure the cron job executes
-	// The cron job will run once after 1 minute, then the scheduler will stop
-	select {}
+	// Schedule a task to stop the program after 2 minutes
+	time.AfterFunc(2*time.Minute, func() {
+		fmt.Println("Program exiting gracefully...")
+	})
+
+	// Keep the program running until the cron job executes and the program exits
+	<-time.After(3 * time.Minute)
 }

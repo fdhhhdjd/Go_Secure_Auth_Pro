@@ -17,13 +17,11 @@ CRON_IMAGE_NAME :=nguyentientai/go_cronjob_auth:lastest
 
 # * DOCKER FILE
 DOCKER_FILE_PATH := ./third_party/docker/go/Dockerfile
+DOCKER_FILE_CRON_PATH := ./third_party/docker/go/Dockerfile-cron
 
 #* DOCKER CONTAINER
 CONTAINER_SERVICE_AUTH := service_auth
-
-# * DOCKER IMAGE
-TARGET_SERVER := server
-TARGET_CRON := cron
+CONTAINER_SERVICE_CRON := service_cron
 
 # * FOLDER
 SWAGGER_DIR=./docs/swagger
@@ -45,25 +43,36 @@ build-pro:
 down-pro:
 	docker-compose -f $(DOCKER_COMPOSE_PRO) down
 
-update-image:
-	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
-	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
-
 build-dev:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d --build
 
 down-dev:
 	docker-compose -f $(DOCKER_COMPOSE_DEV) down
 
+update-server:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
+	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
+
+update-server:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
+	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
+
+update-cron:
+	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_CRON)
+	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_CRON)
+
+
+update-image: update-server update-cron
+	@echo "Both server and cron images updated successfully."
 
 ################# TODO: DOCKER HUB #################
 # Build and tag the server image
 server-image-tag:
-	docker build --target $(TARGET_SERVER) -t $(SERVER_IMAGE_NAME) -f $(DOCKER_FILE_PATH) .
+	docker build -t $(SERVER_IMAGE_NAME) -f $(DOCKER_FILE_PATH) .
 
 # Build and tag the cron image
 cron-image-tag:
-	docker build --target $(TARGET_CRON) -t $(CRON_IMAGE_NAME) -f $(DOCKER_FILE_PATH) .
+	docker build -t $(CRON_IMAGE_NAME) -f $(DOCKER_FILE_CRON_PATH) .
 
 
 # Push the server image to the registry
