@@ -2,34 +2,53 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
 	"github.com/robfig/cron/v3"
 )
 
 func main() {
 	c := cron.New(cron.WithSeconds())
 
-	// Add a cron job that runs once after 1 minute
 	_, err := c.AddFunc("@every 1m", func() {
-		fmt.Println("Hello, World!")
-		// Stop the cron scheduler after the first run
-		c.Stop()
+		fmt.Println("Job running every minute: Tai dev!")
 	})
 
 	if err != nil {
-		fmt.Println("Error adding cron job:", err)
+		fmt.Println("Error adding cron job to run every 1 minute:", err)
 		return
 	}
 
-	// Start the cron scheduler
-	c.Start()
+	var hourJobDone sync.Once
 
-	// Schedule a task to stop the program after 2 minutes
-	time.AfterFunc(2*time.Minute, func() {
-		fmt.Println("Program exiting gracefully...")
+	_, err = c.AddFunc("0 0 * * * *", func() {
+		hourJobDone.Do(func() {
+			err := repo.UpdateVerificationBulk(global.DB)
+			if err != nil {
+				fmt.Println("Error updating verification records:", err)
+			}
+			fmt.Println("Job running every hour: Update Verification not used!")
+		})
 	})
 
-	// Keep the program running until the cron job executes and the program exits
-	<-time.After(3 * time.Minute)
+	if err != nil {
+		fmt.Println("Error adding cron job to run every hour:", err)
+		return
+	}
+
+	c.Start()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	time.AfterFunc(1*time.Minute, func() {
+		fmt.Println("Program exiting gracefully...")
+		c.Stop()
+		wg.Done()
+	})
+
+	wg.Wait()
 }

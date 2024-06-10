@@ -71,3 +71,21 @@ func GetVerificationByUserId(db *sql.DB, userID int) (int, error) {
 	err := row.Scan(&count)
 	return count, err
 }
+
+const updateVerificationBulk = `-- name: UpdateVerificationBulk :exec
+WITH rows_to_update AS (
+    SELECT id
+    FROM verification
+    WHERE expires_at < NOW() AND is_active = true
+    LIMIT 50
+)
+UPDATE verification AS v
+SET is_active = false
+FROM rows_to_update AS r
+WHERE v.id = r.id
+`
+
+func UpdateVerificationBulk(db *sql.DB) error {
+	_, err := db.ExecContext(context.Background(), updateVerificationBulk)
+	return err
+}

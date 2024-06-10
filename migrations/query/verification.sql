@@ -15,3 +15,15 @@ WHERE user_id = $3;
 -- name: GetVerificationByUserId :one
 SELECT COUNT(*) FROM verification
 WHERE user_id = $1 AND is_verified = false;
+
+-- name: UpdateVerificationBulk :exec
+WITH rows_to_update AS (
+    SELECT id
+    FROM verification
+    WHERE expires_at < NOW()
+    LIMIT 50
+)
+UPDATE verification AS v
+SET is_active = false
+FROM rows_to_update AS r
+WHERE v.id = r.id;

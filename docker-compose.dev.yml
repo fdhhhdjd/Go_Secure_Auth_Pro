@@ -31,40 +31,6 @@ services:
       timeout: 3s # Health check timeout
       retries: 3 # Number of retries before marking the service as unhealthy
 
-  # TODO: GO
-  # App Service
-  service_auth:
-    # Name container
-    container_name: service_auth
-    # Configuration for building the docker image for the service
-    restart: unless-stopped
-    build:
-      # Specifies the build context as the current directory.
-      context: .
-      # Specifies the path to the Dockerfile for building the container.
-      dockerfile: ./third_party/docker/go/Dockerfile
-    # Load environment variables from .env file
-    env_file:
-      - .env
-    environment:
-      ENV: "pro" # Port for the service
-    ports:
-      - "${PORT}:${PORT}" # Map the container port to the host port
-    depends_on:
-      - postgresql # This service depends on PostgreSQL. Start PostgreSQL first.
-    networks:
-      - service_auth-network # Connect to the custom network
-    healthcheck:
-      test: [
-          "CMD",
-          "sh",
-          "-c",
-          "curl -sSf http://${HOST}:${PORT}/ping > /dev/null",
-        ] # Health check to verify the app is running
-      interval: 60s # Interval between health checks
-      timeout: 2s # Health check timeout
-      retries: 3 # Number of retries before marking the service as unhealthy
-
   # TODO: CRON JOB
   # Defines a service named "cron_service" for running cron jobs.
   cron_service:
@@ -81,6 +47,8 @@ services:
     # Loads environment variables from the specified .env file.
     env_file:
       - .env
+    environment:
+      ENV: "pro" # Port for the service
     # Specifies that this service depends on the "postgresql" service.
     depends_on:
       - postgresql

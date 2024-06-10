@@ -72,6 +72,8 @@ services:
       - .env
     depends_on:
       - postgresql
+    environment:
+      ENV: "pro" # Port for the service
     networks:
       - service_auth-network
 

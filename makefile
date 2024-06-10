@@ -53,14 +53,9 @@ update-server:
 	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
 	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
 
-update-server:
-	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_AUTH)
-	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_AUTH)
-
 update-cron:
 	docker-compose -f $(DOCKER_COMPOSE_PRO) pull $(CONTAINER_SERVICE_CRON)
 	docker-compose -f $(DOCKER_COMPOSE_PRO) up -d --no-deps $(CONTAINER_SERVICE_CRON)
-
 
 update-image: update-server update-cron
 	@echo "Both server and cron images updated successfully."
