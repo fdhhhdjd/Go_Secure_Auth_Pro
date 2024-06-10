@@ -31,6 +31,31 @@ services:
       timeout: 3s # Health check timeout
       retries: 3 # Number of retries before marking the service as unhealthy
 
+  # TODO: CRON JOB
+  # Defines a service named "cron_service" for running cron jobs.
+  cron_service:
+    # Specifies the name of the container as "cron_service".
+    container_name: cron_service
+    # Restarts the container unless explicitly stopped.
+    restart: unless-stopped
+    # Builds the container using the specified Dockerfile and target.
+    build:
+      # Specifies the build context as the current directory.
+      context: .
+      # Specifies the path to the Dockerfile for building the container.
+      dockerfile: ./third_party/docker/go/Dockerfile
+      # Specifies the target stage in the Dockerfile to build.
+      target: cron
+    # Loads environment variables from the specified .env file.
+    env_file:
+      - .env
+    # Specifies that this service depends on the "postgresql" service.
+    depends_on:
+      - postgresql
+    # Connects the service to the "service_auth-network" network.
+    networks:
+      - service_auth-network
+
 # Use local driver for the volume
 volumes:
   db_data:

@@ -2,20 +2,31 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
-# * CONSTANTS
+# * FILE RUN GO
 GO_SERVER_PRO := ./cmd/server/main.go
 GO_SERVER_DEV:= ./fsnotify.go
+GO_SERVER_CRON := ./cmd/cronjob/main.go
 
+# * DOCKER COMPOSE
 DOCKER_COMPOSE_DEV := docker-compose.dev.yml
 DOCKER_COMPOSE_PRO := docker-compose.pro.yml
 
-DOCKER_IMAGE_NAME :=nguyentientai/go-secure-auth-pro:lastest
-DOCKERFILE_PATH := ./third_party/docker/go/Dockerfile
+# * DOCKER HUB
+SERVER_IMAGE_NAME :=nguyentientai/go-secure-auth-pro:lastest
+CRON_IMAGE_NAME :=nguyentientai/go_cronjob_auth:lastest
 
-SWAGGER_DIR=./docs/swagger
+# * DOCKER FILE
+DOCKER_FILE_PATH := ./third_party/docker/go/Dockerfile
 
+#* DOCKER CONTAINER
 CONTAINER_SERVICE_AUTH := service_auth
 
+# * DOCKER IMAGE
+TARGET_SERVER := server
+TARGET_CRON := cron
+
+# * FOLDER
+SWAGGER_DIR=./docs/swagger
 
 ################# TODO: GOLANG #################
 start:
@@ -23,6 +34,9 @@ start:
 
 dev:
 	go run $(GO_SERVER_DEV)
+
+cron:
+	go run $(GO_SERVER_CRON)
 
 ################# TODO: DOCKER #################
 build-pro:
@@ -43,11 +57,26 @@ down-dev:
 
 
 ################# TODO: DOCKER HUB #################
-image-tag:
-	docker build -t $(DOCKER_IMAGE_NAME) -f $(DOCKERFILE_PATH) .
+# Build and tag the server image
+server-image-tag:
+	docker build --target $(TARGET_SERVER) -t $(SERVER_IMAGE_NAME) -f $(DOCKER_FILE_PATH) .
 
-push-registry: image-tag
-	docker push $(DOCKER_IMAGE_NAME)
+# Build and tag the cron image
+cron-image-tag:
+	docker build --target $(TARGET_CRON) -t $(CRON_IMAGE_NAME) -f $(DOCKER_FILE_PATH) .
+
+
+# Push the server image to the registry
+push-server: server-image-tag
+	docker push $(SERVER_IMAGE_NAME)
+
+# Push the cron image to the registry
+push-cron: cron-image-tag
+	docker push $(CRON_IMAGE_NAME)
+
+# Combined target to build and push both images
+build-and-push-all: push-server push-cron
+	@echo "Both server and cron images have been built and pushed successfully."
 
 ################# TODO: SQLC #################
 sqlc:

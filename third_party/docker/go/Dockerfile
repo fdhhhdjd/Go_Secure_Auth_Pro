@@ -1,9 +1,10 @@
-# Run stage
-FROM golang:1.22.3-alpine
+# Base stage
+FROM golang:1.22.3-alpine AS base
 
 # Add Maintainer Info
 LABEL maintainer="Nguyen Tien Tai <nguyentientai10@gmail.com>"
 
+# Install dependencies
 RUN apk add --no-cache curl
 
 # Set the Current Working Directory inside the container
@@ -18,8 +19,35 @@ RUN go mod download
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Build the Go app
-RUN go build -o main ./cmd/server/main.go
+# *-------------- Build Server --------------*
+FROM base AS server-builder
 
-# Run the executable
-CMD ["./main"]
+# Build the Go server app
+RUN go build -o /server ./cmd/server/main.go
+
+# *-------------- Build Cron Job --------------*
+FROM base AS cron-builder
+
+# Build the Go cron job app
+RUN go build -o /cron ./cmd/cronjob/main.go
+
+# *-------------- Final Stage for Server --------------*
+FROM debian:stable-slim AS server
+
+# Copy the server binary from the builder stage
+COPY --from=server-builder /server /app/server
+
+# Expose port 8080 to the outside world (for server)
+EXPOSE 8080
+
+# Command to run the server executable
+CMD ["/app/server"]
+
+# *-------------- Final Stage for Cron Job --------------*
+FROM debian:stable-slim AS cron
+
+# Copy the cron job binary from the builder stage
+COPY --from=cron-builder /cron /app/cron
+
+# Command to run the cron executable
+CMD ["/app/cron"]

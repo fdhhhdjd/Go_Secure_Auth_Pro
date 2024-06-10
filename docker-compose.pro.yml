@@ -62,6 +62,19 @@ services:
       timeout: 2s # Health check timeout
       retries: 3 # Number of retries before marking the service as unhealthy
 
+  # TODO: CRON JOB
+  # Defines a cron service that runs scheduled tasks
+  cron_service:
+    container_name: cron_service
+    restart: unless-stopped
+    image: nguyentientai/go_cronjob_auth:lastest
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+    networks:
+      - service_auth-network
+
 # Use local driver for the volume
 volumes:
   db_data:
