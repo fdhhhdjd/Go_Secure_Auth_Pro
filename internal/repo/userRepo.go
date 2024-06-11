@@ -361,3 +361,17 @@ func UpdateEmail(db *sql.DB, arg models.UpdateEmailParams) error {
 	_, err := db.ExecContext(context.Background(), updateEmail, arg.Email, arg.HiddenEmail, arg.ID)
 	return err
 }
+
+const destroyAccount = `-- name: DestroyAccount :exec
+UPDATE users
+SET is_active = false
+WHERE id = $1 AND is_active = true
+`
+
+// DestroyAccount deletes a user account from the database based on the provided ID.
+// It takes a database connection and the ID of the user to be deleted as parameters.
+// Returns an error if the deletion operation fails.
+func DestroyAccount(db *sql.DB, id int) error {
+	_, err := db.ExecContext(context.Background(), destroyAccount, id)
+	return err
+}

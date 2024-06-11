@@ -65,4 +65,10 @@ SET email = $1
 WHERE id = $2;
 
 
+-- name: DestroyAccount :exec
+UPDATE users
+SET is_active = true
+WHERE id = $1 AND is_active = false;
+
+
 

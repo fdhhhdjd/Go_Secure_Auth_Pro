@@ -63,12 +63,14 @@ func NewRouter() *gin.Engine {
 
 			user.GET("/logout", utils.AsyncHandler(controller.LogoutUser))
 			user.GET("/profile/:id", utils.AsyncHandler(controller.GetProfileUser))
+			user.GET("/destroy-account", utils.AsyncHandler(controller.DestroyAccount))
 
 			user.POST("/update-profile", utils.AsyncHandler(controller.UpdateProfile))
 			user.POST("/change-pass", utils.AsyncHandler(controller.ChangePassword))
 			user.POST("/enable-tow-factor", utils.AsyncHandler(controller.EnableTowFactor))
 			user.POST("/send-otp-update-email", utils.AsyncHandler(controller.SendOtpUpdateEmail))
 			user.POST("/update-email", utils.AsyncHandler(controller.UpdateEmailUser))
+
 		}
 	}
 

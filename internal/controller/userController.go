@@ -95,3 +95,16 @@ func UpdateEmailUser(c *gin.Context) error {
 	response.Ok(c, "Update Email User", result)
 	return nil
 }
+
+// DestroyAccount handles the request to destroy a user account.
+// It calls the service.DestroyAccount function to perform the account deletion.
+// If the deletion is successful, it returns a success response.
+// Otherwise, it returns an error response.
+func DestroyAccount(c *gin.Context) error {
+	result := service.DestroyAccount(c)
+	if result == nil {
+		return nil
+	}
+	response.Ok(c, "Destroy Account User", result)
+	return nil
+}

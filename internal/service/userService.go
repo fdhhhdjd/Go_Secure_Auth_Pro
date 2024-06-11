@@ -572,3 +572,47 @@ func clearCookie(c *gin.Context, cookieName string) {
 
 	http.SetCookie(c.Writer, cookie)
 }
+
+// DestroyAccount is a handler function that destroys a user account.
+// It takes a Gin context as input and returns a DestroyAccountResponse pointer.
+// If the user information is not found in the context, it returns a BadRequestError.
+// If there is an error while destroying the account or deleting the cache, it returns an InternalServerError.
+// Otherwise, it deletes the cache, clears the user login cookie, and returns a DestroyAccountResponse with the user ID.
+//
+// @Summary Destroy user account
+// @Description Destroys a user account
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param X-Device-Id header string true "Device ID"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Success 200 {object} models.DestroyAccountResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /user/destroy-account [get]
+func DestroyAccount(c *gin.Context) *models.DestroyAccountResponse {
+	payload, existsUserInfo := c.Get(constants.InfoAccess)
+	if !existsUserInfo {
+		response.BadRequestError(c)
+		return nil
+	}
+
+	err := repo.DestroyAccount(global.DB, payload.(models.Payload).ID)
+
+	if err != nil {
+		response.InternalServerError(c)
+		return nil
+	}
+
+	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(payload.(models.Payload).ID))
+
+	if err := global.Cache.Del(c, keyCache).Err(); err != nil {
+		log.Printf("Failed to Delete cache: %v", err)
+	}
+
+	clearCookie(c, constants.UserLoginKey)
+
+	return &models.DestroyAccountResponse{
+		Id: payload.(models.Payload).ID,
+	}
+}

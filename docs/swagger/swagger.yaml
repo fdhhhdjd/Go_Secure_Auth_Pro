@@ -92,6 +92,11 @@ definitions:
       id:
         type: integer
     type: object
+  models.DestroyAccountResponse:
+    properties:
+      id:
+        type: integer
+    type: object
   models.ForgetResponse:
     properties:
       email:
@@ -618,6 +623,41 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Change user password
+      tags:
+      - Users
+  /user/destroy-account:
+    get:
+      consumes:
+      - application/json
+      description: Destroys a user account
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DestroyAccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Destroy user account
       tags:
       - Users
   /user/enable-tow-factor:

@@ -240,3 +240,7 @@ type BodyUpdateEmailRequest struct {
 	Email string `json:"email" binding:"required,email"`
 	Otp   string `json:"otp" binding:"required"`
 }
+
+type DestroyAccountResponse struct {
+	Id int `json:"id"`
+}
