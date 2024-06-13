@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +13,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		allowedOrigins := []string{
 			"http://localhost:5173",
+			"http://profile-forme.com",
 		}
 
 		origin := c.Request.Header.Get("Origin")
@@ -22,7 +24,7 @@ func CORSMiddleware() gin.HandlerFunc {
 
 				if c.Request.Method == "OPTIONS" {
 					setCORSHeaders(c.Writer, origin)
-					c.Header("Access-Control-Max-Age", "86400")
+					c.Header("Access-Control-Max-Age", constants.SecondsInADay)
 					c.AbortWithStatus(http.StatusOK)
 					return
 				}

@@ -39,7 +39,8 @@ const (
 )
 
 const (
-	AgeCookie = 7 * 24 * 60 * 60
+	AgeCookie     = 7 * 24 * 60 * 60
+	SecondsInADay = "86400"
 )
 
 const (
