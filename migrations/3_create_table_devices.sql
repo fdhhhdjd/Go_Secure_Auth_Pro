@@ -2,7 +2,7 @@ CREATE TABLE devices (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id),
     device_id VARCHAR(100) UNIQUE NOT NULL,
-    device_type VARCHAR(50),
+    device_type VARCHAR(200),
     logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     logged_out_at TIMESTAMP,
     ip VARCHAR(100),

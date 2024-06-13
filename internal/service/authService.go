@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -789,26 +790,39 @@ func setCookie(c *gin.Context, name string, value string, path string, maxAge in
 // It takes a gin.Context, user ID, and encoded public key as input parameters.
 // It returns a pointer to the updated device information if successful, otherwise it returns nil.
 func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.Device {
-	deviceID, _ := c.Get("device_id")
+	deviceIDInterface, exists := c.Get("device_id")
+	if !exists {
+		log.Print("device_id not found in context")
+		response.BadRequestError(c)
+		return nil
+	}
+
+	deviceID, ok := deviceIDInterface.(string)
+	if !ok {
+		log.Print("device_id is not a string")
+		response.BadRequestError(c)
+		return nil
+	}
+
+	log.Print(deviceID)
 
 	ip := sql.NullString{String: c.ClientIP(), Valid: true}
 
-	var publicKey string
+	publicKey := ""
 	if resultEncodePublicKey != "" {
 		publicKey = resultEncodePublicKey
-	} else {
-		publicKey = ""
 	}
 
 	resultInfoDevice, err := repo.UpsetDevice(global.DB, models.UpsetDeviceParams{
 		UserID:     id,
-		DeviceID:   deviceID.(string),
+		DeviceID:   deviceID,
 		DeviceType: c.Request.UserAgent(),
 		Ip:         ip,
 		PublicKey:  publicKey,
 	})
 
 	if err != nil {
+		log.Print("Error in UpsetDevice:", err)
 		response.BadRequestError(c)
 		return nil
 	}
