@@ -36,13 +36,16 @@ func NewRouter() *gin.Engine {
 	// CSRF middleware
 	secret := os.Getenv("CSRF_TOKEN") // Replace with your actual secret
 	store := cookie.NewStore([]byte("secret"))
-	r.Use(middlewares.IPBlackList())
-	r.Use(sessions.Sessions(constants.CSRFToken, store))
-	r.Use(middlewares.CORSMiddleware())
-	r.Use(middlewares.SecurityHeadersMiddleware())
-	r.Use(middlewares.HeadersMiddlewares())
-	r.Use(middlewares.CSRFMiddleware(secret))
-	r.Use(middlewares.RateLimiter(5, 10)) // 5 requests per second, with a burst of 10
+
+	// Apply middlewares
+	r.Use(middlewares.IPBlackList())                     // 1. IP Blacklist
+	r.Use(sessions.Sessions(constants.CSRFToken, store)) // 2. Session Handling
+	r.Use(middlewares.CORSMiddleware())                  // 3. CORS Middleware
+	r.Use(middlewares.SecurityHeadersMiddleware())       // 4. Security Headers
+	r.Use(middlewares.HeadersMiddlewares())              // 5. Custom Headers
+	r.Use(middlewares.CSRFMiddleware(secret))            // 6. CSRF Protection
+	r.Use(middlewares.RequestSizeLimiter(1 << 20))       // 7. Request Size Limiter ( 1 MB max )
+	r.Use(middlewares.RateLimiter(5, 10))                // 8. Rate Limiting ( 5 requests per second, with a burst of 10 )
 
 	//* Group v1 routes
 	v1 := r.Group("/v1")

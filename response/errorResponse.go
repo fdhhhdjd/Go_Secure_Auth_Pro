@@ -86,6 +86,7 @@ func UnauthorizedError(c *gin.Context, messages ...string) {
 	response.Send(c)
 }
 
+// ForbiddenError handles the generation and sending of a Forbidden error response.
 func ForbiddenError(c *gin.Context, messages ...string) {
 	message := ""
 	if len(messages) > 0 {
@@ -96,6 +97,20 @@ func ForbiddenError(c *gin.Context, messages ...string) {
 		message = GetReasonPhrase(StatusForbidden)
 	}
 	response := NewErrorResponse(message, StatusForbidden)
+	response.Send(c)
+}
+
+// EntityTooLargeError handles the HTTP 413 Request Entity Too Large error.
+func EntityTooLargeError(c *gin.Context, messages ...string) {
+	message := ""
+	if len(messages) > 0 {
+		message = messages[0]
+	}
+
+	if message == "" {
+		message = GetReasonPhrase(StatusRequestEntityTooLarge)
+	}
+	response := NewErrorResponse(message, StatusRequestEntityTooLarge)
 	response.Send(c)
 }
 

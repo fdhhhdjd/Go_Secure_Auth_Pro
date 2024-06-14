@@ -59,3 +59,7 @@ const (
 	StatusRegister = 20
 	StatusResend   = 30
 )
+
+const (
+	MB_1 = 1024 * 1024
+)
