@@ -28,14 +28,13 @@ func NewRouter() *gin.Engine {
 	r.GET("/docs/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	//* Test
-	r.Use(middlewares.RateLimiter(5, 10)) // 5 requests per second, with a burst of 10
-
 	r.GET("/ping", controller.Pong)
 
 	//* Middleware
 	r.Use(middlewares.CORSMiddleware())
 	r.Use(middlewares.SecurityHeadersMiddleware())
 	r.Use(middlewares.HeadersMiddlewares())
+	r.Use(middlewares.RateLimiter(5, 10)) // 5 requests per second, with a burst of 10
 
 	//* Group v1 routes
 	v1 := r.Group("/v1")
