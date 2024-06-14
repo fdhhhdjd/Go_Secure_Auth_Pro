@@ -549,6 +549,23 @@ paths:
       summary: Verify OTP
       tags:
       - Auth
+  /key/csrf-token:
+    get:
+      consumes:
+      - application/json
+      description: Generates a CSRF token and sends it as a response
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: CSRF token
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get CSRF Token
+      tags:
+      - CSRF
   /login-social:
     post:
       consumes:

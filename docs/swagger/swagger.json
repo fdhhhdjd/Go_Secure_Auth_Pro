@@ -465,6 +465,34 @@
                 }
             }
         },
+        "/key/csrf-token": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Generates a CSRF token and sends it as a response",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CSRF"
+                ],
+                "summary": "Get CSRF Token",
+                "responses": {
+                    "200": {
+                        "description": "CSRF token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/login-social": {
             "post": {
                 "description": "Handles the login process with social account",
