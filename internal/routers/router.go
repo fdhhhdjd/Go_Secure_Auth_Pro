@@ -36,6 +36,7 @@ func NewRouter() *gin.Engine {
 	// CSRF middleware
 	secret := os.Getenv("CSRF_TOKEN") // Replace with your actual secret
 	store := cookie.NewStore([]byte("secret"))
+	r.Use(middlewares.IPBlackList())
 	r.Use(sessions.Sessions(constants.CSRFToken, store))
 	r.Use(middlewares.CORSMiddleware())
 	r.Use(middlewares.SecurityHeadersMiddleware())
@@ -50,6 +51,13 @@ func NewRouter() *gin.Engine {
 		key := v1.Group("/key")
 		{
 			key.GET("/csrf-token", utils.AsyncHandler(controller.GetCsRfToken))
+		}
+
+		//* Group v1/key routes
+		blacklist := v1.Group("/blacklist")
+		{
+			// blacklist.Use(middlewares.AuthorizationMiddleware())
+			blacklist.POST("/ip", utils.AsyncHandler(controller.BlackListIP))
 		}
 
 		//* Group v1/auth routes

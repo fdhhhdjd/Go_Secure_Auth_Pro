@@ -471,6 +471,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/blacklist/ip": {
+            "post": {
+                "description": "Handles the blacklisting of IP addresses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blacklist"
+                ],
+                "summary": "Blacklist IP addresses",
+                "parameters": [
+                    {
+                        "description": "List of IP addresses to blacklist",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BodyIpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BodyIpRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/key/csrf-token": {
             "get": {
                 "security": [
@@ -1012,6 +1052,17 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                }
+            }
+        },
+        "models.BodyIpRequest": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

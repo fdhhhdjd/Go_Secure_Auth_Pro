@@ -15,6 +15,13 @@ definitions:
     required:
     - email
     type: object
+  models.BodyIpRequest:
+    properties:
+      ip:
+        items:
+          type: string
+        type: array
+    type: object
   models.BodyLoginRequest:
     properties:
       identifier:
@@ -549,6 +556,32 @@ paths:
       summary: Verify OTP
       tags:
       - Auth
+  /blacklist/ip:
+    post:
+      consumes:
+      - application/json
+      description: Handles the blacklisting of IP addresses
+      parameters:
+      - description: List of IP addresses to blacklist
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodyIpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BodyIpRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Blacklist IP addresses
+      tags:
+      - Blacklist
   /key/csrf-token:
     get:
       consumes:

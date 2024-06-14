@@ -8,6 +8,7 @@ const (
 	SpamKeyLinkVerification = "spam_user_link_verification"
 	SpamKeyForget           = "spam_user_forget"
 	CacheProfileUser        = "user_profile_%s"
+	BlackListIP             = "blacklist_ips"
 )
 const (
 	RequestThreshold                 = 5
