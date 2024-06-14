@@ -58,6 +58,20 @@ func NotFoundError(c *gin.Context, messages ...string) {
 
 }
 
+// TooManyRequestsError represents a 429 Too Many Requests error
+func TooManyRequestsError(c *gin.Context, messages ...string) {
+	message := ""
+	if len(messages) > 0 {
+		message = messages[0]
+	}
+
+	if message == "" {
+		message = GetReasonPhrase(StatusTooManyRequests)
+	}
+	response := NewErrorResponse(message, StatusTooManyRequests)
+	response.Send(c)
+}
+
 // UnauthorizedError represents a 401 Unauthorized error
 func UnauthorizedError(c *gin.Context, messages ...string) {
 	message := ""

@@ -13,7 +13,8 @@ func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		allowedOrigins := []string{
 			"http://localhost:5173",
-			"http://profile-forme.com",
+			"http://127.0.0.1:5173",
+			"https://profile-forme.com",
 		}
 
 		origin := c.Request.Header.Get("Origin")
@@ -28,11 +29,9 @@ func CORSMiddleware() gin.HandlerFunc {
 					c.AbortWithStatus(http.StatusOK)
 					return
 				}
-
 				break
 			}
 		}
-
 		c.Next()
 	}
 }

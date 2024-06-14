@@ -42,6 +42,7 @@ const (
 	StatusUnsupportedMediaType         = 415
 	StatusRequestedRangeNotSatisfiable = 416
 	StatusExpectationFailed            = 417
+	StatusTooManyRequests              = 429
 
 	// Server Error
 	StatusInternalServerError     = 500
