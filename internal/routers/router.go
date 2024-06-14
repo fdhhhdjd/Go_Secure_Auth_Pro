@@ -108,12 +108,15 @@ func NewRouter() *gin.Engine {
 	return r
 }
 
+// NotFound returns a Gin middleware handler that handles 404 Not Found errors.
 func NotFound() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response.NotFoundError(c)
 	}
 }
 
+// ServiceUnavailable returns a Gin middleware handler that handles service unavailable errors.
+// It checks if there are any errors in the context and calls the response.ServiceUnavailable function if there are.
 func ServiceUnavailable() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
