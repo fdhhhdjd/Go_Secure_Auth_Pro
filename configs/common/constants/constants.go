@@ -51,6 +51,7 @@ const (
 	UserLoginKey = "user_login"
 	InfoAccess   = "info_access"
 	InfoRefetch  = "info_refetch"
+	CSRFToken    = "CSRF-Token"
 )
 
 const (

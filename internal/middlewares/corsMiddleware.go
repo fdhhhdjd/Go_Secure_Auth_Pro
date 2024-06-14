@@ -42,4 +42,6 @@ func setCORSHeaders(w http.ResponseWriter, origin string) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 	w.Header().Add("Access-Control-Allow-Headers", "X-Device-Id")
+	w.Header().Add("Access-Control-Allow-Headers", "X-CSRF-Token")
+
 }

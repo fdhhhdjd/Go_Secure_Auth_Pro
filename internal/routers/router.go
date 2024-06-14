@@ -9,6 +9,8 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -31,14 +33,25 @@ func NewRouter() *gin.Engine {
 	r.GET("/ping", controller.Pong)
 
 	//* Middleware
+	// CSRF middleware
+	secret := os.Getenv("CSRF_TOKEN") // Replace with your actual secret
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions(constants.CSRFToken, store))
 	r.Use(middlewares.CORSMiddleware())
 	r.Use(middlewares.SecurityHeadersMiddleware())
 	r.Use(middlewares.HeadersMiddlewares())
+	r.Use(middlewares.CSRFMiddleware(secret))
 	r.Use(middlewares.RateLimiter(5, 10)) // 5 requests per second, with a burst of 10
 
 	//* Group v1 routes
 	v1 := r.Group("/v1")
 	{
+		//* Group v1/key routes
+		key := v1.Group("/key")
+		{
+			key.GET("/csrf-token", utils.AsyncHandler(controller.GetCsRfToken))
+		}
+
 		//* Group v1/auth routes
 		auth := v1.Group("/auth")
 		{
