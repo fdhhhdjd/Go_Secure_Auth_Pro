@@ -114,6 +114,20 @@ func EntityTooLargeError(c *gin.Context, messages ...string) {
 	response.Send(c)
 }
 
+// UnSupportMediaTypeError handles the unsupported media type error by sending an error response to the client.
+func UnSupportMediaTypeError(c *gin.Context, messages ...string) {
+	message := ""
+	if len(messages) > 0 {
+		message = messages[0]
+	}
+
+	if message == "" {
+		message = GetReasonPhrase(StatusUnsupportedMediaType)
+	}
+	response := NewErrorResponse(message, StatusUnsupportedMediaType)
+	response.Send(c)
+}
+
 // InternalServerError represents a 500 Internal Server Error
 func InternalServerError(c *gin.Context, messages ...string) {
 	message := ""
