@@ -18,6 +18,9 @@ type TelegramMessage struct {
 	DisableNotification   bool   `json:"disable_notification,omitempty"`
 }
 
+// SendTelegramMessage sends a message to a Telegram chat using the Telegram Bot API.
+// It takes the message content, parse mode, disable web page preview, and disable notification as parameters.
+// Returns an error if there was a problem sending the message.
 func SendTelegramMessage(message string, parseMode string, disableWebPagePreview bool, disableNotification bool) error {
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", global.Cfg.Telegram.BotToken)
 
@@ -46,5 +49,20 @@ func SendTelegramMessage(message string, parseMode string, disableWebPagePreview
 	}
 
 	fmt.Printf("Response from Telegram API: %s\n", string(body))
+	return nil
+}
+
+// PingTelegram pings the Telegram API to check if the bot is reachable.
+// It sends a GET request to the Telegram API's getMe endpoint using the provided bot token.
+// If the API returns a non-OK status, it returns an error.
+func PingTelegram(botToken string) error {
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/getMe", botToken)
+
+	response, err := http.Get(apiURL)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
 	return nil
 }

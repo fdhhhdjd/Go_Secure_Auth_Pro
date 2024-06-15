@@ -47,4 +47,5 @@ func init() {
 		fmt.Printf("Error connecting to firebase: %v\n", err)
 		panic(err)
 	}
+
 }

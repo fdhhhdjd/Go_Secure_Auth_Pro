@@ -1,14 +1,17 @@
 package routers
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	_ "github.com/fdhhhdjd/Go_Secure_Auth_Pro/docs/swagger"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
+	third_party "github.com/fdhhhdjd/Go_Secure_Auth_Pro/third_party/telegram"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -31,6 +34,11 @@ func NewRouter() *gin.Engine {
 
 	//* Test
 	r.GET("/ping", controller.Pong)
+	if err := third_party.PingTelegram(global.Cfg.Telegram.BotToken); err != nil {
+		fmt.Printf("Failed to ping Telegram: %v\n", err)
+	} else {
+		fmt.Println("TELEGRAM CONNECTED SUCCESSFULLY 📱")
+	}
 
 	//* Middleware
 	// CSRF middleware
