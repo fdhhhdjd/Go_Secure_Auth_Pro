@@ -7,12 +7,13 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller/initialization"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/setting"
 	"github.com/redis/go-redis/v9"
 )
 
 var (
-	Cfg      configs.Config
+	Cfg      models.Config
 	DB       *sql.DB
 	Cache    *redis.Client
 	AdminSdk *firebase.App

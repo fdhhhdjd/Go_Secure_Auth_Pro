@@ -1,7 +1,7 @@
 server:
   host: "localhost"
   port: 8000
-  portfrontend: "http://localhost:3000"
+  portfrontend: "http://localhost:5173"
   keypassword: ""
 
 database:
@@ -18,8 +18,12 @@ Cache:
   port:
 
 gmail:
-  host: "smtp.gmail.com"
-  port:
-  service: "gmail"
+  host: ""
+  port: 587
+  service: ""
   mail: ""
   password: ""
+
+telegram:
+  bottoken: ""
+  chatid: ""

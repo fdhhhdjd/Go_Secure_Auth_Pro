@@ -46,6 +46,7 @@ func NewRouter() *gin.Engine {
 	r.Use(middlewares.CSRFMiddleware(secret))            // 6. CSRF Protection
 	r.Use(middlewares.RequestSizeLimiter(1 << 20))       // 7. Request Size Limiter ( 1 MB max )
 	r.Use(middlewares.RateLimiter(5, 10))                // 8. Rate Limiting ( 5 requests per second, with a burst of 10 )
+	r.Use(middlewares.RequestLoggingMiddleware())        // 9. Request Logging
 
 	//* Group v1 routes
 	v1 := r.Group("/v1")

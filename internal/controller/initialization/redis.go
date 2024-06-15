@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/redis/go-redis/v9"
 )
 
 // ConnectRedis establishes a connection to Redis using the provided configuration.
 // It returns a Redis client and an error if the connection fails.
-func ConnectRedis(cfg configs.Config) (*redis.Client, error) {
+func ConnectRedis(cfg models.Config) (*redis.Client, error) {
 	var rdb *redis.Client
 	var pong string
 	var err error
