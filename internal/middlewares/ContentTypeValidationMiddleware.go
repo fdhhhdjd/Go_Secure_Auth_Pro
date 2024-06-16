@@ -12,11 +12,13 @@ import (
 // It then calls the next handler in the chain.
 func ContentTypeValidationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		contentType := c.Request.Header.Get("Content-Type")
-		log.Println(contentType)
-		if contentType != "application/json" {
-			response.UnSupportMediaTypeError(c)
-			return
+		if c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "PATCH" {
+			contentType := c.Request.Header.Get("Content-Type")
+			log.Println(contentType)
+			if contentType != "application/json" {
+				response.UnSupportMediaTypeError(c)
+				return
+			}
 		}
 		c.Next()
 	}

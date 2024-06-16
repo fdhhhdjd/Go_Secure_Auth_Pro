@@ -527,6 +527,12 @@ func UpdateEmailUser(c *gin.Context) *models.LoginResponse {
 		log.Printf("Failed to update cache: %v", err)
 	}
 
+	result, err := helpers.GetUserUIDByEmail(c, reqBody.Email)
+
+	if err == nil {
+		go helpers.UpdateUserEmail(c, result, reqBody.Email)
+	}
+
 	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
 		ID:    payload.(models.Payload).ID,
 		Email: reqBody.Email,
