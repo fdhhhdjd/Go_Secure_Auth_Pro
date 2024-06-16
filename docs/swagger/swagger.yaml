@@ -587,6 +587,12 @@ paths:
       consumes:
       - application/json
       description: Generates a CSRF token and sends it as a response
+      parameters:
+      - description: Device ID
+        in: header
+        name: X-Device-Id
+        required: true
+        type: string
       produces:
       - application/json
       responses:

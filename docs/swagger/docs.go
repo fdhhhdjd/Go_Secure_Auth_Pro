@@ -529,6 +529,15 @@ const docTemplate = `{
                     "CSRF"
                 ],
                 "summary": "Get CSRF Token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "X-Device-Id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "CSRF token",

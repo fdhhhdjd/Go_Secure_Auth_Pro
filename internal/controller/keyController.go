@@ -15,6 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
+// @Param X-Device-Id header string true "Device ID"
 // @Success 200 {string} string "CSRF token"
 // @Router /key/csrf-token [get]
 func GetCsRfToken(c *gin.Context) error {
