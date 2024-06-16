@@ -57,6 +57,7 @@ func NewRouter() *gin.Engine {
 	r.Use(middlewares.RequestLoggingMiddleware())        // 9. Request Logging
 	r.Use(middlewares.PathTraversalMiddleware())         // 10. Path Traversal
 	r.Use(middlewares.ContentTypeValidationMiddleware()) // 11. Content Type Validation
+	r.Use(middlewares.SanitizeParamsMiddleware())        // 12. Sanitize Params
 
 	//* Group v1 routes
 	v1 := r.Group("/v1")
