@@ -356,7 +356,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash.String)
 
 	if errPassword != nil {
-		response.BadRequestError(c, response.ErrorEncryptPassword)
+		response.BadRequestError(c, response.ErrorPasswordNotMatch)
 		return nil
 	}
 
