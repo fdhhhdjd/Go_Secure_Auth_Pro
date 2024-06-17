@@ -223,6 +223,8 @@ definitions:
     type: object
   response.ErrorResponse:
     properties:
+      code:
+        type: integer
       message:
         type: string
       now:
