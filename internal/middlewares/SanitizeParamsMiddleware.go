@@ -16,7 +16,7 @@ func SanitizeParamsMiddleware() gin.HandlerFunc {
 			for _, value := range values {
 				sanitizedValue := p.Sanitize(value)
 				if sanitizedValue != value {
-					response.BadRequestError(c, "Potentially dangerous input detected")
+					response.BadRequestError(c, response.ErrPotentiallyDangerousInputDetected)
 					return
 				}
 			}

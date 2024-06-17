@@ -16,7 +16,7 @@ func ContentTypeValidationMiddleware() gin.HandlerFunc {
 			contentType := c.Request.Header.Get("Content-Type")
 			log.Println(contentType)
 			if contentType != "application/json" {
-				response.UnSupportMediaTypeError(c)
+				response.UnSupportMediaTypeError(c, response.ErrCodeContentType)
 				return
 			}
 		}

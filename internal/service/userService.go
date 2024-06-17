@@ -41,7 +41,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	var req models.PramsProfileRequest
 
 	if err := c.ShouldBindUri(&req); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -83,7 +83,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	})
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
@@ -105,7 +105,7 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	err = global.Cache.HMSet(c, keyCache, profileMap).Err()
 	if err != nil {
 		log.Printf("Failed to set cache: %v", err)
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeCacheQuery)
 		return nil
 	} else {
 		log.Printf("Cache set for key %s: %v", keyCache, profileMap)
@@ -155,23 +155,23 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 	reqBody := models.BodyUpdateRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 	if !validate.ValidateAndRespond(reqBody.Username, validate.IsValidateUser) {
-		response.BadRequestError(c, constants.UsernameInvalid)
+		response.BadRequestError(c, response.ErrorUsernameInvalid)
 		return nil
 	}
 
 	if !validate.ValidateAndRespond(reqBody.Phone, validate.IsValidatePhone) {
-		response.BadRequestError(c, constants.PhoneInvalid)
+		response.BadRequestError(c, response.ErrorUserPhoneInvalid)
 		return nil
 	}
 
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorUserEmailInvalid)
 		return nil
 	}
 
@@ -194,11 +194,11 @@ func UpdateProfileUser(c *gin.Context) *models.UpdateUserRow {
 		//* Error for database
 		errorCreateUser := utils.HandleDBError(err)
 		if errorCreateUser != "" {
-			response.InternalServerError(c, errorCreateUser)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
 
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -254,7 +254,7 @@ func Logout(c *gin.Context) *models.LogoutResponse {
 	deviceId, existsDevice := c.Get("device_id")
 
 	if !existsUserInfo || !existsDevice {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -299,25 +299,25 @@ func ChangePassword(c *gin.Context) *models.ChangePassResponse {
 	reqBody := models.BodyChangePasswordRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c, constants.PasswordInvalid)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	if !validate.ValidateAndRespond(reqBody.Password, validate.IsValidPassword) {
-		response.BadRequestError(c, constants.PasswordWeak)
+		response.BadRequestError(c, response.ErrorPassWeak)
 		return nil
 	}
 
 	hashedPassword := checkPasswordOld(reqBody.Password, payload.(models.Payload).ID)
 
 	if hashedPassword == nil {
-		response.BadRequestError(c, constants.PasswordHasUsed)
+		response.BadRequestError(c, response.ErrorPasswordIsOld)
 		return nil
 	}
 
@@ -363,14 +363,14 @@ func EnableTowFactor(c *gin.Context) *models.UpdateTwoFactorEnableParams {
 	reqBody := models.BodyTwoFactorEnableRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c, constants.TwoFactorEnabledInvalid)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -424,14 +424,14 @@ func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
 	// Parse the request body into a models.UpdateEmailParams object
 	reqBody := models.UpdateEmailParams{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	// Retrieve the user's information from the gin.Context object
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -441,12 +441,12 @@ func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
 		ID:    payload.(models.Payload).ID,
 	})
 	if err != nil {
-		response.InternalServerError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
 	if emailExists {
-		response.BadRequestError(c, constants.EmailExits)
+		response.BadRequestError(c, response.ErrUserNotExitEmail)
 		return nil
 	}
 
@@ -455,7 +455,7 @@ func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
 	// Generate an OTP for the user
 	resultOTP := SendOtp(c, payload.(models.Payload).ID, expiredAt)
 	if resultOTP == nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorOTPNotExit)
 		return nil
 	}
 
@@ -494,19 +494,19 @@ func SendOtpUpdateEmail(c *gin.Context) *models.SendOtpResponse {
 func UpdateEmailUser(c *gin.Context) *models.LoginResponse {
 	reqBody := models.BodyUpdateEmailRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c, constants.OTPInvalid)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	resultInfo := VeriOtp(c, reqBody.Otp)
 	if resultInfo == nil {
-		response.BadRequestError(c, constants.OTPInvalid)
+		response.BadRequestError(c, response.ErrorOTPNotExit)
 		return nil
 	}
 
@@ -539,7 +539,7 @@ func UpdateEmailUser(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -599,14 +599,14 @@ func clearCookie(c *gin.Context, cookieName string) {
 func DestroyAccount(c *gin.Context) *models.DestroyAccountResponse {
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	if !existsUserInfo {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	err := repo.DestroyAccount(global.DB, payload.(models.Payload).ID)
 
 	if err != nil {
-		response.InternalServerError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 

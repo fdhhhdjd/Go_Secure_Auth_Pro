@@ -25,13 +25,13 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		deviceID, exists := c.Get("device_id")
 
 		if authHeader == "" || deviceID == nil || !exists {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrCodeHeaderNotExit)
 			return
 		}
 
 		fields := strings.Fields(authHeader)
 		if len(fields) < 2 {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrCodeHeaderNotExit)
 			return
 		}
 
@@ -41,7 +41,7 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || resultDevice.PublicKey.String == "" {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrCodeAuthTokenInvalid)
 			return
 		}
 
@@ -51,13 +51,13 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 
 		payload, err := helpers.VerifyToken(accessToken, DecodePublicKeyFromPem)
 		if err != nil {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrCodeAuthTokenInvalid)
 			return
 		}
 
 		claims, ok := payload.Claims.(jwt.MapClaims)
 		if !ok {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrCodeAuthTokenInvalid)
 			return
 		}
 
@@ -68,12 +68,12 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		resultCheckUser := CheckUser(email)
 
 		if !resultCheckUser {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrUserNotExit)
 			return
 		}
 
 		if int(userId) != resultDevice.UserID {
-			response.UnauthorizedError(c)
+			response.UnauthorizedError(c, response.ErrUserNotExit)
 			return
 		}
 

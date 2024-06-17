@@ -21,10 +21,10 @@ func RequestSizeLimiter(maxSize int64) gin.HandlerFunc {
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			if err == io.EOF {
-				response.EntityTooLargeError(c, "Request body too large")
+				response.EntityTooLargeError(c, response.ErrorBodySizeTooLarge)
 				return
 			}
-			response.InternalServerError(c, "Error reading request body")
+			response.BadRequestError(c, response.ErrorNotRead)
 			return
 		}
 

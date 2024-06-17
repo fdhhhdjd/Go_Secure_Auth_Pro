@@ -11,7 +11,7 @@ func CSRFMiddleware(secret string) gin.HandlerFunc {
 	return csrf.Middleware(csrf.Options{
 		Secret: secret,
 		ErrorFunc: func(c *gin.Context) {
-			response.ForbiddenError(c)
+			response.ForbiddenError(c, response.ErrCSRFTokenInvalid)
 		},
 	})
 }

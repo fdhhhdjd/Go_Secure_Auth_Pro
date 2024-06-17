@@ -61,13 +61,13 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 	var req models.OtpRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeCacheInvalidRequest)
 		return nil
 	}
 
 	resultInfo := VeriOtp(c, req.Otp)
 	if resultInfo == nil {
-		response.BadRequestError(c, constants.OTPInvalid)
+		response.BadRequestError(c, response.ErrorOTPNotExit)
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 

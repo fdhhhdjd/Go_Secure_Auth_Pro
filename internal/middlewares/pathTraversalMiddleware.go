@@ -17,7 +17,7 @@ func PathTraversalMiddleware() gin.HandlerFunc {
 		cleanPath := filepath.Clean(path)
 
 		if cleanPath != path {
-			response.BadRequestError(c, "Invalid path")
+			response.BadRequestError(c, response.ErrPathTraversal)
 			return
 		}
 

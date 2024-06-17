@@ -17,12 +17,12 @@ func IPBlackList() gin.HandlerFunc {
 		// Check if the IP is in the blacklist
 		isBlacklisted, err := global.Cache.SIsMember(c, constants.BlackListIP, ip).Result()
 		if err != nil {
-			response.InternalServerError(c)
+			response.InternalServerError(c, response.ErrCodeCacheQuery)
 			return
 		}
 
 		if isBlacklisted {
-			response.ForbiddenError(c)
+			response.ForbiddenError(c, response.ErrIpBlackList)
 			return
 		}
 

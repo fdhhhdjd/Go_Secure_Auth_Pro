@@ -47,7 +47,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		response.BadRequestError(c, ttl)
+		response.BadRequestError(c, response.ErrIpBlackList, ttl)
 		return nil
 	}
 
@@ -56,7 +56,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -68,14 +68,14 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			response.InternalServerError(c, errorDetailUser)
+			response.BadRequestError(c, response.ErrUserNotExit)
 			return nil
 		}
 	}
 
 	//* Check user have exit to yet
 	if resultDetailUser.ID != constants.NotExitData {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrUserNotExit)
 		return nil
 	}
 
@@ -85,10 +85,10 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		//* Error for database
 		errorCreateUser := utils.HandleDBError(err)
 		if errorCreateUser != "" {
-			response.InternalServerError(c, errorCreateUser)
+			response.BadRequestError(c, response.ErrUserDuplicateEmail)
 			return nil
 		}
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
@@ -158,7 +158,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	reqQuery := models.QueryVerificationRequest{}
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -168,17 +168,17 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorVerificationCodeNotExit)
 		return nil
 	}
 
 	if GetVerification.UserID != reqQuery.UserId || GetVerification.VerifiedToken != reqQuery.Token || !GetVerification.IsActive {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorVerificationCodeInvalid)
 		return nil
 	}
 
 	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
-		response.UnauthorizedError(c)
+		response.UnauthorizedError(c, response.ErrorVerificationCodeExpired)
 		return nil
 	}
 
@@ -187,7 +187,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	salt, hashedPassword, err := helpers.HashPassword(randomPassword, bcrypt.DefaultCost)
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -198,7 +198,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if errInsertHistoryPassword != nil {
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
@@ -210,7 +210,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if errUpdatePassword != nil {
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
@@ -221,7 +221,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
@@ -231,7 +231,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -293,7 +293,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		response.BadRequestError(c, ttl)
+		response.BadRequestError(c, response.ErrIpBlackList, ttl)
 		return nil
 	}
 
@@ -302,7 +302,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 	var resultUser *models.User
@@ -311,52 +311,52 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	case constants.Email:
 		users, err := repo.JoinUsersWithVerificationByEmail(global.DB, reqBody.Identifier)
 		if err != nil {
-			response.BadRequestError(c)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
 		if len(users) == 0 {
-			response.BadRequestError(c)
+			response.BadRequestError(c, response.ErrUserNotExitEmail)
 			return nil
 		}
 		resultUser = &users[0]
 	case constants.Phone:
 		users, err := repo.JoinUsersWithVerificationByPhone(global.DB, reqBody.Identifier)
 		if err != nil {
-			response.BadRequestError(c)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
 		if len(users) == 0 {
-			response.BadRequestError(c)
+			response.BadRequestError(c, response.ErrorUserPhoneNotExit)
 			return nil
 		}
 		resultUser = &users[0]
 	case constants.Username:
 		users, err := repo.JoinUsersWithVerificationByUsername(global.DB, reqBody.Identifier)
 		if err != nil {
-			response.BadRequestError(c)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
 		if len(users) == 0 {
-			response.BadRequestError(c)
+			response.BadRequestError(c, response.ErrorUserNotExitUsername)
 			return nil
 		}
 		resultUser = &users[0]
 	default:
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrUserNotExit)
 		return nil
 	}
 
 	//* Check account have been block
 	accountBlock := CheckUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
-		response.ForbiddenError(c)
+		response.ForbiddenError(c, response.ErrUserNotActive)
 		return nil
 	}
 
 	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash.String)
 
 	if errPassword != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorEncryptPassword)
 		return nil
 	}
 
@@ -365,7 +365,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		resultOTP := SendOtp(c, resultUser.ID, expiredAt)
 
 		if resultOTP == nil {
-			response.BadRequestError(c)
+			response.BadRequestError(c, response.ErrorOTPNotExit)
 			return nil
 		}
 
@@ -377,7 +377,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 		go pkg.SendGoEmail(resultUser.Email, data)
 
-		response.UnauthorizedError(c, constants.TwoFactorUnauthorized)
+		response.UnauthorizedError(c, response.ErrTwoFactorUnauthorized)
 		return nil
 	}
 
@@ -387,7 +387,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -436,7 +436,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 
 	//* Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 	// * Check UserSpam
@@ -444,7 +444,7 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		response.BadRequestError(c, ttl)
+		response.BadRequestError(c, response.ErrIpBlackList, ttl)
 		return nil
 	}
 
@@ -456,10 +456,10 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			response.InternalServerError(c, errorDetailUser)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrUserNotExit)
 		return nil
 	}
 
@@ -467,19 +467,19 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 	count, err := repo.GetVerificationByUserId(global.DB, resultDetailUser.ID)
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.InternalServerError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 
 	numberSend := 5
 	if count >= numberSend {
 		times := fmt.Sprintf("You have sent verification %d times", numberSend)
-		response.BadRequestError(c, times)
+		response.BadRequestError(c, response.ErrCodeValidation, times)
 		return nil
 	}
 
 	if resultDetailUser.IsActive {
-		response.BadRequestError(c, constants.AccountHasVerify)
+		response.BadRequestError(c, response.ErrUserNotActive)
 		return nil
 	}
 
@@ -530,14 +530,14 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 
 	if resultSpam.IsSpam {
 		ttl := fmt.Sprintf("You are blocked for %d seconds", resultSpam.ExpiredSpam)
-		response.BadRequestError(c, ttl)
+		response.BadRequestError(c, response.ErrIpBlackList, ttl)
 		return nil
 	}
 
 	reqBody := models.BodyForgetRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -547,13 +547,14 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 		errorDetailUser := utils.HandleDBError(err)
 		//* Error for database
 		if errorDetailUser != "" {
-			response.InternalServerError(c, errorDetailUser)
+			response.InternalServerError(c, response.ErrCodeDBQuery)
 			return nil
 		}
+		response.BadRequestError(c, response.ErrUserNotExit)
 	}
 
 	if !resultDetailUser.IsActive {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrUserNotActive)
 		return nil
 	}
 
@@ -613,7 +614,7 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	reqBody := models.BodyResetPasswordRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -623,29 +624,29 @@ func ResetPassword(c *gin.Context) *models.ResetPasswordResponse {
 	})
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorVerificationCodeNotExit)
 		return nil
 	}
 
 	if GetVerification.UserID != reqBody.UserId || GetVerification.VerifiedToken != reqBody.Token || !GetVerification.IsActive {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrorVerificationCodeInvalid)
 		return nil
 	}
 
 	if GetVerification.ExpiresAt.Unix() < time.Now().Unix() {
-		response.ForbiddenError(c)
+		response.ForbiddenError(c, response.ErrorVerificationCodeExpired)
 		return nil
 	}
 
 	if !validate.IsValidPassword(reqBody.Password) {
-		response.BadRequestError(c, constants.PasswordWeak)
+		response.BadRequestError(c, response.ErrorPassWeak)
 		return nil
 	}
 
 	hashedPassword := checkPasswordOld(reqBody.Password, reqBody.UserId)
 
 	if hashedPassword == nil {
-		response.BadRequestError(c, constants.PasswordHasUsed)
+		response.BadRequestError(c, response.ErrorPasswordNotMatch)
 		return nil
 	}
 
@@ -690,7 +691,7 @@ func RenewToken(c *gin.Context) *models.LoginResponse {
 	resultRefetch, exists := c.Get(constants.InfoRefetch)
 
 	if !exists || resultRefetch == nil || resultRefetch == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -703,7 +704,7 @@ func RenewToken(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -793,14 +794,14 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 	deviceIDInterface, exists := c.Get("device_id")
 	if !exists {
 		log.Print("device_id not found in context")
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
 	deviceID, ok := deviceIDInterface.(string)
 	if !ok {
 		log.Print("device_id is not a string")
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -823,7 +824,7 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 
 	if err != nil {
 		log.Print("Error in UpsetDevice:", err)
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeDBQuery)
 		return nil
 	}
 	return &resultInfoDevice
@@ -840,7 +841,7 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 	ExpiresAtTokenUnix := expiresToken.Unix()
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 
@@ -864,10 +865,10 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 		//* Error for database
 		errorCreateVerification := utils.HandleDBError(err)
 		if errorCreateVerification != "" {
-			response.InternalServerError(c, errorCreateVerification)
+			response.InternalServerError(c, response.ErrorVerificationCodeDuplicate)
 			return nil
 		}
-		response.InternalServerError(c)
+		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
 

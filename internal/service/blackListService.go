@@ -29,7 +29,7 @@ func BlackListIP(c *gin.Context) *models.BodyIpRequest {
 	var reqBody models.BodyIpRequest
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeCacheInvalidRequest)
 		return nil
 	}
 
@@ -39,13 +39,13 @@ func BlackListIP(c *gin.Context) *models.BodyIpRequest {
 			err := global.Cache.SAdd(c, constants.BlackListIP, ip).Err()
 			if err != nil {
 				log.Println("Failed to add IP to blacklist:", err)
-				response.InternalServerError(c)
+				response.InternalServerError(c, response.ErrCodeCacheQuery)
 				return nil
 			}
 		}
 
 	} else {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidRequest)
 		return nil
 	}
 

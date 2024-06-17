@@ -40,7 +40,7 @@ func LoginSocial(c *gin.Context) *models.LoginResponse {
 	reqBody := models.BodyLoginSocialRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
@@ -50,31 +50,31 @@ func LoginSocial(c *gin.Context) *models.LoginResponse {
 	case constants.SocialGoogle:
 		resultInfoSocial = socialGoogle(c, reqBody.Uid)
 	default:
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 	}
 
 	users, err := repo.JoinUsersWithVerificationByEmail(global.DB, resultInfoSocial.Email)
 
 	if err != nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	if len(users) == 0 {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
 	resultUser := &users[0]
 
 	if !resultUser.TwoFactorEnabled {
-		response.BadRequestError(c, constants.TwoFactorEnabled)
+		response.BadRequestError(c, response.ErrTwoFactorDisabled)
 		return nil
 	}
 
 	accountBlock := CheckUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
-		response.ForbiddenError(c)
+		response.ForbiddenError(c, response.ErrUserNotActive)
 		return nil
 	}
 
@@ -84,7 +84,7 @@ func LoginSocial(c *gin.Context) *models.LoginResponse {
 	})
 
 	if accessToken == "" || refetchToken == "" || resultEncodePublicKey == "" {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeAuthTokenInvalid)
 		return nil
 	}
 
@@ -107,7 +107,7 @@ func socialGoogle(c *gin.Context, uid string) *models.SocialResponse {
 	infoUserSocial := helpers.GetUserIDToken(c, uid)
 
 	if infoUserSocial == nil {
-		response.BadRequestError(c)
+		response.BadRequestError(c, response.ErrCodeInvalidFormat)
 		return nil
 	}
 
