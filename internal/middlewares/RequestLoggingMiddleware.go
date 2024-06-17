@@ -22,17 +22,18 @@ func (w *bodyWriter) Write(b []byte) (int, error) {
 }
 
 // FormatErrorMessage formats an error message with Markdown for readability.
-func FormatErrorMessage(method, path string, duration time.Duration, status int, errorName, formattedRequestBody string) string {
+func FormatErrorMessage(method, path string, duration time.Duration, status int, errorName string, code string, formattedRequestBody string) string {
 	message := fmt.Sprintf(
 		"🚨 *Error!* 🚨\n"+
 			"**Request:** `%s`\n"+
 			"**Method:** `%s`\n"+
+			"**Code:** `%s`\n"+
 			"**Duration:** `%s`\n"+
 			"**Status:** `%d`\n"+
 			"**Error Message:** `%s`\n"+
 			"**Body:** \n"+
 			"```json\n%s\n```",
-		path, method, duration, status, errorName, formattedRequestBody)
+		path, method, code, duration, status, errorName, formattedRequestBody)
 
 	return message
 }
@@ -64,14 +65,22 @@ func RequestLoggingMiddleware() gin.HandlerFunc {
 		status := c.Writer.Status()
 
 		responseBodyBytes := responseBodyBuffer.Bytes()
+
 		errorName := ""
-		if status >= 500 {
+		code := ""
+
+		if status >= 400 {
 			var responseBody map[string]interface{}
 			if err := json.Unmarshal(responseBodyBytes, &responseBody); err == nil {
 				if msg, exists := responseBody["message"]; exists {
 					errorName = fmt.Sprintf("%v", msg)
 				}
+
+				if c, exists := responseBody["code"]; exists {
+					code = fmt.Sprintf("%v", c)
+				}
 			}
+
 		}
 
 		// Convert request body to JSON
@@ -81,7 +90,7 @@ func RequestLoggingMiddleware() gin.HandlerFunc {
 		}
 
 		// Send message to Telegram
-		message := FormatErrorMessage(method, path, duration, status, errorName, formattedRequestBody.String())
+		message := FormatErrorMessage(method, path, duration, status, errorName, code, formattedRequestBody.String())
 
 		if status >= 500 {
 			go third_party.SendTelegramMessage(message, "Markdown", true, false)
