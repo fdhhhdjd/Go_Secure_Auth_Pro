@@ -305,44 +305,23 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
+
 	var resultUser *models.User
+	var err error
 
 	switch helpers.IdentifyType(reqBody.Identifier) {
 	case constants.Email:
-		users, err := repo.JoinUsersWithVerificationByEmail(global.DB, reqBody.Identifier)
-		if err != nil {
-			response.InternalServerError(c, response.ErrCodeDBQuery)
-			return nil
-		}
-		if len(users) == 0 {
-			response.BadRequestError(c, response.ErrUserNotExitEmail)
-			return nil
-		}
-		resultUser = &users[0]
+		resultUser, err = fetchUserByEmail(c, reqBody.Identifier)
 	case constants.Phone:
-		users, err := repo.JoinUsersWithVerificationByPhone(global.DB, reqBody.Identifier)
-		if err != nil {
-			response.InternalServerError(c, response.ErrCodeDBQuery)
-			return nil
-		}
-		if len(users) == 0 {
-			response.BadRequestError(c, response.ErrorUserPhoneNotExit)
-			return nil
-		}
-		resultUser = &users[0]
+		resultUser, err = fetchUserByPhone(c, reqBody.Identifier)
 	case constants.Username:
-		users, err := repo.JoinUsersWithVerificationByUsername(global.DB, reqBody.Identifier)
-		if err != nil {
-			response.InternalServerError(c, response.ErrCodeDBQuery)
-			return nil
-		}
-		if len(users) == 0 {
-			response.BadRequestError(c, response.ErrorUserNotExitUsername)
-			return nil
-		}
-		resultUser = &users[0]
+		resultUser, err = fetchUserByUsername(c, reqBody.Identifier)
 	default:
 		response.BadRequestError(c, response.ErrUserNotExit)
+		return nil
+	}
+
+	if err != nil {
 		return nil
 	}
 
@@ -354,7 +333,6 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 	}
 
 	errPassword := helpers.ComparePassword(reqBody.Password, resultUser.PasswordHash.String)
-
 	if errPassword != nil {
 		response.BadRequestError(c, response.ErrorPasswordNotMatch)
 		return nil
@@ -401,6 +379,52 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		Email:       resultUser.Email,
 		AccessToken: accessToken,
 	}
+}
+
+// fetchUserByEmail fetches a user from the database based on the provided email.
+// It returns the user if found, otherwise returns an error.
+func fetchUserByEmail(c *gin.Context, email string) (*models.User, error) {
+	users, err := repo.JoinUsersWithVerificationByEmail(global.DB, email)
+	if err != nil {
+		response.InternalServerError(c, response.ErrCodeDBQuery)
+		return nil, err
+	}
+	if len(users) == 0 {
+		response.BadRequestError(c, response.ErrUserNotExitEmail)
+		return nil, fmt.Errorf("user not found")
+	}
+	return &users[0], nil
+}
+
+// fetchUserByPhone fetches a user by their phone number.
+// It queries the database to find a user with the specified phone number.
+// If the user is found, it returns the user object. Otherwise, it returns an error.
+func fetchUserByPhone(c *gin.Context, phone string) (*models.User, error) {
+	users, err := repo.JoinUsersWithVerificationByPhone(global.DB, phone)
+	if err != nil {
+		response.InternalServerError(c, response.ErrCodeDBQuery)
+		return nil, err
+	}
+	if len(users) == 0 {
+		response.BadRequestError(c, response.ErrorUserPhoneNotExit)
+		return nil, fmt.Errorf("user not found")
+	}
+	return &users[0], nil
+}
+
+// fetchUserByUsername fetches a user from the database by their username.
+// It returns the user if found, otherwise returns an error.
+func fetchUserByUsername(c *gin.Context, username string) (*models.User, error) {
+	users, err := repo.JoinUsersWithVerificationByUsername(global.DB, username)
+	if err != nil {
+		response.InternalServerError(c, response.ErrCodeDBQuery)
+		return nil, err
+	}
+	if len(users) == 0 {
+		response.BadRequestError(c, response.ErrorUserNotExitUsername)
+		return nil, fmt.Errorf("user not found")
+	}
+	return &users[0], nil
 }
 
 // ResendVerificationLink is a function that handles the resend verification link request.
