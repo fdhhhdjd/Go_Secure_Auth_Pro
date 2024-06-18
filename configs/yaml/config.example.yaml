@@ -27,3 +27,8 @@ gmail:
 telegram:
   bottoken: ""
   chatid: ""
+
+rabitmq:
+  username: ""
+  password: ""
+  url: ""

@@ -9,14 +9,16 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller/initialization"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/setting"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 )
 
 var (
-	Cfg      models.Config
-	DB       *sql.DB
-	Cache    *redis.Client
-	AdminSdk *firebase.App
+	Cfg          models.Config
+	DB           *sql.DB
+	Cache        *redis.Client
+	AdminSdk     *firebase.App
+	MessageQueue *amqp.Connection
 )
 
 func init() {
@@ -48,4 +50,10 @@ func init() {
 		panic(err)
 	}
 
+	//* RABBITMQ
+	MessageQueue, err = initialization.ConnectRabbitMQ(Cfg.RabbitMQ.URL)
+	if err != nil {
+		fmt.Printf("Error connecting to RabbitMq: %v\n", err)
+		panic(err)
+	}
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/messaging"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/repo"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/helpers"
@@ -48,6 +49,8 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 	keyCache := fmt.Sprintf(constants.CacheProfileUser, strconv.Itoa(req.Id))
 
 	cachedProfileMap := global.Cache.HGetAll(c, keyCache).Val()
+
+	messaging.ProducerSendMessage(cachedProfileMap["Email"])
 
 	if len(cachedProfileMap) > 0 {
 		log.Printf("Cache hit for key %s", keyCache)

@@ -6,6 +6,7 @@ type Config struct {
 	Cache    CacheConfig
 	Gmail    GmailConfig
 	Telegram TelegramConfig
+	RabbitMQ RabbitMQConfig
 }
 
 type ServerConfig struct {
@@ -41,4 +42,10 @@ type GmailConfig struct {
 type TelegramConfig struct {
 	BotToken string
 	ChatID   string
+}
+
+type RabbitMQConfig struct {
+	Username string
+	Password string
+	URL      string
 }

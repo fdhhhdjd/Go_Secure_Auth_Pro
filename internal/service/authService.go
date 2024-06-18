@@ -551,6 +551,8 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 			return nil
 		}
 		response.BadRequestError(c, response.ErrUserNotExit)
+		return nil
+
 	}
 
 	if !resultDetailUser.IsActive {

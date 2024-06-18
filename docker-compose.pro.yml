@@ -77,6 +77,21 @@ services:
     networks:
       - service_auth-network
 
+  # TODO: MESSAGE QUEUE
+  # Defines a service named "service_queue" for a message queue in a production environment.
+  service_queue:
+    container_name: service_queue
+    restart: unless-stopped
+    image: nguyentientai/go_message_queue_auth:lastest
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+    environment:
+      ENV: "pro" # Specifies the environment variable "ENV" with the value "pro" for the service
+    networks:
+      - service_auth-network
+
 # Use local driver for the volume
 volumes:
   db_data:
