@@ -30,21 +30,22 @@ func ProducerSendMessage(message string) {
 
 	q, err := ch.QueueDeclare(
 		constants.KeyAuthPro, // name
-		true,                 // durable
-		false,                // delete when unused
-		false,                // exclusive
-		false,                // no-wait
-		nil,                  // arguments
+		true,                 // durable: If true, the queue will survive broker restarts.
+		false,                // delete when unused: If true, the queue will be deleted when there are no consumers.
+		false,                // exclusive: If true, the queue can only be used by the connection that declares it and will be deleted when the connection closes.
+		false,                // no-wait: If true, the queue declaration will not wait for a confirmation from the server.
+		nil,                  // arguments: Optional additional arguments (e.g., for message TTL, queue length limits).
 	)
 	if err != nil {
 		log.Fatalf("Failed to declare a queue: %s", err)
 	}
 
 	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+		"",     // exchange: The name of the exchange to publish to. An empty string indicates the default exchange.
+		q.Name, // routing key: The routing key for the message. Used to route messages to queues in certain exchange types.
+		false,  // mandatory: If true, the server will return an unroutable message with a mandatory flag set.
+		false,  // immediate: If true, the server will return an immediate response if no consumer is available.
+
 		amqp.Publishing{
 			DeliveryMode: amqp.Persistent,
 			ContentType:  "text/plain",

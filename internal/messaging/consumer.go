@@ -27,11 +27,11 @@ func ConsumerMessages() {
 
 	q, err := ch.QueueDeclare(
 		constants.KeyAuthPro, // queue name
-		true,                 // durable
-		false,                // delete when unused
-		false,                // exclusive
-		false,                // no-wait
-		nil,                  // arguments
+		true,                 // durable: If true, the queue will survive broker restarts.
+		false,                // delete when unused: If true, the queue will be deleted when there are no consumers.
+		false,                // exclusive: If true, the queue can only be used by the connection that declares it and will be deleted when the connection closes.
+		false,                // no-wait: If true, the queue declaration will not wait for a confirmation from the server.
+		nil,                  // arguments: Optional additional arguments (e.g., for message TTL, queue length limits).
 	)
 	if err != nil {
 		log.Fatalf("Failed to declare a queue: %s", err)
