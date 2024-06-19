@@ -56,7 +56,7 @@ services:
     networks:
       - service_auth-network
 
-  # TODO: CRON JOB
+  # TODO: MESSAGE QUEUE
   # Defines a service named "queue_service" for running cron jobs.
   queue_service:
     # Specifies the name of the container as "queue_service".
