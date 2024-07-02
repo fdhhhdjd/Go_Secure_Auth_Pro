@@ -12,8 +12,6 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	third_party "github.com/fdhhhdjd/Go_Secure_Auth_Pro/third_party/telegram"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -42,16 +40,16 @@ func NewRouter() *gin.Engine {
 
 	//* Middleware
 	// CSRF middleware
-	secret := os.Getenv("CSRF_TOKEN") // Replace with your actual secret
-	store := cookie.NewStore([]byte("secret"))
+	// secret := os.Getenv("CSRF_TOKEN") // Replace with your actual secret
+	// store := cookie.NewStore([]byte("secret"))
 
 	// Apply middlewares
-	r.Use(middlewares.IPBlackList())                     // 1. IP Blacklist
-	r.Use(sessions.Sessions(constants.CSRFToken, store)) // 2. Session Handling
-	r.Use(middlewares.CORSMiddleware())                  // 3. CORS Middleware
-	r.Use(middlewares.SecurityHeadersMiddleware())       // 4. Security Headers
-	r.Use(middlewares.HeadersMiddlewares())              // 5. Custom Headers
-	r.Use(middlewares.CSRFMiddleware(secret))            // 6. CSRF Protection
+	r.Use(middlewares.IPBlackList()) // 1. IP Blacklist
+	// r.Use(sessions.Sessions(constants.CSRFToken, store)) // 2. Session Handling
+	r.Use(middlewares.CORSMiddleware())            // 3. CORS Middleware
+	r.Use(middlewares.SecurityHeadersMiddleware()) // 4. Security Headers
+	r.Use(middlewares.HeadersMiddlewares())        // 5. Custom Headers
+	// r.Use(middlewares.CSRFMiddleware(secret))            // 6. CSRF Protection
 	r.Use(middlewares.RequestSizeLimiter(1 << 20))       // 7. Request Size Limiter ( 1 MB max )
 	r.Use(middlewares.RateLimiter(5, 10))                // 8. Rate Limiting ( 5 requests per second, with a burst of 10 )
 	r.Use(middlewares.RequestLoggingMiddleware())        // 9. Request Logging
@@ -63,10 +61,10 @@ func NewRouter() *gin.Engine {
 	v1 := r.Group("/v1")
 	{
 		//* Group v1/key routes
-		key := v1.Group("/key")
-		{
-			key.GET("/csrf-token", utils.AsyncHandler(controller.GetCsRfToken))
-		}
+		// key := v1.Group("/key")
+		// {
+		// 	key.GET("/csrf-token", utils.AsyncHandler(controller.GetCsRfToken))
+		// }
 
 		//* Group v1/key routes
 		blacklist := v1.Group("/blacklist")

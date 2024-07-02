@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
@@ -792,10 +791,12 @@ func setCookie(c *gin.Context, name string, value string, path string, maxAge in
 	httpOnly := false
 
 	if nodeEnv != constants.DevEnvironment {
-		hostWithPort := c.Request.Host
-		parts := strings.Split(hostWithPort, ":")
-		domain = parts[0]
-		httpOnly = true
+		// hostWithPort := c.Request.Host
+		// parts := strings.Split(hostWithPort, ":")
+		// domain = parts[0]
+		domain = global.Cfg.Server.Host
+		secure = false
+		httpOnly = false
 	}
 
 	// Create a new cookie
