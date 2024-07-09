@@ -122,6 +122,11 @@
 - `third_party/`: Contains code from third-party projects.
 - `tmp/`: A temporary directory for files created during development.
 
+# API Swagger
+
+<img alt="Swagger API Documentation" src="./docs/assets/swagger1.png">
+<img alt="Swagger API Documentation" src="./docs/assets/swagger2.png">
+
 ## Team Word: Liên hệ công việc https://profile-forme.com
 
 ## 1. Nguyen Tien Tai ( MainTain 🚩).
