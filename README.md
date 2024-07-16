@@ -15,8 +15,6 @@
     .dockerignore
     .env
     .env.example
-    .github/
-        FUNDING.yml
     .gitignore
     .vscode/
         settings.json
