@@ -31,55 +31,55 @@ services:
       timeout: 3s # Health check timeout
       retries: 3 # Number of retries before marking the service as unhealthy
 
-  # # TODO: CRON JOB
-  # # Defines a service named "cron_service" for running cron jobs.
-  # cron_service:
-  #   # Specifies the name of the container as "cron_service".
-  #   container_name: cron_service
-  #   # Restarts the container unless explicitly stopped.
-  #   restart: unless-stopped
-  #   # Builds the container using the specified Dockerfile and target.
-  #   build:
-  #     # Specifies the build context as the current directory.
-  #     context: .
-  #     # Specifies the path to the Dockerfile for building the container.
-  #     dockerfile: ./third_party/docker/go/Dockerfile-cron
-  #   # Loads environment variables from the specified .env file.
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     ENV: "pro" # Port for the service
-  #   # Specifies that this service depends on the "postgresql" service.
-  #   depends_on:
-  #     - postgresql
-  #   # Connects the service to the "service_auth-network" network.
-  #   networks:
-  #     - service_auth-network
+  # TODO: CRON JOB
+  # Defines a service named "cron_service" for running cron jobs.
+  cron_service:
+    # Specifies the name of the container as "cron_service".
+    container_name: cron_service
+    # Restarts the container unless explicitly stopped.
+    restart: unless-stopped
+    # Builds the container using the specified Dockerfile and target.
+    build:
+      # Specifies the build context as the current directory.
+      context: .
+      # Specifies the path to the Dockerfile for building the container.
+      dockerfile: ./third_party/docker/go/Dockerfile-cron
+    # Loads environment variables from the specified .env file.
+    env_file:
+      - .env
+    environment:
+      ENV: "pro" # Port for the service
+    # Specifies that this service depends on the "postgresql" service.
+    depends_on:
+      - postgresql
+    # Connects the service to the "service_auth-network" network.
+    networks:
+      - service_auth-network
 
-  # # TODO: MESSAGE QUEUE
-  # # Defines a service named "queue_service" for running cron jobs.
-  # queue_service:
-  #   # Specifies the name of the container as "queue_service".
-  #   container_name: queue_service
-  #   # Restarts the container unless explicitly stopped.
-  #   restart: unless-stopped
-  #   # Builds the container using the specified Dockerfile and target.
-  #   build:
-  #     # Specifies the build context as the current directory.
-  #     context: .
-  #     # Specifies the path to the Dockerfile for building the container.
-  #     dockerfile: ./third_party/docker/go/Dockerfile-queue
-  #   # Loads environment variables from the specified .env file.
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     ENV: "pro" # Port for the service
-  #   # Specifies that this service depends on the "postgresql" service.
-  #   depends_on:
-  #     - postgresql
-  #   # Connects the service to the "service_auth-network" network.
-  #   networks:
-  #     - service_auth-network
+  # TODO: MESSAGE QUEUE
+  # Defines a service named "queue_service" for running cron jobs.
+  queue_service:
+    # Specifies the name of the container as "queue_service".
+    container_name: queue_service
+    # Restarts the container unless explicitly stopped.
+    restart: unless-stopped
+    # Builds the container using the specified Dockerfile and target.
+    build:
+      # Specifies the build context as the current directory.
+      context: .
+      # Specifies the path to the Dockerfile for building the container.
+      dockerfile: ./third_party/docker/go/Dockerfile-queue
+    # Loads environment variables from the specified .env file.
+    env_file:
+      - .env
+    environment:
+      ENV: "pro" # Port for the service
+    # Specifies that this service depends on the "postgresql" service.
+    depends_on:
+      - postgresql
+    # Connects the service to the "service_auth-network" network.
+    networks:
+      - service_auth-network
 
 # Use local driver for the volume
 volumes:
