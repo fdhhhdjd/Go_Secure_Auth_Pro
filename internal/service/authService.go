@@ -875,9 +875,9 @@ func createTokenVerificationLink(c *gin.Context, user models.UserIDEmail, status
 	//* Link token with user
 	var linkVerification string
 	if status == constants.StatusRegister || status == constants.StatusResend {
-		linkVerification = fmt.Sprintf("%s/create/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, user.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+		linkVerification = fmt.Sprintf("%s/auth/verify/account/%s/%s/%s/%s", global.Cfg.Server.PortFrontend, user.Email, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
 	} else {
-		linkVerification = fmt.Sprintf("%s/reset/password/%s/%s/%s", global.Cfg.Server.PortFrontend, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
+		linkVerification = fmt.Sprintf("%s/auth/reset/password/%s/%s/%s", global.Cfg.Server.PortFrontend, strconv.FormatInt(ExpiresAtTokenUnix, 10), strconv.Itoa(user.ID), token)
 	}
 
 	verification := models.BodyVerificationRequest{
