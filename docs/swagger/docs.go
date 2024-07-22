@@ -74,71 +74,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login-identifier": {
-            "post": {
-                "description": "Handles the login process for a user with identifier (email, phone, username)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Login with identifier",
-                "parameters": [
-                    {
-                        "description": "Login request body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BodyLoginRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Device ID",
-                        "name": "X-Device-Id",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.LoginResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/register": {
             "post": {
                 "description": "Handles the registration process for a user",
@@ -770,7 +705,7 @@ const docTemplate = `{
             }
         },
         "/user/logout": {
-            "post": {
+            "get": {
                 "description": "Logs out a user",
                 "consumes": [
                     "application/json"
@@ -1075,22 +1010,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BodyLoginRequest": {
-            "type": "object",
-            "required": [
-                "identifier",
-                "password"
-            ],
-            "properties": {
-                "identifier": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6
-                }
-            }
-        },
         "models.BodyLoginSocialRequest": {
             "type": "object",
             "required": [
@@ -1205,6 +1124,9 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "expired_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1297,6 +1219,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "expires_at_token": {
                     "type": "string"
                 },
                 "id": {

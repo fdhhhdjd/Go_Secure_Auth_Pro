@@ -22,17 +22,6 @@ definitions:
           type: string
         type: array
     type: object
-  models.BodyLoginRequest:
-    properties:
-      identifier:
-        type: string
-      password:
-        minLength: 6
-        type: string
-    required:
-    - identifier
-    - password
-    type: object
   models.BodyLoginSocialRequest:
     properties:
       type:
@@ -108,6 +97,8 @@ definitions:
     properties:
       email:
         type: string
+      expired_at:
+        type: string
       id:
         type: integer
       token:
@@ -168,6 +159,8 @@ definitions:
   models.RegistrationResponse:
     properties:
       email:
+        type: string
+      expires_at_token:
         type: string
       id:
         type: integer
@@ -292,50 +285,6 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Forget password
-      tags:
-      - Auth
-  /auth/login-identifier:
-    post:
-      consumes:
-      - application/json
-      description: Handles the login process for a user with identifier (email, phone,
-        username)
-      parameters:
-      - description: Login request body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/models.BodyLoginRequest'
-      - description: Device ID
-        in: header
-        name: X-Device-Id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.LoginResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Login with identifier
       tags:
       - Auth
   /auth/register:
@@ -756,7 +705,7 @@ paths:
       tags:
       - Users
   /user/logout:
-    post:
+    get:
       consumes:
       - application/json
       description: Logs out a user
