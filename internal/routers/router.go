@@ -8,7 +8,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	_ "github.com/fdhhhdjd/Go_Secure_Auth_Pro/docs/swagger"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
-	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller"
+	controller "github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controllers"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
 	third_party "github.com/fdhhhdjd/Go_Secure_Auth_Pro/third_party/telegram"

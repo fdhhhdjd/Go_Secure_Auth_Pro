@@ -186,8 +186,8 @@ type ProfileResponseJSON struct {
 	HiddenEmail       string `json:"hidden_email"`
 	Avatar            string `json:"avatar"`
 	Gender            int    `json:"gender"`
-	TwoFactorEnabled  string `json:"two_factor_enabled"`
-	IsActive          string `json:"is_active"`
+	TwoFactorEnabled  bool   `json:"two_factor_enabled"`
+	IsActive          bool   `json:"is_active"`
 	CreatedAt         string `json:"created_at"`
 }
 

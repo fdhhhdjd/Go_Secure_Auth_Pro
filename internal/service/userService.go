@@ -67,8 +67,8 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 			HiddenEmail:       cachedProfileMap["HiddenEmail"],
 			Avatar:            cachedProfileMap["Avatar"],
 			Gender:            gender,
-			TwoFactorEnabled:  strconv.FormatBool(twoFactorEnabled),
-			IsActive:          strconv.FormatBool(isActive),
+			TwoFactorEnabled:  twoFactorEnabled,
+			IsActive:          isActive,
 			CreatedAt:         createdAt,
 		}
 
@@ -97,8 +97,8 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 		"HiddenEmail":       helpers.NullStringToString(user.HiddenEmail),
 		"Avatar":            helpers.NullStringToString(user.Avatar),
 		"Gender":            helpers.NullInt16ToString(user.Gender),
-		"TwoFactorEnabled":  strconv.FormatBool(user.TwoFactorEnabled),
-		"IsActive":          strconv.FormatBool(user.IsActive),
+		"TwoFactorEnabled":  user.TwoFactorEnabled,
+		"IsActive":          user.IsActive,
 		"CreatedAt":         user.CreatedAt.Format(time.RFC3339),
 	}
 
@@ -126,9 +126,9 @@ func GetProfileUser(c *gin.Context) *models.ProfileResponseJSON {
 		FullName:          helpers.NullStringToString(user.FullName),
 		HiddenEmail:       helpers.NullStringToString(user.HiddenEmail),
 		Avatar:            helpers.NullStringToString(user.Avatar),
-		Gender:            helpers.NullInt16ToString(user.Gender),
-		TwoFactorEnabled:  strconv.FormatBool(user.TwoFactorEnabled),
-		IsActive:          strconv.FormatBool(user.IsActive),
+		Gender:            int(user.Gender.Int16),
+		TwoFactorEnabled:  user.TwoFactorEnabled,
+		IsActive:          user.IsActive,
 		CreatedAt:         user.CreatedAt.Format(time.RFC3339),
 	}
 

@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/service"

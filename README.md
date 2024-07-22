@@ -43,7 +43,7 @@
     go.sum
     GUILD.md
     internal/
-        controller/
+        controllers/
         messaging/
         middlewares/
         models/

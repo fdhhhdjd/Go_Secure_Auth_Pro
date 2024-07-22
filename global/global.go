@@ -6,7 +6,7 @@ import (
 
 	firebase "firebase.google.com/go"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs"
-	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controller/initialization"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controllers/initialization"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/models"
 	pkg "github.com/fdhhhdjd/Go_Secure_Auth_Pro/pkg/setting"
 	amqp "github.com/rabbitmq/amqp091-go"
