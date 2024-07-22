@@ -38,6 +38,9 @@ const (
 	// ErrorUserEmailInvalid indicates the email is invalid
 	ErrorUserEmailInvalid = 12011
 
+	// ErrTwoFactorEnabled indicates the two factor enabled
+	ErrTwoFactorEnabled = 12012
+
 	//* Device Table Errors
 	// ErrCodeDeviceNotExit indicates the device not exits
 	ErrCodeDeviceNotExit = 12002

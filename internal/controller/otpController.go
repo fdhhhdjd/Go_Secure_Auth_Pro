@@ -15,6 +15,7 @@ func VerificationOtp(c *gin.Context) error {
 	if result == nil {
 		return nil
 	}
+
 	response.Ok(c, "Two factor login", result)
 	return nil
 }

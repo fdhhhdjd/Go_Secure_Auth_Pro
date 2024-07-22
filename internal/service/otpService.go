@@ -72,7 +72,7 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 	}
 
 	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
-		ID:    resultInfo.ID,
+		ID:    resultInfo.UserID,
 		Email: resultInfo.Email,
 	})
 
@@ -81,12 +81,12 @@ func VerificationOtp(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	resultInfoDevice := upsetDevice(c, resultInfo.ID, resultEncodePublicKey)
+	resultInfoDevice := upsetDevice(c, resultInfo.UserID, resultEncodePublicKey)
 
 	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
 
 	return &models.LoginResponse{
-		ID:          resultInfo.ID,
+		ID:          resultInfo.UserID,
 		DeviceID:    resultInfoDevice.DeviceID,
 		Email:       resultInfo.Email,
 		AccessToken: accessToken,

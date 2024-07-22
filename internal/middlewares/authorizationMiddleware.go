@@ -21,11 +21,12 @@ import (
 func AuthorizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
+		refetchToken, _ := c.Cookie("user_login")
 
 		deviceID, exists := c.Get("device_id")
 
-		if authHeader == "" || deviceID == nil || !exists {
-			response.UnauthorizedError(c, response.ErrCodeHeaderNotExit)
+		if authHeader == "" || deviceID == nil || !exists || refetchToken == "" {
+			response.UnauthorizedError(c, response.ErrCodeAuthTokenInvalid)
 			return
 		}
 

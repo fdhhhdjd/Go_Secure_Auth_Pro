@@ -69,7 +69,7 @@ func NewRouter() *gin.Engine {
 		//* Group v1/key routes
 		blacklist := v1.Group("/blacklist")
 		{
-			// blacklist.Use(middlewares.AuthorizationMiddleware())
+			blacklist.Use(middlewares.AuthorizationMiddleware())
 			blacklist.POST("/ip", utils.AsyncHandler(controller.BlackListIP))
 		}
 

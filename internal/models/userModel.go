@@ -28,9 +28,10 @@ type BodyRegisterRequest struct {
 }
 
 type RegistrationResponse struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
-	Token string `json:"token"`
+	ID             int       `json:"id"`
+	Email          string    `json:"email"`
+	Token          string    `json:"token"`
+	ExpiresAtToken time.Time `json:"expires_at_token"`
 }
 type TokenVerificationLink struct {
 	Token string
@@ -48,6 +49,14 @@ type LoginResponse struct {
 	DeviceID    string `json:"device_id"`
 	Email       string `json:"email"`
 	AccessToken string `json:"accessToken"`
+}
+
+type LoginTwoFactor struct {
+	ID        int       `json:"id"`
+	DeviceID  string    `json:"device_id"`
+	Email     string    `json:"email"`
+	Code      int       `json:"code"`
+	ExpiredAt time.Time `json:"expired_at"`
 }
 
 // * ---Login Social
@@ -125,9 +134,10 @@ type SpamUserResponse struct {
 
 // * --- Forget Password
 type ForgetResponse struct {
-	Id    int    `json:"id"`
-	Email string `json:"email"`
-	Token string `json:"token"`
+	Id        int       `json:"id"`
+	Email     string    `json:"email"`
+	Token     string    `json:"token"`
+	ExpiredAt time.Time `json:"expired_at"`
 }
 
 type BodyForgetRequest struct {

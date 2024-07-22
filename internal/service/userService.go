@@ -248,7 +248,7 @@ func fieldUpdateKeyCache(reqBody models.BodyUpdateRequest, updatedFields map[str
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Success 200 {object} models.LogoutResponse
 // @Failure 400 {object} response.ErrorResponse
-// @Router /user/logout [post]
+// @Router /user/logout [get]
 func Logout(c *gin.Context) *models.LogoutResponse {
 	payload, existsUserInfo := c.Get(constants.InfoAccess)
 	deviceId, existsDevice := c.Get("device_id")

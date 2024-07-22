@@ -112,9 +112,10 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 	go pkg.SendGoEmail(reqBody.Email, data)
 
 	return &models.RegistrationResponse{
-		ID:    resultCreateUser.ID,
-		Email: reqBody.Email,
-		Token: resultVerificationLink.Token,
+		ID:             resultCreateUser.ID,
+		Email:          reqBody.Email,
+		Token:          resultVerificationLink.Token,
+		ExpiresAtToken: ExpiresAtToken,
 	}
 }
 
@@ -286,8 +287,9 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /auth/login-identifier [post]
-func LoginIdentifier(c *gin.Context) *models.LoginResponse {
-	// * Check UserSpam
+
+func LoginIdentifier(c *gin.Context) interface{} {
+	// Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
 
 	if resultSpam.IsSpam {
@@ -296,10 +298,10 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	//* Get data for body
+	// Get data for body
 	reqBody := models.BodyLoginRequest{}
 
-	//* Check body valid
+	// Check body valid
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
@@ -324,7 +326,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 		return nil
 	}
 
-	//* Check account have been block
+	// Check account has been blocked
 	accountBlock := CheckUserIsActive(resultUser.IsActive)
 	if accountBlock == nil {
 		response.ForbiddenError(c, response.ErrUserNotActive)
@@ -354,8 +356,16 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 		go pkg.SendGoEmail(resultUser.Email, data)
 
-		response.UnauthorizedError(c, response.ErrTwoFactorUnauthorized)
-		return nil
+		// Return empty struct for two-factor authentication
+		deviceID, _ := c.Get("device_id")
+
+		return models.LoginTwoFactor{
+			ID:        resultUser.ID,
+			Email:     resultUser.Email,
+			DeviceID:  deviceID.(string),
+			Code:      response.ErrTwoFactorEnabled,
+			ExpiredAt: expiredAt,
+		}
 	}
 
 	accessToken, refetchToken, resultEncodePublicKey := createKeyAndToken(models.UserIDEmail{
@@ -372,6 +382,7 @@ func LoginIdentifier(c *gin.Context) *models.LoginResponse {
 
 	setCookie(c, constants.UserLoginKey, refetchToken, "/", constants.AgeCookie)
 
+	// Return LoginResponse when not using two-factor authentication
 	return &models.LoginResponse{
 		ID:          resultUser.ID,
 		DeviceID:    resultInfoDevice.DeviceID,
@@ -599,9 +610,10 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	go pkg.SendGoEmail(reqBody.Email, data)
 
 	return &models.ForgetResponse{
-		Id:    resultDetailUser.ID,
-		Email: resultDetailUser.Email,
-		Token: resultForgetLink.Token,
+		Id:        resultDetailUser.ID,
+		Email:     resultDetailUser.Email,
+		Token:     resultForgetLink.Token,
+		ExpiredAt: ExpiresAtToken,
 	}
 }
 
@@ -831,8 +843,6 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
-
-	log.Print(deviceID)
 
 	ip := sql.NullString{String: c.ClientIP(), Valid: true}
 
