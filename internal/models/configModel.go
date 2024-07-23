@@ -7,6 +7,11 @@ type Config struct {
 	Gmail    GmailConfig
 	Telegram TelegramConfig
 	RabbitMQ RabbitMQConfig
+	Cors     CorsConfig
+}
+
+type CorsConfig struct {
+	AllowedOrigins []string
 }
 
 type ServerConfig struct {

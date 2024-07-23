@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/constants"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,10 +12,7 @@ import (
 // It allows requests from different origins to access the resources of the server.
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		allowedOrigins := []string{
-			"http://localhost:5173",
-			"http://127.0.0.1:5173",
-		}
+		allowedOrigins := global.Cfg.Cors.AllowedOrigins
 
 		origin := c.Request.Header.Get("Origin")
 
