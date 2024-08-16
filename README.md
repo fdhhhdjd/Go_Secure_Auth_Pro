@@ -15,7 +15,7 @@
 </div>
 <!-- go run gif -->
 
-# Structure Folder 📁
+# Structure Folders 📁
 
 ```
     .dockerignore
