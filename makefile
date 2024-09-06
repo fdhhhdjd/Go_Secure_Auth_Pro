@@ -99,13 +99,14 @@ build-and-push-all: push-server push-cron
 	@echo "Both server and cron images have been built and pushed successfully."
 
 ################# TODO: SQLC #################
+# Generate SQLC code
 sqlc:
 	sqlc generate
 
-################# TODO: SWAGGER #################
+# Generate Swagger documentation
 swagger:
 	@echo "Generating Swagger documentation..."
-	swag init --parseDependency -g  $(GO_SERVER_PRO) -o $(SWAGGER_DIR)
+	swag init --parseDependency -g $(GO_SERVER_PRO) -o $(SWAGGER_DIR)
 
 
 
