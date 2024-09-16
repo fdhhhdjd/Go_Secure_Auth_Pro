@@ -68,7 +68,7 @@
     tmp/
 ```
 
-# Vietnamese 🇻🇳
+# Tài liệu bằng tiếng Vietnamese 🇻🇳
 
 - `.dockerignore`: Chứa danh sách các tệp và thư mục mà Docker sẽ bỏ qua khi xây dựng hình ảnh.
 - `.env`: Chứa các biến môi trường cho dự án.
@@ -97,7 +97,7 @@
 - `third_party/`: Chứa mã từ các dự án bên thứ ba.
 - `tmp/`: Thư mục tạm thời cho các tệp được tạo ra trong quá trình phát triển.
 
-# English 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+# Document to language English 🏴󠁧󠁢󠁥󠁮󠁧󠁿
 
 - `.dockerignore`: Contains a list of files and directories that Docker should ignore when building an image.
 - `.env`: Contains environment variables for the project.
