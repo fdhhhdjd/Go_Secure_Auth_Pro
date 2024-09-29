@@ -8,7 +8,7 @@
 </p>
 
 ## Project: Go Secure Mastering Auth Pro 🇻🇳 !
-# Note: Have documents for Vietnamese and English.
+# Note: Have documents for Vietname and English.
 <!-- go run gif -->
 <div align="center">
   <a href="https://go.dev/"><img src="https://raw.githubusercontent.com/fdhhhdjd/fdhhhdjd/main/assets/go_run.gif"></a>
