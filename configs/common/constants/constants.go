@@ -30,7 +30,7 @@ const (
 )
 
 const (
-	KeyRandomTokenVerification = "0123456789ABC2222D333EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	KeyRandomTokenVerification = "0123456789ABC2222D333nguyenTIENTAIabcdefghijklmnopqrstuvwxyz"
 )
 
 const (
