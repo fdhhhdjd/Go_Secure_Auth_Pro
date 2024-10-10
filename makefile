@@ -32,7 +32,7 @@ CONTAINER_SERVICE_QUEUE := service_queue
 # * FOLDER
 SWAGGER_DIR=./docs/swagger
 
-################# TODO: GOLANG #################
+################# TODO: GO #################
 start:
 	go run $(GO_SERVER_PRO)
 
