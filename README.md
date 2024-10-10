@@ -8,7 +8,9 @@
 </p>
 
 ## Project: Go Secure Mastering Auth Pro 🇻🇳 !
+
 # Note: Have documents for Vietname and English.
+
 <!-- go run gif -->
 <div align="center">
   <a href="https://go.dev/"><img src="https://raw.githubusercontent.com/fdhhhdjd/fdhhhdjd/main/assets/go_run.gif"></a>
@@ -130,6 +132,10 @@
 
 <img alt="Swagger API Documentation" src="./docs/assets/swagger1.png">
 <img alt="Swagger API Documentation" src="./docs/assets/swagger2.png">
+
+---
+
+## License: MIT License
 
 ## Team Word: Liên hệ công việc https://profile-forme.com
 
