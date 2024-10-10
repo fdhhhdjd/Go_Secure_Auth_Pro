@@ -15,6 +15,9 @@
 <div align="center">
   <a href="https://go.dev/"><img src="https://raw.githubusercontent.com/fdhhhdjd/fdhhhdjd/main/assets/go_run.gif"></a>
 </div>
+
+---
+
 <!-- go run gif -->
 
 # Structure Folders 📁
