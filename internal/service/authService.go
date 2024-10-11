@@ -839,7 +839,6 @@ func upsetDevice(c *gin.Context, id int, resultEncodePublicKey string) *models.D
 
 	deviceID, ok := deviceIDInterface.(string)
 	if !ok {
-		log.Print("device_id is not a string")
 		response.BadRequestError(c, response.ErrCodeValidation)
 		return nil
 	}
