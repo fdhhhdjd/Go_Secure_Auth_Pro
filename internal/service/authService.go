@@ -604,7 +604,7 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 	data := models.EmailData{
 		Title:    "Forget Password!",
 		Body:     resultForgetLink.Link,
-		Template: `<h1>{{.Title}}</h1>Forget account: <a href="{{.Body}}">Click here to reset password your account.</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
+		Template: `<h1>{{.Title}}</h1>Forget account: <a href="{{.Body}}">Click here to reset password your account</a> </br> <img src="cid:logo" alt="Image" height="200" />`,
 	}
 
 	go pkg.SendGoEmail(reqBody.Email, data)
