@@ -591,6 +591,14 @@ func ForgetPassword(c *gin.Context) *models.ForgetResponse {
 		return nil
 	}
 
+	// Check user exit into cuckoo filter
+	exists, _ := redis.GetUserToCuckooFilter(c, global.Cache, reqBody.Email)
+
+	if exists {
+		response.BadRequestError(c, response.ErrUserNotExit)
+		return nil
+	}
+
 	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
 
 	if err != nil {
