@@ -8,6 +8,7 @@ import (
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/configs/common/utils"
 	_ "github.com/fdhhhdjd/Go_Secure_Auth_Pro/docs/swagger"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/global"
+	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controllers"
 	controller "github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/controllers"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/internal/middlewares"
 	"github.com/fdhhhdjd/Go_Secure_Auth_Pro/response"
@@ -77,17 +78,20 @@ func NewRouter() *gin.Engine {
 		auth := v1.Group("/auth")
 		{
 			auth.GET("/veri-account", utils.AsyncHandler(controller.VerificationAccount))
-
 			auth.POST("/register", utils.AsyncHandler(controller.Register))
 			auth.POST("/resend-link-verification", utils.AsyncHandler(controller.ResendVerificationLink))
 			auth.POST("/login-identifier", utils.AsyncHandler(controller.LoginIdentifier))
-			auth.POST("/login-social", utils.AsyncHandler(controller.LoginSocial))
-			auth.POST("/forget", utils.AsyncHandler(controller.ForgetPassword))
+			auth.POST("/login-social", utils.AsyncHandler(controllers.LoginSocial))
+			auth.POST("/forget", utils.AsyncHandler(controllers.ForgetPassword))
 			auth.POST("/reset-password", utils.AsyncHandler(controller.ResetPassword))
 			auth.POST("/verify-otp", utils.AsyncHandler(controller.VerificationOtp))
 
-			auth.Use(middlewares.RefetchTokenMiddleware())
-			auth.GET("/renew-token", utils.AsyncHandler(controller.RenewToken))
+			createNewToken := auth.Group("")
+			createNewToken.Use(middlewares.RefetchTokenMiddleware())
+			{
+				createNewToken.GET("/renew-token", utils.AsyncHandler(controller.RenewToken))
+
+			}
 
 		}
 

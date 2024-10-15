@@ -38,7 +38,5 @@ func LoadConfig(path string) (config models.Config, err error) {
 		return config, err
 	}
 
-	log.Println(config.Cache)
-
 	return config, nil
 }

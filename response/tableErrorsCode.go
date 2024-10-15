@@ -5,6 +5,9 @@ const (
 	// ErrUserNotExit indicates the account not exit in db
 	ErrUserNotExit = 12000
 
+	// ErrUserExit indicates the account already exists in the users table.
+	UserExit = 12013
+
 	//ErrUserDuplicateEmail indicates the email already exists in the users table.
 	ErrUserDuplicateEmail = 12001
 

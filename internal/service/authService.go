@@ -41,6 +41,7 @@ import (
 // @Failure 500 {object} response.ErrorResponse
 // @Router /auth/register [post]
 func Register(c *gin.Context) *models.RegistrationResponse {
+
 	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKey, constants.RequestThreshold)
 
@@ -59,6 +60,11 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 		return nil
 	}
 
+	cuckooKey := "cuckoo:" + reqBody.Email
+
+	// Delete cache cuckoo if user register success
+	redis.DeleteKeyUser(c, global.Cache, cuckooKey)
+
 	//* Get detail users
 	resultDetailUser, err := repo.GetUserDetail(global.DB, reqBody.Email)
 
@@ -74,7 +80,7 @@ func Register(c *gin.Context) *models.RegistrationResponse {
 
 	//* Check user have exit to yet
 	if resultDetailUser.ID != constants.NotExitData {
-		response.BadRequestError(c, response.ErrUserNotExit)
+		response.BadRequestError(c, response.UserExit)
 		return nil
 	}
 
@@ -307,6 +313,13 @@ func LoginIdentifier(c *gin.Context) interface{} {
 		return nil
 	}
 
+	exists, _ := redis.GetUserToCuckooFilter(c, global.Cache, reqBody.Identifier)
+
+	if exists {
+		response.BadRequestError(c, response.ErrUserNotExit)
+		return nil
+	}
+
 	var resultUser *models.User
 	var err error
 
@@ -323,6 +336,8 @@ func LoginIdentifier(c *gin.Context) interface{} {
 	}
 
 	if err != nil {
+		expiration := 2 * 24 * time.Hour
+		redis.AddUserToCuckooFilter(c, global.Cache, reqBody.Identifier, expiration)
 		return nil
 	}
 
