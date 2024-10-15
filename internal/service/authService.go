@@ -313,6 +313,7 @@ func LoginIdentifier(c *gin.Context) interface{} {
 		return nil
 	}
 
+	// Check user exit into cuckoo filter
 	exists, _ := redis.GetUserToCuckooFilter(c, global.Cache, reqBody.Identifier)
 
 	if exists {
