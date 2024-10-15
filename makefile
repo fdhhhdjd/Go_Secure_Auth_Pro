@@ -39,6 +39,9 @@ start:
 dev:
 	go run $(GO_SERVER_DEV)
 
+air:
+	air
+
 cron:
 	go run $(GO_SERVER_CRON)
 
