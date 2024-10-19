@@ -19,7 +19,6 @@ import (
 )
 
 func NewRouter() *gin.Engine {
-
 	nodeEnv := os.Getenv("ENV")
 
 	if nodeEnv != constants.DevEnvironment {
