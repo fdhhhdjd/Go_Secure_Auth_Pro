@@ -574,8 +574,23 @@ func ResendVerificationLink(c *gin.Context) *models.RegistrationResponse {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /auth/forget [post]
+// ForgetPassword handles the forget password functionality for a user.
+// It performs the following steps:
+// 1. Checks if the user is spamming the forget password request using Redis.
+// 2. Validates the request body to ensure it contains the necessary information.
+// 3. Checks if the user exists in the cuckoo filter.
+// 4. Retrieves user details from the database.
+// 5. Verifies if the user is active.
+// 6. Generates a token verification link for resetting the password.
+// 7. Sends an email to the user with the password reset link.
+//
+// Parameters:
+// - c: The Gin context containing the request and response objects.
+//
+// Returns:
+// - A pointer to a ForgetResponse struct containing the user ID, email, token, and token expiration time.
+// - If an error occurs, it responds with the appropriate HTTP error and returns nil.
 func ForgetPassword(c *gin.Context) *models.ForgetResponse {
-	// * Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyForget, constants.RequestThresholdForget)
 
 	if resultSpam.IsSpam {
