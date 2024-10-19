@@ -293,9 +293,7 @@ func VerificationAccount(c *gin.Context) *models.LoginResponse {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /auth/login-identifier [post]
-
 func LoginIdentifier(c *gin.Context) interface{} {
-	// Check UserSpam
 	resultSpam := redis.SpamUser(c, global.Cache, constants.SpamKeyLogin, constants.RequestThreshold)
 
 	if resultSpam.IsSpam {
