@@ -15,9 +15,9 @@ DOCKER_COMPOSE_DEV := docker-compose.dev.yml
 DOCKER_COMPOSE_PRO := docker-compose.pro.yml
 
 # * DOCKER HUB
-SERVER_IMAGE_NAME :=nguyentientai/go-secure-auth-pro:lastest
-CRON_IMAGE_NAME :=nguyentientai/go_cronjob_auth:lastest
-QUEUE_IMAGE_NAME :=nguyentientai/go_message_queue_auth:lastest
+SERVER_IMAGE_NAME := nguyentientai/go-secure-auth-pro:lastest
+CRON_IMAGE_NAME := nguyentientai/go_cronjob_auth:lastest
+QUEUE_IMAGE_NAME := nguyentientai/go_message_queue_auth:lastest
 
 
 # * DOCKER FILE
