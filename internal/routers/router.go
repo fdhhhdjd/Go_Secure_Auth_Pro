@@ -32,6 +32,8 @@ func NewRouter() *gin.Engine {
 
 	//* Test
 	r.GET("/ping", controller.Pong)
+
+	//* Test Telegram
 	if err := third_party.PingTelegram(global.Cfg.Telegram.BotToken); err != nil {
 		fmt.Printf("Failed to ping Telegram: %v\n", err)
 	} else {
