@@ -9,7 +9,7 @@
 
 ## Project: Go Secure Mastering Auth Pro 🇻🇳!
 
-# Note: Documents for Vietnamese and English.
+# Note: We will have 2 documents for Vietnamese and English.
 
 <!-- go run gif -->
 <div align="center">
