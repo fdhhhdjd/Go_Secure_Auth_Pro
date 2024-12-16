@@ -9,7 +9,7 @@
 
 # Project: Coding Go Secure Mastering Auth Pro!
 
-## Note: We will have 2 documents for Vietnamese and English.
+## Note: We will have 2 kinds of languages Vietnamese and English.
 
 <!-- go run gif -->
 <div align="center">
