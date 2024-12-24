@@ -9,6 +9,8 @@
 
 # Project: Code Go Secure Mastering Auth Pro!
 
+## Description: This is a project about feature auth and security, It has been coding language go and will continue development with a new feature.
+
 ## Note: We will have 2 kinds of languages Vietnamese and English.
 
 <!-- go run gif -->
