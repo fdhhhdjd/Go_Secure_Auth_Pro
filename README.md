@@ -7,9 +7,14 @@
 <a href = "mailto:nguyentientai10@gmail.com"><img src="https://img.icons8.com/fluency/48/000000/send-mass-email.png" alt="License"></a>
 </p>
 
-# Project: Code Go Secure Mastering Auth Pro!
+# Project: **Code Go Secure Mastering Auth Pro**
 
-## Technology: Go + Gin + Postgres + Redis
+## Technology Stack: 
+- **Backend**: Go + Gin
+- **Database**: PostgreSQL
+- **Cache**: Redis
+
+---
 
 ## Description: This is a project about feature auth and security, It has been coding language go and will continue development with a new feature.
 
