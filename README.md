@@ -1,10 +1,22 @@
-<p align="center"><a href="https://profile-forme.com/" target="_blank"><img src="https://res.cloudinary.com/ecommerce2021/image/upload/v1659065987/avatar/logo_begsn1.png" width="300"></a></p>
+<p align="center">
+  <a href="https://profile-forme.com/" target="_blank">
+    <img src="https://res.cloudinary.com/ecommerce2021/image/upload/v1659065987/avatar/logo_begsn1.png" width="300" alt="Profile Forme">
+  </a>
+</p>
 
 <p align="center">
-<a href="https://www.linkedin.com/in/tai-nguyen-tien-787545213/"><img src="https://img.icons8.com/color/48/000000/linkedin-circled--v1.png" alt="Linkedin"></a>
-<a href="https://profile-forme.surge.sh"><img src="https://img.icons8.com/color/48/000000/internet--v1.png" alt="Profile"></a>
-<a href="tel:0798805741"><img src="https://img.icons8.com/color/48/000000/apple-phone.png" alt="Phone"></a>
-<a href = "mailto:nguyentientai10@gmail.com"><img src="https://img.icons8.com/fluency/48/000000/send-mass-email.png" alt="License"></a>
+  <a href="https://www.linkedin.com/in/tai-nguyen-tien-787545213/">
+    <img src="https://img.icons8.com/color/48/000000/linkedin-circled--v1.png" alt="LinkedIn">
+  </a>
+  <a href="https://profile-forme.surge.sh">
+    <img src="https://img.icons8.com/color/48/000000/internet--v1.png" alt="Profile Website">
+  </a>
+  <a href="tel:0798805741">
+    <img src="https://img.icons8.com/color/48/000000/apple-phone.png" alt="Phone">
+  </a>
+  <a href="mailto:nguyentientai10@gmail.com">
+    <img src="https://img.icons8.com/fluency/48/000000/send-mass-email.png" alt="Email">
+  </a>
 </p>
 
 # Project: **Code Go Secure Mastering Auth Pro**
@@ -29,57 +41,54 @@
 
 <!-- go run gif -->
 
-# Structure Folders 📁
+## 🗂 **Folder Structure**
 
-```
-    .dockerignore
-    .env
-    .env.example
-    .gitignore
-    .vscode/
-        settings.json
-    cmd/
-        cli/
-        cronjob/
-        queue/
-        server/
-    configs/
-        common/
-        config.go
-        yaml/
-    docker-compose.dev.yml
-    docker-compose.pro.yml
-    docs/
-        assets/
-        CODE.md
-        CODETABLE.md
-        GO.md
-        postman/
-        swagger/
-    fsnotify.go
-    global/
-        global.go
-    go.mod
-    go.sum
-    GUILD.md
-    internal/
-        controllers/
-        messaging/
-        middlewares/
-        models/
-        repo/
-        ...
-    makefile
-    migrations/
-    pkg/
-    README.md
-    response/
-    scripts/
-    sqlc.yaml
-    templates/
-    tests/
-    third_party/
-    tmp/
+```plaintext
+.
+├── .dockerignore
+├── .env
+├── .env.example
+├── .gitignore
+├── .vscode/
+│   └── settings.json
+├── cmd/
+│   ├── cli/
+│   ├── cronjob/
+│   ├── queue/
+│   └── server/
+├── configs/
+│   ├── common/
+│   ├── config.go
+│   └── yaml/
+├── docker-compose.dev.yml
+├── docker-compose.pro.yml
+├── docs/
+│   ├── assets/
+│   ├── CODE.md
+│   ├── CODETABLE.md
+│   ├── GO.md
+│   ├── postman/
+│   └── swagger/
+├── fsnotify.go
+├── global/
+├── go.mod
+├── go.sum
+├── internal/
+│   ├── controllers/
+│   ├── messaging/
+│   ├── middlewares/
+│   ├── models/
+│   └── repo/
+├── makefile
+├── migrations/
+├── pkg/
+├── response/
+├── scripts/
+├── sqlc.yaml
+├── templates/
+├── tests/
+├── third_party/
+└── tmp/
 ```
 
 # Tài liệu bằng tiếng Vietnamese 🇻🇳.
