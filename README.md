@@ -24,6 +24,7 @@
 ## Technology Stack: 
 - **Backend**: Go + Gin
 - **Database**: PostgreSQL
+- **Lib**: Have a lot of lib to service project.
 - **Cache**: Redis
 
 ---
