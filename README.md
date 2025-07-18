@@ -21,19 +21,19 @@
 
 # Project: **Code Go Secure Mastering Auth Pro**
 ## Description: This is a project built to language Go change for Nodejs with performance so well. The target when I write this project is to service the company system and check performance before going into the project.
-## Notice: If have any problems can contact or create issue to me read and fix it, thank all guys.
+## Notice: If you have any problems, you can contact me or create an issue me to read and fix it, thank all guys.
 
 ## Technology Stack: 
 - **Backend**: Go + Gin
 - **Database**: PostgreSQL
-- **Lib**: Have a lot of lib to service project.
+- **Lib**: Have a lot of libraries to service the project.
 - **Cache**: Redis
 
 ---
 
-## Description: This is a project about feature auth and security, It has been coding language go and will continue development with a new feature.
+## Description: This is a project about feature auth and security. It has been coding language go and will continue development with a new feature.
 
-## Note: We will have 2 kinds of languages Vietnamese and English.
+## Note: We will have 2 kinds of languages, Vietnamese and English.
 
 <!-- go run gif -->
 <div align="center">
