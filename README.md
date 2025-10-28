@@ -158,23 +158,48 @@
 <img alt="Swagger API Documentation" src="./docs/assets/swagger2.png">
 
 ---
+## 📚 Dạy Học Online
 
-## License: MIT License
+Bên cạnh tài liệu miễn phí, mình còn mở các khóa học online:
 
-## Team Word: Liên hệ công việc https://profile-forme.com
+- **Lập trình web cơ bản → nâng cao**
+- **Ứng dụng về AI và Automation**
+- **Kỹ năng phỏng vấn & xây CV IT**
 
-## Author: Nguyen Tien Tai 🚩.
+### Thông Tin Đăng Ký
 
-## Tài Khoản Donate li Cf để có động lực code cho anh em tham khảo 😄.
+- 🌐 Website: [https://profile-forme.com](https://profile-forme.com)
+- 📧 Email: nguyentientai10@gmail.com
+- 📞 Zalo/Hotline: 0798805741
 
-![giphy](https://3.bp.blogspot.com/-SzGvXn2sTmw/V6k-90GH3ZI/AAAAAAAAIsk/Q678Pil-0kITLPa3fD--JkNdnJVKi_BygCLcB/s1600/cf10-fbc08%2B%25281%2529.gif)
+---
 
-## Mk: NGUYEN TIEN TAI
+## 💖 Donate Ủng Hộ
 
-## STK: 1651002972052
+Nếu bạn thấy các source hữu ích và muốn mình tiếp tục phát triển nội dung miễn phí, hãy ủng hộ mình bằng cách donate.  
+Mình sẽ sử dụng kinh phí cho:
 
-## Chi Nhánh: NGAN HANG TMCP AN BINH (ABBANK).
+- 🌐 Server, domain, hosting
+- 🛠️ Công cụ bản quyền (IDE, plugin…)
+- 🎓 Học bổng, quà tặng cho cộng đồng
 
-## SUPPORT CONTACT: [https://profile-forme.com](https://profile-forme.com)
+### QR Code Ngân Hàng
 
-## Thank You <3.
+Quét QR để ủng hộ nhanh:
+
+<img src="https://res.cloudinary.com/ecommerce2021/image/upload/v1760680573/abbank_yjbpat.jpg" alt="QR Code ABBank" width="300">
+
+
+**QR Code ABBank**  
+- Chủ tài khoản: Nguyễn Tiến Tài  
+- Ngân hàng: NGAN HANG TMCP AN BINH  
+- Số tài khoản: 1651002972052
+
+---
+
+## 📞 Liên Hệ
+- 📚 Tiktok Dạy Học: [@code.web.khng.kh](https://www.tiktok.com/@code.web.khng.kh)
+- 💻 GitHub: [fdhhhdjd](https://github.com/fdhhhdjd)
+- 📧 Email: [nguyentientai10@gmail.com](mailto:nguyentientai10@gmail.com)
+
+Cảm ơn bạn đã quan tâm & chúc bạn học tập hiệu quả! Have a nice day <3!!
